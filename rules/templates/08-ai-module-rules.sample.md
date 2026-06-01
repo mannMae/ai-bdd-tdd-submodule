@@ -98,3 +98,75 @@ ML 추론 및 데이터 전처리(결측치 보간, Resampling, Outlier filterin
   - `requirements.txt`와 같은 임의의 텍스트 파일 대신 파이썬 현대 패키지 표준인 `pyproject.toml`을 생성하여 패키지 이름, 파이썬 버젼 요구사항, 의존성 패키지(예: `onnxruntime`, `pydantic`, `numpy`, `scipy` 등)를 명확히 구조적으로 기재합니다.
 - **`uv` 패키징 도구체인 도입**:
   - 패키지 종속성의 빠른 싱크와 빌드 관리를 위해 **`uv`**를 표준 도구로 적용하고, 프로젝트 루트에 `uv.lock` 파일을 동봉하여 배포 환경의 모든 종속 버전을 일관되게 동결(Pinning)합니다.
+
+---
+
+## 6. RTM 대응 표준 코드 양식 (RTM Code Templates)
+
+이 섹션은 RTM(기술 매핑 문서)의 AI Module 컬럼에 기재된 소스 코드를 생성할 때 AI 에이전트가 반드시 준수해야 하는 표준 코드 양식(Boilerplate)을 정의합니다.
+
+<div id="base"></div>
+
+### ① base (ML Model Predictor Wrapper & Preprocessor)
+AI 모델 추론을 수행하는 코어 클래스는 전처리 파이프라인과 ONNX 런타임 세션을 안전하게 캡슐화하여 구현해야 합니다.
+```python
+import onnxruntime
+
+class FetalDecelModel:
+    def __init__(self, model_path: str):
+        self.model = self.load_model(model_path)
+
+    def load_model(self, path: str):
+        # ONNX Runtime 가중치 파일 로드
+        return onnxruntime.InferenceSession(path)
+
+    def preprocess(self, raw_signals: list[float]) -> list[float]:
+        # 1. 데이터 노멀라이제이션 및 슬라이딩 윈도우 피처 추출
+        normalized = [s / 100.0 for s in raw_signals]
+        return normalized
+
+    def predict(self, raw_signals: list[float]) -> float:
+        features = self.preprocess(raw_signals)
+        inputs = {self.model.get_inputs()[0].name: [features]}
+        outputs = self.model.run(None, inputs)
+        return float(outputs[0][0])
+```
+
+<div id="routers"></div>
+
+### ② routers (AI Inference Router)
+AI 추론 라우터는 외부로부터 입력을 수용하여, 캡슐화된 모델 클래스를 통해 추론 결과를 리턴하는 엔드포인트를 제공합니다.
+```python
+from fastapi import APIRouter
+from pydantic import BaseModel
+
+router = APIRouter(prefix="/api/v1/predict", tags=["prediction"])
+
+class PredictRequest(BaseModel):
+    features: list[float]
+
+class PredictResponse(BaseModel):
+    prediction: float
+
+@router.post("/predict", response_model=PredictResponse)
+async def predict_endpoint(payload: PredictRequest):
+    # 전역 app.state에 바인딩된 예측 모델 인스턴스 호출
+    prediction = await ai_model.predict(payload.features)
+    return PredictResponse(prediction=prediction)
+```
+
+<div id="models"></div>
+
+### ③ models (ML/DL 모델 가중치 파일)
+- AI 추론에 실질적으로 사용되는 모델 파일(예: `model.onnx`)은 소스코드가 아닌 바이너리/학습 완료 파일이므로, `models/` 디렉토리에 버전별로 물리 배치하여 관리합니다.
+
+<div id="config"></div>
+
+### ④ config (추론 모델 구동 설정 파라미터)
+추론 파이프라인 동작을 튜닝하는 슬라이딩 윈도우 크기, 필터링 옵션 등 설정 값은 전용 설정 모듈로 관리합니다.
+```python
+# 추론 모델 구동 설정 파라미터 규격
+SLIDING_WINDOW_SIZE = 120
+OUTLIER_FILTER_ENABLED = True
+SIGNAL_NORMALIZATION_FACTOR = 100.0
+```

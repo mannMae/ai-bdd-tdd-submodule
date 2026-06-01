@@ -132,7 +132,7 @@
 
 ### 1) 프론트엔드 (Frontend - 디렉토리 단위 매핑)
 
-프론트엔드 파일들은 실제 프로젝트 디렉토리 구조(`components`, `api`, `store`, `utils`)에 맞추어 매핑하여 기술합니다.
+프론트엔드 파일들은 실제 프로젝트 디렉토리 구조(`components`, `api`, `store`, `utils`)에 맞추어 매핑하여 기술하며, 코드 작성 시 [프론트엔드 개발 가이드레일(06-frontend-rules.md)](file:///rules/templates/06-frontend-rules.sample.md)을 준수해야 합니다.
 
 #### ① components
 *   **정의**: 시나리오 수행 시 렌더링되거나 활성화되는 최상위 UI 컴포넌트의 **순수 파일명**을 기재합니다. (헤더에 기본 경로가 지정되어 있으므로 경로 및 마크다운 링크 제외)
@@ -140,162 +140,51 @@
 
 #### ② api
 *   **정의**: 프론트엔드에서 발송하는 HTTP 요청 메서드/경로 또는 WebSocket 발송 이벤트를 정의하는 API custom hook 또는 클라이언트 모듈의 **순수 파일명**을 기재합니다.
-*   **표준 코드 양식 (HTTP Axios Client / WS Send)**:
-    ```typescript
-    // HTTP API 호출 훅 양식
-    export const useStartMonitoring = () => {
-      return useMutation({
-        mutationFn: async (payload: StartRequest) => {
-          const { data } = await apiClient.post<StartResponse>('/api/v1/monitor/start', payload);
-          return data;
-        }
-      });
-    };
-    ```
+*   **표준 코드 양식**: [Frontend Rules - api 표준 코드 양식](file:///rules/templates/06-frontend-rules.sample.md#1-api-react-query-mutation)을 준수하여 작성해야 합니다.
 
-#### ③ store
-*   **정의**: Zustand 등 전역 상태 관리 스토어의 **순수 파일명** 및 상태 값 정의. (파일 표기 시 `store/useMonitorStore.ts`와 같이 기본 경로 하위의 상대 경로로 표기)
-*   **표준 코드 양식 (Zustand Store)**:
-    ```typescript
-    import { create } from 'zustand';
-
-    interface MonitorState {
-      isMonitoring: boolean;
-      startMonitoring: () => void;
-      stopMonitoring: () => void;
-    }
-
-    export const useMonitorStore = create<MonitorState>((set) => ({
-      isMonitoring: false,
-      startMonitoring: () => set({ isMonitoring: true }),
-      stopMonitoring: () => set({ isMonitoring: false }),
-    }));
-    ```
-
-#### ④ utils
-*   **정의**: 브라우저 저장소(LocalStorage, SessionStorage, Cookie) 연동 파일 또는 공통 포맷터 등의 순수 유틸리티 헬퍼 함수 파일의 **순수 파일명**을 기재합니다. (파일 표기 시 `utils/storage.ts`와 같이 기본 경로 하위의 상대 경로로 표기)
-*   **표준 코드 양식 (Storage Wrapper / Helper Function)**:
-    ```typescript
-    // 1. Browser Storage Util: 브라우저 저장소 관리 양식
-    export const storage = {
-      get: (key: string): string | null => localStorage.getItem(key),
-      set: (key: string, value: string): void => localStorage.setItem(key, value),
-      remove: (key: string): void => localStorage.removeItem(key),
-    };
-
-    // 2. Pure Helper: 비즈니스 연산 유틸 함수 양식
-    export const formatSecondsToMinutes = (seconds: number): string => {
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
-    ```
+#### ③ store/utils
+*   **정의**: Zustand 등 전역 상태 관리 스토어 및 브라우저 저장소 연동, 헬퍼 함수 파일의 **순수 파일명**들을 기재합니다. (기본 경로 하위의 상대 경로로 표기)
+*   **표준 코드 양식**: [Frontend Rules - store 및 utils 표준 코드 양식](file:///rules/templates/06-frontend-rules.sample.md#2-store-zustand-store)을 준수하여 작성해야 합니다.
 
 ---
 
 ### 2) 백엔드 (Backend - 디렉토리 단위 매핑)
 
-백엔드 파일들은 실제 프로젝트 디렉토리 구조(`routers`, `services`, `models`, `dependencies`)에 맞추어 매핑하여 기술합니다.
+백엔드 파일들은 실제 프로젝트 디렉토리 구조(`routers`, `services`, `models`, `dependencies`)에 맞추어 매핑하여 기술하며, 코드 작성 시 [백엔드 개발 가이드레일(07-backend-rules.md)](file:///rules/templates/07-backend-rules.sample.md)을 준수해야 합니다.
 
 #### ① routers
 *   **정의**: 백엔드가 외부 요청을 받아들이는 라우터 인터페이스 **순수 파일명** 및 HTTP/WS 엔드포인트 명세.
-*   **표준 코드 양식 (FastAPI Router Endpoint)**:
-    ```python
-    from fastapi import APIRouter, Depends, status
-    from typing import Annotated
-
-    router = APIRouter(prefix="/api/v1/monitor", tags=["monitoring"])
-
-    @router.post("/start", response_model=StartResponse, status_code=status.HTTP_200_OK)
-    async def start_monitoring(
-        payload: StartRequest,
-        usecase: Annotated[StartMonitoringUsecase, Depends(get_start_usecase)]
-    ):
-        return await usecase.execute(payload)
-    ```
+*   **표준 코드 양식**: [Backend Rules - routers 표준 코드 양식](file:///rules/templates/07-backend-rules.sample.md#routers)을 준수하여 작성해야 합니다.
 
 #### ② services
 *   **정의**: 단일 비즈니스 규칙 및 Usecase를 수행하는 서비스 비즈니스 클래스 정의 파일의 **순수 파일명**.
-*   **표준 코드 양식 (단일 책임 Usecase & 불변 값 객체 VO)**:
-    ```python
-    # Usecase: 하나의 비즈니스 작업만 완결성 있게 처리하는 단일 책임 클래스
-    class StartMonitoringUsecase:
-        def __init__(self, repository: MonitorRepository):
-            self.repository = repository
+*   **표준 코드 양식**: [Backend Rules - services 표준 코드 양식](file:///rules/templates/07-backend-rules.sample.md#services)을 준수하여 작성해야 합니다.
 
-        async def execute(self, request_dto: StartRequest) -> StartResponse:
-            # 1. DTO를 도메인 불변 객체(VO)로 변환
-            input_vo = FetalDataVO(heart_rate=request_dto.heart_rate)
-            # 2. 비즈니스 로직 연산 후 반환
-            return StartResponse(status="success")
-    ```
-
-#### ③ models
-*   **정의**: 데이터베이스 ORM 모델 정의 파일의 **순수 파일명** 및 불변 값 객체(VO) 정의.
-*   **표준 코드 양식 (불변 값 객체 VO)**:
-    ```python
-    # VO (Value Object): 데이터 무결성을 보장하는 불변 값 객체
-    from dataclasses import dataclass
-
-    @dataclass(frozen=True)
-    class FetalDataVO:
-        heart_rate: int
-    ```
-
-#### ④ dependencies
-*   **정의**: FastAPI의 `Depends` 의존성 주입 **순수 파일명** 및 미들웨어, Redis, RabbitMQ 등 외부 인프라 연동 파일의 **순수 파일명**.
-*   **표준 코드 양식 (비동기 DB 커넥션 / Redis 연동 등)**:
-    ```python
-    # 비동기 트랜잭션 관리 구조 양식
-    async with async_session_maker() as session:
-        async with session.begin():
-            # 안전한 DB 트랜잭션 수행 보장 블록
-            await repository.save(session, entity)
-    ```
+#### ③ models/deps
+*   **정의**: 데이터베이스 ORM 모델 정의 파일, 불변 값 객체(VO), 의존성 주입(Depends) 및 미들웨어 관련 파일의 **순수 파일명**들을 기재합니다.
+*   **표준 코드 양식**: [Backend Rules - models 및 dependencies 표준 코드 양식](file:///rules/templates/07-backend-rules.sample.md#modelsdeps)을 준수하여 작성해야 합니다.
 
 ---
 
 ### 3) AI 모듈 (AI Module - 디렉토리 단위 매핑)
 
-AI 모듈 파일들은 실제 프로젝트 디렉토리 구조(`routers`, `models`, `config`)에 맞추어 매핑하여 기술합니다.
+AI 모듈 파일들은 실제 프로젝트 디렉토리 구조(`routers`, `models`, `config`)에 맞추어 매핑하여 기술하며, 코드 작성 시 [로컬 ML 추론 서버 개발 가이드레일(08-ai-module-rules.md)](file:///rules/templates/08-ai-module-rules.sample.md)을 준수해야 합니다.
 
-#### ① routers
+#### ① base
+*   **정의**: 공통 추론 base 클래스 및 전처리 유틸 클래스의 **순수 파일명**들을 기재합니다.
+*   **표준 코드 양식**: [AI Module Rules - base 표준 코드 양식](file:///rules/templates/08-ai-module-rules.sample.md#base)을 준수하여 작성해야 합니다.
+
+#### ② routers
 *   **정의**: AI 엔진 서버가 제공하는 HTTP/gRPC 연동 라우터 파일의 **순수 파일명** 및 입출력 명세.
-*   **표준 코드 양식 (AI Inference Router)**:
-    ```python
-    @router.post("/predict", response_model=PredictResponse)
-    async def predict_endpoint(payload: PredictRequest):
-        prediction = await ai_model.predict(payload.features)
-        return PredictResponse(prediction=prediction)
-    ```
+*   **표준 코드 양식**: [AI Module Rules - routers 표준 코드 양식](file:///rules/templates/08-ai-module-rules.sample.md#routers)을 준수하여 작성해야 합니다.
 
-#### ② models
-*   **정의**: 실제 추론을 수행하는 머신러닝/인공지능 모델 및 가중치 파일(예: ONNX)의 **순수 파일명**과 추론 전처리 파이프라인 파일의 **순수 파일명**.
-*   **표준 코드 양식 (ML Model Predictor Wrapper & Preprocessor)**:
-    ```python
-    # Model Predictor: 추론 수행 및 전처리 파이프라인 래퍼
-    class FetalDecelModel:
-        def __init__(self, model_path: str):
-            self.model = self.load_model(model_path)
+#### ③ models
+*   **정의**: 실제 추론을 수행하는 머신러닝/인공지능 모델 및 가중치 파일(예: ONNX)의 **순수 파일명**.
+*   **표준 코드 양식**: [AI Module Rules - models 표준 코드 양식](file:///rules/templates/08-ai-module-rules.sample.md#models)을 참고하십시오.
 
-        def load_model(self, path: str):
-            # ONNX Runtime 가중치 로드
-            return onnxruntime.InferenceSession(path)
-
-        def preprocess(self, raw_signals: list[float]) -> list[float]:
-            # 1. 데이터 노멀라이제이션 및 슬라이딩 윈도우 피처 추출
-            normalized = [s / 100.0 for s in raw_signals]
-            return normalized
-
-        def predict(self, raw_signals: list[float]) -> float:
-            features = self.preprocess(raw_signals)
-            inputs = {self.model.get_inputs()[0].name: [features]}
-            outputs = self.model.run(None, inputs)
-            return float(outputs[0][0])
-    ```
-
-#### ③ config
+#### ④ config
 *   **정의**: 추론용 슬라이딩 윈도우 크기, 이상치 필터(Outlier Filter) 유무 등 모델 구동 설정 파라미터 파일의 **순수 파일명**.
+*   **표준 코드 양식**: [AI Module Rules - config 표준 코드 양식](file:///rules/templates/08-ai-module-rules.sample.md#config)을 준수하여 작성해야 합니다.
 
 ---
 

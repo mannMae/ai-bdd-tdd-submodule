@@ -679,3 +679,72 @@ src/features/[feature-name]
     },
   ],
   ```
+
+---
+
+## 14. RTM 대응 표준 코드 양식 (RTM Code Templates)
+
+이 섹션은 RTM(기술 매핑 문서)의 Frontend 컬럼에 기재된 소스 코드를 생성할 때 AI 에이전트가 반드시 준수해야 하는 표준 코드 양식(Boilerplate)을 정의합니다.
+
+### ① api (React Query Mutation)
+프론트엔드에서 API 요청을 수행할 때는 데이터 유효성 검사, 페처, 그리고 React Query Mutation 훅을 조합하여 작성합니다.
+```typescript
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
+import { api } from '@/lib/api-client'; // 혹은 apiClient
+
+// 1. 입력 유효성 검사 스키마 및 타입 정의
+export const startRequestSchema = z.object({
+  param: z.string().min(1, 'Required'),
+});
+export type StartRequest = z.infer<typeof startRequestSchema>;
+export type StartResponse = { status: string };
+
+// 2. API 클라이언트를 사용하는 순수 페처(Fetcher) 함수
+export const startMonitoring = async (payload: StartRequest): Promise<StartResponse> => {
+  return api.post('/api/v1/monitor/start', payload);
+};
+
+// 3. React Query useMutation 래퍼 훅
+export const useStartMonitoring = () => {
+  return useMutation({
+    mutationFn: startMonitoring,
+  });
+};
+```
+
+### ② store (Zustand Store)
+전역 상태 및 기능 단위 상태를 관리할 때는 Type-safe한 Zustand 스토어를 생성합니다.
+```typescript
+import { create } from 'zustand';
+
+interface MonitorState {
+  isMonitoring: boolean;
+  startMonitoring: () => void;
+  stopMonitoring: () => void;
+}
+
+export const useMonitorStore = create<MonitorState>((set) => ({
+  isMonitoring: false,
+  startMonitoring: () => set({ isMonitoring: true }),
+  stopMonitoring: () => set({ isMonitoring: false }),
+}));
+```
+
+### ③ utils (Browser Storage & Helpers)
+브라우저 저장소 연동 및 비즈니스 공통 헬퍼 함수는 순수 함수 및 객체 래퍼 형태로 작성합니다.
+```typescript
+// 1. Browser Storage Util: 브라우저 저장소 관리 양식
+export const storage = {
+  get: (key: string): string | null => localStorage.getItem(key),
+  set: (key: string, value: string): void => localStorage.setItem(key, value),
+  remove: (key: string): void => localStorage.removeItem(key),
+};
+
+// 2. Pure Helper: 비즈니스 연산 유틸 함수 양식
+export const formatSecondsToMinutes = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+```
