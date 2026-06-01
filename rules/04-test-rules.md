@@ -24,8 +24,6 @@ glob: "**/*.test.*, **/*.spec.*"
 
 ```typescript
 /**
- * @description {시나리오 기능명} 통합 테스트 메타데이터
- * 
  * [1. 통합 테스트 구동을 위해 요구되는 각 유닛별 SUT 동작 규칙 (SUT Operational Rules)]
  * 
  * 1) {유닛분류/명칭}: {물리 파일경로} ({심볼/클래스/함수명})
@@ -44,9 +42,6 @@ glob: "**/*.test.*, **/*.spec.*"
 ### [통합 테스트 구체적 예시 (Example)]
 ```typescript
 /**
- * @file core.schema.test.tsx
- * @description Zustand 기반 악보 Core 데이터 구조 정의 및 파일 로드/닫기 통합 테스트
- * 
  * [1. 통합 테스트 구동을 위해 요구되는 각 유닛별 SUT 동작 규칙 (SUT Operational Rules)]
  * 
  * 1) 글로벌 스토어: src/stores/score-store.ts (useScoreStore)
@@ -126,10 +121,9 @@ defineFeature(feature, (test) => {
 ### [유닛 테스트 메타데이터 템플릿 (Metadata Template)]
 개별 단위 테스트 파일 상단에 격리 대상(SUT)과 동작 규칙을 명시하는 프레임워크 독립적인 메타데이터 설계 구조입니다.
 
+#### ① 최상위 유닛(Top-level Unit) 테스트 메타데이터 템플릿
 ```typescript
 /**
- * @description {유닛명} 단위 테스트 메타데이터
- * 
  * [1. 테스트 대상 유닛 (SUT - System Under Test)]
  * - {유닛분류}: {물리 파일경로} ({클래스/함수/훅/스토어액션 명칭})
  *   - 하위 유닛 (Sub-units): {유닛 내부에서 렌더링되거나 동작을 돕는 로컬 하위 유닛 목록 (해당하는 경우만 기입)}
@@ -145,12 +139,28 @@ defineFeature(feature, (test) => {
  */
 ```
 
-### [유닛 테스트 구체적 예시 (Example)]
+#### ② 하위 유닛(Sub-unit) 테스트 메타데이터 템플릿
 ```typescript
 /**
- * @file score-store.test.ts
- * @description Zustand 악보 상태 스토어(score-store) 단위 테스트
+ * [1. 테스트 대상 하위 유닛 (SUT - System Under Test)]
+ * - {유닛분류}: {물리 파일경로} ({클래스/함수/컴포넌트명})
  * 
+ * [2. 최상위 부모 유닛 (Top-level Parent Unit)]
+ * - {최상위유닛분류}: {물리 파일경로} ({최상위유닛명})
+ * 
+ * [3. SUT 동작 규칙 (Business Rules)]
+ *   - {규칙 1}: {최상위 유닛의 동작 규칙에서 위임받은 구체적 동작 조건 및 결과 기술} (요구처: {최상위유닛테스트파일명})
+ *   - {규칙 2}: {최상위 유닛의 동작 규칙에서 위임받은 구체적 동작 조건 및 결과 기술} (요구처: {최상위유닛테스트파일명})
+ */
+```
+
+---
+
+### [유닛 테스트 구체적 예시 (Example)]
+
+#### ① 예시 A: 최상위 유닛 단위 테스트 (Store/Model 예시)
+```typescript
+/**
  * [1. 테스트 대상 유닛 (SUT)]
  * - 스토어: src/stores/score-store.ts (useScoreStore)
  *   - State: score (ScoreData | null), error (string | null)
@@ -203,20 +213,74 @@ describe('useScoreStore', () => {
 });
 ```
 
+#### ② 예시 B: 부모-하위 계층형 단위 테스트 (UI 컴포넌트 예시)
+**최상위 유닛 단위 테스트 (`ScoreEditorPage.test.tsx`):**
+```typescript
+/**
+ * [1. 테스트 대상 유닛 (SUT)]
+ * - 컴포넌트: src/features/editor/components/ScoreEditorPage.tsx (ScoreEditorPage)
+ *   - 하위 유닛 (Sub-units):
+ *     - src/features/editor/components/CloseScoreButton.tsx (CloseScoreButton)
+ * 
+ * [2. 호출/의존하는 유닛 (Dependencies)]
+ * - 스토어: src/stores/score-store.ts (useScoreStore)
+ * 
+ * [3. SUT 동작 규칙 (Business Rules)]
+ *   1. 에디터 식별: 최상위 엘리먼트는 data-testid="score-editor"를 갖는다. (요구처: core.schema.test.tsx)
+ *   2. 닫기 기능 위임: 내부 CloseScoreButton에 클릭 이벤트 처리 및 스토어 clearScore 액션 호출 책임을 위임한다. (요구처: core.schema.test.tsx)
+ */
+```
+
+**하위 유닛 테스트 (`CloseScoreButton.test.tsx`):**
+```typescript
+/**
+ * [1. 테스트 대상 하위 유닛 (SUT)]
+ * - 컴포넌트: src/features/editor/components/CloseScoreButton.tsx (CloseScoreButton)
+ * 
+ * [2. 최상위 부모 유닛 (Top-level Parent Unit)]
+ * - 컴포넌트: src/features/editor/components/ScoreEditorPage.tsx (ScoreEditorPage)
+ * 
+ * [3. SUT 동작 규칙 (Business Rules)]
+ *   1. 테스트 식별: 컴포넌트는 data-testid="close-score-button"을 제공해야 한다. (요구처: ScoreEditorPage.test.tsx)
+ *   2. 콜백 호출: 클릭 시 상위 부모로부터 전달받은 onClick 콜백 함수를 실행해야 한다. (요구처: ScoreEditorPage.test.tsx)
+ */
+
+import { describe, test, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import CloseScoreButton from './CloseScoreButton';
+
+describe('CloseScoreButton', () => {
+  test('[1] 테스트 식별: 컴포넌트는 data-testid="close-score-button"을 제공해야 한다', () => {
+    render(<CloseScoreButton onClick={() => {}} />);
+    expect(screen.getByTestId('close-score-button')).toBeInTheDocument();
+  });
+
+  test('[2] 콜백 호출: 클릭 시 상위 부모로부터 전달받은 onClick 콜백 함수를 실행해야 한다', () => {
+    const handleClick = vi.fn();
+    render(<CloseScoreButton onClick={handleClick} />);
+    
+    const button = screen.getByTestId('close-score-button');
+    fireEvent.click(button);
+    
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
 ---
 
 ## 4) 하위 유닛(Sub-unit) 정의 및 계층 구조 관리 규칙
 
-단일 유닛이 비대해지거나 복잡해질 때, 이를 보조하기 위해 여러 하위 유닛(Sub-unit)을 생성하여 의존 구조를 형성할 수 있습니다. AI 에이전트는 하위 유닛을 설계하고 테스트할 때 다음 규칙을 철저히 준수해야 합니다.
+최상위 유닛(Top-level Unit)이 비대해지거나 복잡해질 때, 이를 보조하기 위해 여러 하위 유닛(Sub-unit)을 생성하여 의존 구조를 형성할 수 있습니다. AI 에이전트는 하위 유닛을 설계하고 테스트할 때 다음 규칙을 철저히 준수해야 합니다.
 
 1. **의존성(Dependencies)과 하위 유닛(Sub-units)의 구분**:
    - **의존성**: SUT 외부의 독립된 모듈 또는 전역 리소스로서 SUT에 주입되거나 호출되는 연동 대상을 의미합니다 (예: API Client, 전역 Store, 외부 라이브러리).
    - **하위 유닛**: SUT 내부에서만 사용되고 해당 SUT의 책임을 완수하기 위해 분할/캡슐화된 하위 구성 요소나 모듈을 의미합니다 (예: Page 컴포넌트 내의 Form/Button 서브 컴포넌트, 복잡한 Service 내의 데이터 변환 유틸/헬퍼 함수).
 2. **검증 방식 및 범위의 판단**:
-   - **단순 결합형 하위 유닛 (재사용 불가)**: 하위 유닛이 오직 부모 SUT 내에서만 소비되고 독립적인 재사용 목적이 없다면, 별도의 개별 단위 테스트를 작성하지 않고 부모 SUT의 단위 테스트에서 함께 통합하여 검증합니다. (상위 SUT 메타데이터 주석에 `하위 유닛 (Sub-units): [유닛명]` 형태로 목록만 기입)
-   - **독립 격리형 하위 유닛 (재사용 가능 / 복잡함)**: 하위 유닛이 독립적으로 재사용되거나 독자적인 비즈니스 공식이 정밀하게 설계되어 고립 검증이 필요하다면, 해당 하위 유닛을 하나의 SUT로 격리하여 독립된 단위 테스트 파일을 생성합니다. 이 경우 상위 부모 SUT의 단위 테스트에서는 해당 하위 유닛을 `Dependencies`로 분류하여 모킹(Mocking) 처리하거나 협력 계약을 확인하는 테스트를 작성합니다.
+   - **단순 결합형 하위 유닛 (재사용 불가)**: 하위 유닛이 오직 최상위 부모 SUT 내에서만 소비되고 독립적인 재사용 목적이 없다면, 별도의 개별 단위 테스트를 작성하지 않고 최상위 부모 SUT의 단위 테스트에서 함께 통합하여 검증합니다. (최상위 유닛 SUT 메타데이터 주석에 `하위 유닛 (Sub-units): [유닛명]` 형태로 목록만 기입)
+   - **독립 격리형 하위 유닛 (재사용 가능 / 복잡함)**: 하위 유닛이 독립적으로 재사용되거나 독자적인 비즈니스 공식이 정밀하게 설계되어 고립 검증이 필요하다면, 해당 하위 유닛을 하나의 SUT로 격리하여 독립된 단위 테스트 파일을 생성합니다. 이 경우 최상위 부모 SUT의 단위 테스트에서는 해당 하위 유닛을 `Dependencies`로 분류하여 모킹(Mocking) 처리하거나 협력 계약을 확인하는 테스트를 작성합니다.
 3. **동작 규칙의 하향 전파 (No Stealth Rules)**:
-   - 하위 유닛을 설계하거나 코드를 분할(Refactoring)할 때, 최초 설계(통합 테스트 및 시나리오)에서 기재된 **부모 유닛의 비즈니스 동작 규칙(Business Rules)의 범위**를 넘어서는 임의의 기능이나 보이지 않는 비즈니스 로직(Stealth logic)을 하위 유닛에 임의로 구현할 수 없습니다.
+   - 하위 유닛을 설계하거나 코드를 분할(Refactoring)할 때, 최초 설계(통합 테스트 및 시나리오)에서 기재된 **최상위 유닛의 비즈니스 동작 규칙(Business Rules)의 범위**를 넘어서는 임의의 기능이나 보이지 않는 비즈니스 로직(Stealth logic)을 하위 유닛에 임의로 구현할 수 없습니다.
    - 하위 유닛에 새로운 동작 규칙이 추가되어야 하는 경우, 프로세스를 역행하여 코드를 직접 고치는 대신 **상위 통합 테스트(및 필요시 시나리오)의 메타데이터에 먼저 규칙을 추가**한 후, 단위 테스트 ➔ 기능 구현 단계로 순차적으로 내려와야 합니다.
 
 ---
