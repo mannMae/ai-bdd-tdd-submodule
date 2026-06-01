@@ -157,11 +157,11 @@
 프론트엔드 파일들은 실제 프로젝트 디렉토리 구조(`components`, `api`, `store`, `utils`)에 맞추어 매핑하여 기술합니다.
 
 #### ① components
-*   **정의**: 시나리오 수행 시 렌더링되거나 활성화되는 최상위 UI 컴포넌트의 파일 경로 목록을 기재합니다.
-    *   *작성법*: 화면 이동 순서나 전환 흐름(➔) 기호는 사용하지 않고, 해당 시나리오를 구성하는 최상위 컴포넌트 파일 경로들만 목록 형태로 나열합니다.
+*   **정의**: 시나리오 수행 시 렌더링되거나 활성화되는 최상위 UI 컴포넌트의 **순수 파일명**을 기재합니다. (헤더에 기본 경로가 지정되어 있으므로 경로 및 마크다운 링크 제외)
+    *   *작성법*: 화면 이동 순서나 전환 흐름(➔) 기호는 사용하지 않고, 해당 시나리오를 구성하는 최상위 컴포넌트의 **순수 파일명**들만 목록 형태로 나열합니다.
 
 #### ② api
-*   **정의**: 프론트엔드에서 발송하는 HTTP 요청 메서드/경로 또는 WebSocket 발송 이벤트를 정의하는 API custom hook 또는 클라이언트 모듈 파일 경로.
+*   **정의**: 프론트엔드에서 발송하는 HTTP 요청 메서드/경로 또는 WebSocket 발송 이벤트를 정의하는 API custom hook 또는 클라이언트 모듈의 **순수 파일명**을 기재합니다.
 *   **표준 코드 양식 (HTTP Axios Client / WS Send)**:
     ```typescript
     // HTTP API 호출 훅 양식
@@ -176,7 +176,7 @@
     ```
 
 #### ③ store
-*   **정의**: Zustand 등 전역 상태 관리 스토어 파일 경로 및 상태 값 정의.
+*   **정의**: Zustand 등 전역 상태 관리 스토어의 **순수 파일명** 및 상태 값 정의. (파일 표기 시 `store/useMonitorStore.ts`와 같이 기본 경로 하위의 상대 경로로 표기)
 *   **표준 코드 양식 (Zustand Store)**:
     ```typescript
     import { create } from 'zustand';
@@ -195,7 +195,7 @@
     ```
 
 #### ④ utils
-*   **정의**: 브라우저 저장소(LocalStorage, SessionStorage, Cookie) 연동 파일 경로 또는 공통 포맷터 등의 순수 유틸리티 헬퍼 함수 파일 경로.
+*   **정의**: 브라우저 저장소(LocalStorage, SessionStorage, Cookie) 연동 파일 또는 공통 포맷터 등의 순수 유틸리티 헬퍼 함수 파일의 **순수 파일명**을 기재합니다. (파일 표기 시 `utils/storage.ts`와 같이 기본 경로 하위의 상대 경로로 표기)
 *   **표준 코드 양식 (Storage Wrapper / Helper Function)**:
     ```typescript
     // 1. Browser Storage Util: 브라우저 저장소 관리 양식
@@ -220,7 +220,7 @@
 백엔드 파일들은 실제 프로젝트 디렉토리 구조(`routers`, `services`, `models`, `dependencies`)에 맞추어 매핑하여 기술합니다.
 
 #### ① routers
-*   **정의**: 백엔드가 외부 요청을 받아들이는 라우터 인터페이스 파일 경로 및 HTTP/WS 엔드포인트 명세.
+*   **정의**: 백엔드가 외부 요청을 받아들이는 라우터 인터페이스 **순수 파일명** 및 HTTP/WS 엔드포인트 명세.
 *   **표준 코드 양식 (FastAPI Router Endpoint)**:
     ```python
     from fastapi import APIRouter, Depends, status
@@ -237,7 +237,7 @@
     ```
 
 #### ② services
-*   **정의**: 단일 비즈니스 규칙 및 Usecase를 수행하는 서비스 비즈니스 클래스 정의 파일 경로.
+*   **정의**: 단일 비즈니스 규칙 및 Usecase를 수행하는 서비스 비즈니스 클래스 정의 파일의 **순수 파일명**.
 *   **표준 코드 양식 (단일 책임 Usecase & 불변 값 객체 VO)**:
     ```python
     # Usecase: 하나의 비즈니스 작업만 완결성 있게 처리하는 단일 책임 클래스
@@ -253,7 +253,7 @@
     ```
 
 #### ③ models
-*   **정의**: 데이터베이스 물리 테이블 구조 또는 ORM 모델 정의 파일 경로 및 불변 값 객체(VO) 정의.
+*   **정의**: 데이터베이스 ORM 모델 정의 파일의 **순수 파일명** 및 불변 값 객체(VO) 정의.
 *   **표준 코드 양식 (불변 값 객체 VO)**:
     ```python
     # VO (Value Object): 데이터 무결성을 보장하는 불변 값 객체
@@ -265,7 +265,7 @@
     ```
 
 #### ④ dependencies
-*   **정의**: FastAPI의 `Depends` 의존성 주입 파일 경로 및 미들웨어, Redis, RabbitMQ 등 외부 인프라 연동 파일 경로.
+*   **정의**: FastAPI의 `Depends` 의존성 주입 **순수 파일명** 및 미들웨어, Redis, RabbitMQ 등 외부 인프라 연동 파일의 **순수 파일명**.
 *   **표준 코드 양식 (비동기 DB 커넥션 / Redis 연동 등)**:
     ```python
     # 비동기 트랜잭션 관리 구조 양식
@@ -282,7 +282,7 @@
 AI 모듈 파일들은 실제 프로젝트 디렉토리 구조(`routers`, `models`, `config`)에 맞추어 매핑하여 기술합니다.
 
 #### ① routers
-*   **정의**: AI 엔진 서버가 제공하는 HTTP/gRPC 연동 라우터 파일 경로 및 입출력 명세.
+*   **정의**: AI 엔진 서버가 제공하는 HTTP/gRPC 연동 라우터 파일의 **순수 파일명** 및 입출력 명세.
 *   **표준 코드 양식 (AI Inference Router)**:
     ```python
     @router.post("/predict", response_model=PredictResponse)
@@ -292,7 +292,7 @@ AI 모듈 파일들은 실제 프로젝트 디렉토리 구조(`routers`, `model
     ```
 
 #### ② models
-*   **정의**: 실제 추론을 수행하는 머신러닝/인공지능 모델 및 가중치 파일(예: ONNX) 경로와 추론 전처리 파이프라인 파일 경로.
+*   **정의**: 실제 추론을 수행하는 머신러닝/인공지능 모델 및 가중치 파일(예: ONNX)의 **순수 파일명**과 추론 전처리 파이프라인 파일의 **순수 파일명**.
 *   **표준 코드 양식 (ML Model Predictor Wrapper & Preprocessor)**:
     ```python
     # Model Predictor: 추론 수행 및 전처리 파이프라인 래퍼
@@ -317,7 +317,7 @@ AI 모듈 파일들은 실제 프로젝트 디렉토리 구조(`routers`, `model
     ```
 
 #### ③ config
-*   **정의**: 추론용 슬라이딩 윈도우 크기, 이상치 필터(Outlier Filter) 유무 등 모델 구동 설정 파라미터 파일 경로.
+*   **정의**: 추론용 슬라이딩 윈도우 크기, 이상치 필터(Outlier Filter) 유무 등 모델 구동 설정 파라미터 파일의 **순수 파일명**.
 
 ---
 
