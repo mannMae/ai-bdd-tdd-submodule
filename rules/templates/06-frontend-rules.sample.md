@@ -732,7 +732,7 @@ export const useMonitorStore = create<MonitorState>((set) => ({
 }));
 ```
 
-### ③ utils (Browser Storage & Helpers)
+### ③ [FE-09] utils (Browser Storage & Helpers)
 브라우저 저장소 연동 및 비즈니스 공통 헬퍼 함수는 순수 함수 및 객체 래퍼 형태로 작성합니다.
 ```typescript
 // 1. Browser Storage Util: 브라우저 저장소 관리 양식

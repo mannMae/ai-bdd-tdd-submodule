@@ -160,82 +160,7 @@ export const InputField: React.FC<InputFieldProps> = ({ id, label, type = 'text'
 };
 ```
 
-### 5) [FE-05] Form Container Wrapper Component
-- **목적**: react-hook-form과 Zod resolver를 감싸 폼 데이터를 선언형으로 통제하는 공통 `<Form>` 래퍼 컴포넌트입니다.
-- **물리 경로**: `apps/frontend/src/components/ui/form/Form.tsx`
-- **구조 예시 파일**: [rules/exams/apps/frontend/src/components/ui/form/Form.tsx](file:///rules/exams/apps/frontend/src/components/ui/form/Form.tsx)
-- **추상 코드 템플릿 (Template)**:
-```typescript
-import type { ReactNode } from 'react';
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import type { UseFormReturn, UseFormProps, FieldValues } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { ZodType } from 'zod';
-
-type FormProps<TFormValues extends FieldValues, Schema> = {
-  onSubmit: (values: TFormValues, methods: UseFormReturn<TFormValues>) => void;
-  children: (methods: UseFormReturn<TFormValues>) => ReactNode;
-  options?: UseFormProps<TFormValues>;
-  schema: Schema;
-};
-
-export const Form = <
-  Schema extends ZodType<any, any, any>,
-  TFormValues extends FieldValues = any,
->({ onSubmit, children, options, schema }: FormProps<TFormValues, Schema>) => {
-  const methods = useForm<TFormValues>({ ...options, resolver: zodResolver(schema) });
-  return (
-    <form onSubmit={methods.handleSubmit((values) => onSubmit(values, methods))}>
-      {children(methods)}
-    </form>
-  );
-};
-```
-
-### 6) [FE-06] Application Provider Wrapper (Providers)
-- **목적**: QueryClient, Language Context, Notification Context 등을 최상단에서 통합 래핑하는 전역 프로바이더 양식입니다.
-- **물리 경로**: `apps/frontend/src/app/provider.tsx`
-- **구조 예시 파일**: [rules/exams/apps/frontend/src/app/provider.tsx](file:///rules/exams/apps/frontend/src/app/provider.tsx)
-- **추상 코드 템플릿 (Template)**:
-```typescript
-import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const queryClient = new QueryClient();
-
-export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
-};
-```
-
-### 7) [FE-07] App Entry & Route Config (Router)
-- **목적**: react-router-dom을 사용하여 페이지 경로 분기를 선언하고 주입하는 앱 라우터 설정 파일 양식입니다.
-- **물리 경로**: `apps/frontend/src/app/router.tsx`
-- **구조 예시 파일**: [rules/exams/apps/frontend/src/app/router.tsx](file:///rules/exams/apps/frontend/src/app/router.tsx)
-- **추상 코드 템플릿 (Template)**:
-```typescript
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-
-export const createAppRouter = () =>
-  createBrowserRouter([
-    {
-      path: '/path',
-      element: <div>Page Component</div>,
-    },
-  ]);
-
-export const AppRouter = () => {
-  const router = createAppRouter();
-  return <RouterProvider router={router} />;
-};
-```
-
-### 8) [FE-08] Feature UI Component (피처 컴포넌트)
+### 5) [FE-05] Feature UI Component (피처 컴포넌트)
 - **목적**: 폼 컨텍스트, API Fetch/Mutation 모듈, UI 인풋 요소들을 모아 비즈니스 가치를 완수하는 단위 도메인 피처 조립 컴포넌트입니다.
 - **물리 경로**: `apps/frontend/src/features/{feature}/components/{name}.tsx`
 - **구조 예시 파일**: [rules/exams/apps/frontend/src/features/auth/components/LoginForm.tsx](file:///rules/exams/apps/frontend/src/features/auth/components/LoginForm.tsx)
@@ -303,6 +228,172 @@ export const FeatureComponent: React.FC<FeatureProps> = ({ onSuccess }) => {
 - **준수 사항 (Do's & Don'ts)**:
   - 폼 리렌더링 최적화를 위해 Context를 주입하는 **Outer(컨테이너) 컴포넌트**와 요소를 렌더링하는 **Inner(렌더러) 컴포넌트**를 명확하게 분리하여 작성해야 합니다.
   - 가상 키보드나 외부 트리거를 처리하기 위해 `onSubmitRef` 와 같은 ref 바인딩 형식을 준수해야 합니다.
+
+### 6) [FE-06] Utility Module (Utils / Helper)
+- **목적**: 브라우저 저장소 관리 및 비즈니스 공통 연산 등 부수 효과가 없거나 인프라 API를 래핑한 순수 함수/객체 헬퍼 모듈입니다.
+- **물리 경로**: `apps/frontend/src/utils/{name}.ts` 또는 `apps/frontend/src/features/{feature}/utils/{name}.ts`
+- **구조 예시 파일**: [rules/templates/06-frontend-rules.sample.md#3-utils-browser-storage--helpers](file:///rules/templates/06-frontend-rules.sample.md#3-utils-browser-storage--helpers)
+- **추상 코드 템플릿 (Template)**:
+```typescript
+// 1. Browser Storage Util: 브라우저 저장소 관리 양식
+export const storage = {
+  get: (key: string): string | null => localStorage.getItem(key),
+  set: (key: string, value: string): void => localStorage.setItem(key, value),
+  remove: (key: string): void => localStorage.removeItem(key),
+};
+
+// 2. Pure Helper: 비즈니스 연산 유틸 함수 양식
+export const formatSecondsToMinutes = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+```
+- **준수 사항 (Do's & Don'ts)**:
+  - 가능한 한 부수 효과(Side Effect)가 없는 순수 함수 형태로 작성하여 독립적인 단위 테스트가 가능하게 만드십시오.
+  - 전역 상태나 서버 캐시 등 React 생명주기 및 훅과 결합된 상태 관리는 이 레이어에서 수행하지 마십시오. (대신 Custom Hook 또는 Zustand Store 사용)
+
+### 7) [FE-07] Custom Hook (General)
+- **목적**: 컴포넌트 생명주기와 연동되거나, UI 동작 상태 및 이벤트를 처리하기 위한 범용 커스텀 훅입니다. (서버 데이터 페칭 목적의 훅은 `FE-01`을 사용하십시오)
+- **물리 경로**: `apps/frontend/src/hooks/{name}.ts` 또는 `apps/frontend/src/features/{feature}/hooks/{name}.ts`
+- **추상 코드 템플릿 (Template)**:
+```typescript
+import { useState, useCallback } from 'react';
+
+export const useToggle = (initialState: boolean = false): [boolean, () => void] => {
+  const [state, setState] = useState(initialState);
+  const toggle = useCallback(() => setState((state) => !state), []);
+  return [state, toggle];
+};
+```
+- **준수 사항 (Do's & Don'ts)**:
+  - 훅 내부에서만 사용되는 비즈니스 로직과 UI 상태 제어 목적에 충실하게 디자인하십시오.
+  - 전역 스토어(`FE-03`)와 과도하게 결합되지 않도록 관심사를 분리하고, 필요한 경우 인수(Parameters)로 상태/액션을 전달받도록 설계하십시오.
+
+### 8) [FE-08] Form Container Wrapper Component
+- **목적**: react-hook-form과 Zod resolver를 감싸 폼 데이터를 선언형으로 통제하는 공통 `<Form>` 래퍼 컴포넌트입니다.
+- **물리 경로**: `apps/frontend/src/components/ui/form/Form.tsx`
+- **구조 예시 파일**: [rules/exams/apps/frontend/src/components/ui/form/Form.tsx](file:///rules/exams/apps/frontend/src/components/ui/form/Form.tsx)
+- **추상 코드 템플릿 (Template)**:
+```typescript
+import type { ReactNode } from 'react';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import type { UseFormReturn, UseFormProps, FieldValues } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ZodType } from 'zod';
+
+type FormProps<TFormValues extends FieldValues, Schema> = {
+  onSubmit: (values: TFormValues, methods: UseFormReturn<TFormValues>) => void;
+  children: (methods: UseFormReturn<TFormValues>) => ReactNode;
+  options?: UseFormProps<TFormValues>;
+  schema: Schema;
+};
+
+export const Form = <
+  Schema extends ZodType<any, any, any>,
+  TFormValues extends FieldValues = any,
+>({ onSubmit, children, options, schema }: FormProps<TFormValues, Schema>) => {
+  const methods = useForm<TFormValues>({ ...options, resolver: zodResolver(schema) });
+  return (
+    <form onSubmit={methods.handleSubmit((values) => onSubmit(values, methods))}>
+      {children(methods)}
+    </form>
+  );
+};
+```
+
+### 9) [FE-09] Application Provider Wrapper (Providers)
+- **목적**: QueryClient, Language Context, Notification Context 등을 최상단에서 통합 래핑하는 전역 프로바이더 양식입니다.
+- **물리 경로**: `apps/frontend/src/app/provider.tsx`
+- **구조 예시 파일**: [rules/exams/apps/frontend/src/app/provider.tsx](file:///rules/exams/apps/frontend/src/app/provider.tsx)
+- **추상 코드 템플릿 (Template)**:
+```typescript
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
+
+export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
+};
+```
+
+### 10) [FE-10] App Entry & Route Config (Router)
+- **목적**: react-router-dom을 사용하여 페이지 경로 분기를 선언하고 주입하는 앱 라우터 설정 파일 양식입니다.
+- **물리 경로**: `apps/frontend/src/app/router.tsx`
+- **구조 예시 파일**: [rules/exams/apps/frontend/src/app/router.tsx](file:///rules/exams/apps/frontend/src/app/router.tsx)
+- **추상 코드 템플릿 (Template)**:
+```typescript
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+export const createAppRouter = () =>
+  createBrowserRouter([
+    {
+      path: '/path',
+      element: <div>Page Component</div>,
+    },
+  ]);
+
+export const AppRouter = () => {
+  const router = createAppRouter();
+  return <RouterProvider router={router} />;
+};
+```
+
+### 11) [FE-11] Domain Types
+- **목적**: Zod 스키마 자동 추론 외에, 비즈니스 도메인의 핵심 데이터 인터페이스나 UI 전용 공통 타입을 정의하는 양식입니다.
+- **물리 경로**: `apps/frontend/src/types/{domain}.ts` 또는 `apps/frontend/src/features/{feature}/types/index.ts`
+- **구조 예시 파일**: [rules/exams/apps/frontend/src/types/user.ts](file:///rules/exams/apps/frontend/src/types/user.ts)
+- **추상 코드 템플릿 (Template)**:
+```typescript
+// 1. Domain Entity Interface: 비즈니스 핵심 엔티티 선언
+export interface UserEntity {
+  id: string;
+  email: string;
+  createdAt: string;
+}
+
+// 2. UI / Generic State Types: 전역/공통 상태 제어 구조 선언
+export type AsyncState<T> = {
+  data: T | null;
+  isLoading: boolean;
+  error: Error | null;
+};
+```
+- **준수 사항 (Do's & Don'ts)**:
+  - 이 파일에는 런타임에 실행되는 비즈니스 로직 함수나 클래스를 절대 정의하지 마십시오. 오직 순수 타입(Type/Interface) 선언에만 집중해야 합니다.
+  - 순환 참조(Circular Dependency)를 방지하기 위해 타 컴포넌트나 피처 소스 코드를 내부로 임포트하지 마십시오.
+
+### 12) [FE-12] External Library Wrapper (lib)
+- **목적**: Axios, TanStack Query 등 외부 SDK 및 라이브러리 인스턴스를 프로젝트 표준 인터셉터/옵션과 결합하여 초기화하고 내보내기 위한 공통 설정 양식입니다.
+- **물리 경로**: `apps/frontend/src/lib/{library-name}.ts`
+- **구조 예시 파일**: [rules/exams/apps/frontend/src/lib/api-client.ts](file:///rules/exams/apps/frontend/src/lib/api-client.ts)
+- **추상 코드 템플릿 (Template)**:
+```typescript
+import axios from 'axios';
+
+// 1. Configure and create instance
+export const apiClient = axios.create({
+  baseURL: '/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// 2. Setup interceptors (common pattern wrapper)
+apiClient.interceptors.request.use((config) => {
+  // Add Authorization headers or logging
+  return config;
+});
+```
+- **준수 사항 (Do's & Don'ts)**:
+  - 개별 피처 전용 비즈니스 로직을 이 파일 내부에 구성하지 말고, 오직 프로젝트 공통의 라이브러리 초기화 설정만을 캡슐화하십시오.
+  - 외부 라이브러리를 각 컴포넌트에서 직접 호출하지 않고, 이 `lib` 래퍼 인스턴스를 통해 접근하도록 아키텍처 결합 방향을 단일화하십시오.
 
 ---
 
@@ -400,28 +491,7 @@ class PostVO:
   - 반드시 `@dataclass(frozen=True)` 데코레이터를 사용하여 수정 불가능한 객체로 생성해야 합니다.
   - 생성 시 무결성을 확보하기 위해 `__post_init__` 메서드를 통해 제약 조건을 엄격히 검증하여 예외를 발생시키십시오.
 
-### 4) [BE-04] Database Session Manager (비동기 DB 세션 관리)
-- **목적**: SQLAlchemy 2.0 비동기 데이터베이스 커넥션 엔진과 세션 팩토리를 관리합니다.
-- **물리 경로**: `apps/backend/src/database.py`
-- **구조 예시 파일**: [rules/exams/apps/backend/src/database.py](file:///rules/exams/apps/backend/src/database.py)
-- **추상 코드 템플릿 (Template)**:
-```python
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-
-DATABASE_URL = "postgresql+asyncpg://user:pass@localhost:5432/db"
-
-engine = create_async_engine(DATABASE_URL, pool_pre_ping=True)
-SessionFactory = async_sessionmaker(engine, expire_on_commit=False)
-
-async def get_db() -> AsyncSession:
-    async with SessionFactory() as session:
-        yield session
-```
-- **준수 사항 (Do's & Don'ts)**:
-  - 동기 드라이버 및 `databases` 패키지를 지양하고, SQLAlchemy 2.0 `create_async_engine` 및 `async_sessionmaker` 표준을 따르십시오.
-  - 커넥션 유실 방지를 위해 `pool_pre_ping=True` 옵션을 필수로 활성화해야 합니다.
-
-### 5) [BE-05] Database ORM Model (SQLAlchemy ORM)
+### 4) [BE-04] Database ORM Model (SQLAlchemy ORM)
 - **목적**: 데이터베이스 테이블 스키마에 매핑되는 선언적 데이터 모델입니다.
 - **물리 경로**: `apps/backend/src/{domain}/models.py`
 - **구조 예시 파일**: [rules/exams/apps/backend/src/posts/models.py](file:///rules/exams/apps/backend/src/posts/models.py)
@@ -454,7 +524,7 @@ class PostModel(Base):
   - 테이블 명칭은 `lower_case_snake` 형식의 **단수 명사**로 지정하십시오. (예: `post`, `post_like` 등)
   - 명시적이고 일관된 데이터베이스 인덱스 명명 규약을 위해 상단에 `naming_convention` 설정을 내장해야 합니다.
 
-### 6) [BE-06] Route Dependency & Validator (FastAPI Dependencies)
+### 5) [BE-05] Route Dependency & Validator (FastAPI Dependencies)
 - **목적**: 인가, 데이터 존재 여부 검증, 자원 획득 등 API 엔드포인트 도달 전에 실행되는 공용 검증 함수군입니다.
 - **물리 경로**: `apps/backend/src/{domain}/dependencies.py`
 - **구조 예시 파일**: [rules/exams/apps/backend/src/posts/dependencies.py](file:///rules/exams/apps/backend/src/posts/dependencies.py)
@@ -464,7 +534,7 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db
-from .service import CreatePostUsecase # 실제 조회용 Usecase 등
+from .service import CreatePostUsecase
 from .models import PostModel
 
 async def valid_post_id(
@@ -484,7 +554,7 @@ async def valid_post_id(
   - 불필요한 스레드 생성을 막기 위해 non-I/O 및 비동기 작업은 최대한 `async def` dependencies로 작성해 주십시오.
   - 동일한 엔드포인트 내에서 의존성이 중복 호출되더라도, FastAPI가 한 요청 스코프 내에서 실행 결과를 캐싱하므로 잘게 쪼개진 단위 디펜던시들을 적극 체이닝하여 재사용하십시오.
 
-### 7) [BE-07] Request/Response DTO (Pydantic Schema)
+### 6) [BE-06] Request/Response DTO (Pydantic Schema)
 - **목적**: 입출력 데이터의 유효성 검증과 직렬화를 담당합니다.
 - **물리 경로**: `apps/backend/src/{domain}/schemas.py`
 - **구조 예시 파일**: [rules/exams/apps/backend/src/posts/schemas.py](file:///rules/exams/apps/backend/src/posts/schemas.py)
@@ -522,7 +592,7 @@ class ErrorResponse(BaseModel):
   - Pydantic v2 규칙을 적용하여 v1 API(`.dict()`, `json_encoders`) 사용을 일절 금지하며, `model_dump()`, `@field_serializer` 등을 활용해야 합니다.
   - `Field(min_length=1, default=None)`와 같이 제약조건과 디폴트값이 모순되는 선언은 금지하며, 디폴트 값을 정확히 맞추어 기입하십시오.
 
-### 8) [BE-08] Async Integration/Unit Test (pytest + httpx)
+### 7) [BE-07] Async Integration/Unit Test (pytest + httpx)
 - **목적**: 비동기 API 클라이언트를 이용하여 백엔드 비즈니스 흐름 및 에러 처리를 검증합니다.
 - **물리 경로**: `apps/backend/tests/...` (예: `apps/backend/tests/unit/test_create_post.py`)
 - **구조 예시 파일**: [rules/exams/apps/backend/tests/unit/test_create_post.py](file:///rules/exams/apps/backend/tests/unit/test_create_post.py)
@@ -557,6 +627,113 @@ async def test_create_post_endpoint(client: AsyncClient):
     assert data["creator_id"] == "test_user"
   - 동기 방식의 `TestClient`는 지양하고, 반드시 `httpx.AsyncClient`와 `ASGITransport`를 사용하여 비동기적으로 호출해야 합니다.
   - 가짜 의존성을 처리할 때는 모듈 내부를 monkeypatch 하지 말고 FastAPI의 공식 `app.dependency_overrides`를 활용하여 깨끗하게 주입하십시오.
+
+### 8) [BE-08] Utility Module (Backend)
+- **목적**: 날짜 연산, 암호화 헬퍼, 문자열 처리 등 백엔드에서 공통적으로 쓰이는 순수 비즈니스 유틸리티 모듈입니다.
+- **물리 경로**: `apps/backend/src/utils/{name}.py` 또는 `apps/backend/src/{domain}/utils.py` (혹은 `helper.py`)
+- **구조 예시 파일**: [rules/exams/apps/backend/src/utils/date_helper.py](file:///rules/exams/apps/backend/src/utils/date_helper.py)
+- **추상 코드 템플릿 (Template)**:
+```python
+from datetime import datetime, timezone
+
+def get_utc_now() -> datetime:
+    return datetime.now(timezone.utc)
+```
+- **준수 사항 (Do's & Don'ts)**:
+  - 데이터베이스 상태나 네트워크 I/O 등 부수 효과(Side Effect)가 있는 의존성을 내부에 포함하지 말고, 순수 함수(Pure Function) 형태로 설계하십시오.
+
+### 9) [BE-09] Database Session Manager (비동기 DB 세션 관리)
+- **목적**: SQLAlchemy 2.0 비동기 데이터베이스 커넥션 엔진과 세션 팩토리를 관리합니다.
+- **물리 경로**: `apps/backend/src/database.py`
+- **구조 예시 파일**: [rules/exams/apps/backend/src/database.py](file:///rules/exams/apps/backend/src/database.py)
+- **추상 코드 템플릿 (Template)**:
+```python
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+DATABASE_URL = "postgresql+asyncpg://user:pass@localhost:5432/db"
+
+engine = create_async_engine(DATABASE_URL, pool_pre_ping=True)
+SessionFactory = async_sessionmaker(engine, expire_on_commit=False)
+
+async def get_db() -> AsyncSession:
+    async with SessionFactory() as session:
+        yield session
+```
+- **준수 사항 (Do's & Don'ts)**:
+  - 동기 드라이버 및 `databases` 패키지를 지양하고, SQLAlchemy 2.0 `create_async_engine` 및 `async_sessionmaker` 표준을 따르십시오.
+  - 커넥션 유실 방지를 위해 `pool_pre_ping=True` 옵션을 필수로 활성화해야 합니다.
+
+### 10) [BE-10] External Client (외부 서비스 연동 클라이언트)
+- **목적**: 외부 API 호출을 안전하게 처리하고, 타임아웃 및 재시도 로직을 캡슐화합니다.
+- **물리 경로**: `apps/backend/src/lib/{client_name}_client.py` 또는 `apps/backend/src/{domain}/clients.py`
+- **구조 예시 파일**: [rules/exams/apps/backend/src/lib/payment_client.py](file:///rules/exams/apps/backend/src/lib/payment_client.py)
+- **추상 코드 템플릿 (Template)**:
+```python
+import httpx
+from typing import Dict, Any
+
+class ExternalAPIClient:
+    def __init__(self, base_url: str, timeout: float = 5.0):
+        self.base_url = base_url
+        self.timeout = timeout
+
+    async def fetch_data(self, endpoint: str) -> Dict[str, Any]:
+        async with httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout) as client:
+            response = await client.get(endpoint)
+            response.raise_for_status()
+            return response.json()
+```
+- **준수 사항 (Do's & Don'ts)**:
+  - 타임아웃 설정을 누락하지 마십시오. 기본 무제한 타임아웃은 전체 서비스 장애로 이어질 수 있습니다.
+  - 외부 API의 네트워크 실패에 대응하기 위한 예외 처리 및 재시도(Retry) 패턴을 고려해야 합니다.
+
+### 11) [BE-11] Custom Exception & Handler (예외 및 전역 핸들러)
+- **목적**: 도메인 비즈니스 예외를 전역으로 일관되게 캡슐화하여 API 클라이언트에 표준화된 에러 응답을 반환합니다.
+- **물리 경로**: `apps/backend/src/exceptions.py` 또는 `apps/backend/src/{domain}/exceptions.py`
+- **구조 예시 파일**: [rules/exams/apps/backend/src/exceptions.py](file:///rules/exams/apps/backend/src/exceptions.py)
+- **추상 코드 템플릿 (Template)**:
+```python
+from fastapi import Request, FastAPI
+from fastapi.responses import JSONResponse
+
+class DomainException(Exception):
+    def __init__(self, message: str, status_code: int = 400):
+        self.message = message
+        self.status_code = status_code
+        super().__init__(message)
+
+def register_exception_handlers(app: FastAPI):
+    @app.exception_handler(DomainException)
+    async def domain_exception_handler(request: Request, exc: DomainException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.message}
+        )
+```
+- **준수 사항 (Do's & Don'ts)**:
+  - 예외 클래스 정의와 전역 FastAPI 핸들러 등록 함수를 명확하게 분리하십시오.
+  - 사용자에게 보안 정보를 노출하지 않도록, 에러 메시지(`detail`)는 가공된 안전한 메시지만 제공하십시오.
+
+### 12) [BE-12] Config Settings (설정값 관리)
+- **목적**: Pydantic Settings를 사용하여 환경 변수를 검증하고, 시스템 전역에서 사용할 설정 싱글톤을 로드합니다.
+- **물리 경로**: `apps/backend/src/config.py`
+- **구조 예시 파일**: [rules/exams/apps/backend/src/config.py](file:///rules/exams/apps/backend/src/config.py)
+- **추상 코드 템플릿 (Template)**:
+```python
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class Settings(BaseSettings):
+    app_name: str = "My FastAPI Application"
+    database_url: str
+    debug: bool = False
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+settings = Settings()
+```
+- **준수 사항 (Do's & Don'ts)**:
+  - 민감한 크리덴셜(DB 비밀번호, API 키 등)은 기본값(Default)으로 하드코딩하지 말고, 반드시 환경 변수(env)를 통해 로드되도록 설계하십시오.
+  - `SettingsConfigDict`의 `extra="ignore"` 옵션을 지정하여 허용되지 않은 환경 변수로 인한 초기화 실패를 방지하십시오.
 
 ---
 
@@ -718,34 +895,7 @@ class ModelGateway:
 - **준수 사항 (Do's & Don'ts)**:
   - 모든 파일 바이트 연산, 모델 바이너리 컴파일, 외부 API 전송 SDK는 이 Outbound 패키지 내부에서만 머물러야 합니다. 외부 레이어로 원시 IO 객체가 유출되어서는 안 됩니다.
 
-### 6) [AI-06] Bootstrap & DI Container (의존성 주입)
-- **목적**: 전역 환경 설정을 로드하고, 게이트웨이 및 Usecase 의존성을 단일 지점에서 조립하여 생성합니다.
-- **물리 경로**: `apps/ai/src/bootstrap.py`
-- **구조 예시 파일**: [rules/exams/apps/ai/src/bootstrap.py](file:///rules/exams/apps/ai/src/bootstrap.py)
-- **추상 코드 템플릿 (Template)**:
-```python
-from src.outbound.gateway import ModelGateway
-from src.core.processor import FeatureExtractor
-from src.usecases.inference import InferenceUsecase
-
-class DIContainer:
-    def __init__(self):
-        # 1. 가중치 모델 로딩 및 게이트웨이 어댑터 초기화 (1회만 캐싱 실행)
-        self.model_gateway = ModelGateway(model_path="models/model.onnx")
-        self.extractor = FeatureExtractor()
-        
-        # 2. Usecase 서비스에 조립 의존성 주입
-        self.inference_usecase = InferenceUsecase(
-            model_gateway=self.model_gateway,
-            extractor=self.extractor
-        )
-
-container = DIContainer()
-```
-- **준수 사항 (Do's & Don'ts)**:
-  - API 매 요청마다 모델 가중치를 다시 로드하는 것은 연산 병목의 원인이 되므로, 반드시 DI Container 초기화(Lifespan) 시점에 한 번만 로드하여 싱글톤 객체로 관리해야 합니다.
-
-### 7) [AI-07] Domain Types (불변 VO 및 DTO)
+### 6) [AI-06] Domain Types (불변 VO 및 DTO)
 - **목적**: API 경계용 Pydantic DTO(`types/boundary`)와 코어 내부 검증용 frozen dataclass VO(`types/value`)를 정의합니다.
 - **물리 경로**: `apps/ai/src/types/...` (예: `apps/ai/src/types/value.py`)
 - **구조 예시 파일**: [rules/exams/apps/ai/src/types/value.py](file:///rules/exams/apps/ai/src/types/value.py)
@@ -770,7 +920,7 @@ class TensorConfigVO:
 - **준수 사항 (Do's & Don'ts)**:
   - 순환 참조(Circular Dependency) 방지를 위해 Types 모듈은 오직 순수 타입 정의로만 구성하며 타 레이어의 코드를 임포트하지 마십시오.
 
-### 8) [AI-08] Evals & Integration Test (pytest 기반 추론 검증)
+### 7) [AI-07] Evals & Integration Test (pytest 기반 추론 검증)
 - **목적**: 모의 어댑터를 이용해 로컬 환경에서 추론 파이프라인 및 에이전트 상태 전이를 검증합니다.
 - **물리 경로**: `apps/ai/tests/...` (예: `apps/ai/tests/unit/test_inference.py`)
 - **구조 예시 파일**: [rules/exams/apps/ai/tests/unit/test_inference.py](file:///rules/exams/apps/ai/tests/unit/test_inference.py)
@@ -802,5 +952,125 @@ async def test_inference_usecase_flow():
 ```
 - **준수 사항 (Do's & Don'ts)**:
   - 테스트 코드는 외부 GPU나 유료 클라우드 LLM API 연결 없이 완벽히 격리된 상태에서 로컬 실행(Locally Testable)되어야 합니다.
+
+### 8) [AI-08] Utility Module (AI)
+- **목적**: 텍스트 특수문자 제거(정규화), 텐서 연산 헬퍼, 오프라인 메트릭 계산 등 AI 파이프라인 전반에 사용되는 순수 헬퍼 모듈입니다.
+- **물리 경로**: `apps/ai/src/utils/{name}.py` 또는 `apps/ai/src/core/{name}_helper.py`
+- **구조 예시 파일**: [rules/exams/apps/ai/src/utils/text_helper.py](file:///rules/exams/apps/ai/src/utils/text_helper.py)
+- **추상 코드 템플릿 (Template)**:
+```python
+import re
+
+def clean_text(text: str) -> str:
+    # 텍스트 특수문자 제거 및 정적 정규화
+    cleaned = re.sub(r"[^\w\s]", "", text)
+    return cleaned.strip()
+```
+- **준수 사항 (Do's & Don't)**:
+  - 가중치 바이너리나 네트워크 API 등의 무거운 리소스를 직접 호출하지 않고, 입력값에 대응하는 연산만을 즉시 수행하도록 순수 함수 위주로 작성하십시오.
+
+### 9) [AI-09] Bootstrap & DI Container (의존성 주입)
+- **목적**: 전역 환경 설정을 로드하고, 게이트웨이 및 Usecase 의존성을 단일 지점에서 조립하여 생성합니다.
+- **물리 경로**: `apps/ai/src/bootstrap.py`
+- **구조 예시 파일**: [rules/exams/apps/ai/src/bootstrap.py](file:///rules/exams/apps/ai/src/bootstrap.py)
+- **추상 코드 템플릿 (Template)**:
+```python
+from src.outbound.gateway import ModelGateway
+from src.core.processor import FeatureExtractor
+from src.usecases.inference import InferenceUsecase
+
+class DIContainer:
+    def __init__(self):
+        # 1. 가중치 모델 로딩 및 게이트웨이 어댑터 초기화 (1회만 캐싱 실행)
+        self.model_gateway = ModelGateway(model_path="models/model.onnx")
+        self.extractor = FeatureExtractor()
+        
+        # 2. Usecase 서비스에 조립 의존성 주입
+        self.inference_usecase = InferenceUsecase(
+            model_gateway=self.model_gateway,
+            extractor=self.extractor
+        )
+
+container = DIContainer()
+```
+- **준수 사항 (Do's & Don'ts)**:
+  - API 매 요청마다 모델 가중치를 다시 로드하는 것은 연산 병목의 원인이 되므로, 반드시 DI Container 초기화(Lifespan) 시점에 한 번만 로드하여 싱글톤 객체로 관리해야 합니다.
+
+### 10) [AI-10] Prompt Templates (프롬프트 템플릿 모듈)
+- **목적**: LLM 애플리케이션 및 에이전트 구동에 필요한 전용 프롬프트 템플릿을 코드와 분리하여 선언적으로 관리합니다.
+- **물리 경로**: `apps/ai/src/prompts/{name}.py` 또는 `apps/ai/src/workflow/prompts.py`
+- **구조 예시 파일**: [rules/exams/apps/ai/src/prompts/medical_prompts.py](file:///rules/exams/apps/ai/src/prompts/medical_prompts.py)
+- **추상 코드 템플릿 (Template)**:
+```python
+from langchain_core.prompts import PromptTemplate
+
+# 1. System Prompt Template
+SYSTEM_PROMPT = """당신은 의료 데이터 분석 AI 비서입니다. 
+주어진 신호 데이터를 기반으로 상태를 감지하여 보고하십시오.
+"""
+
+# 2. User Input Template
+USER_PROMPT_TEMPLATE = PromptTemplate.from_template(
+    "이전 상태 기록: {history}\n현재 신호 데이터: {current_signal}\n위험 상태 여부를 판정해 주세요."
+)
+```
+- **준수 사항 (Do's & Don'ts)**:
+  - 프롬프트 스트링을 비즈니스 로직(Usecase/Gateway) 내부에 인라인 하드코딩하지 말고, 반드시 전용 `prompts` 파일에 모아서 관리하십시오.
+  - 외부 프롬프트 변수 주입은 `f-string` 대신 무결성을 강제하는 라이브러리(LangChain의 `PromptTemplate` 등) 규격을 사용해야 합니다.
+
+### 11) [AI-11] AI Custom Exception & Handler (AI 예외 및 응답 핸들러)
+- **목적**: 모델 가중치 로딩 실패, 이상치 감지, LLM API 호출 한도 초과 등 AI 추론 특화 예외를 처리하고 API 규격에 맞춰 에러 응답을 포맷팅합니다.
+- **물리 경로**: `apps/ai/src/exceptions.py` 또는 `apps/ai/src/inbound/exceptions.py`
+- **구조 예시 파일**: [rules/exams/apps/ai/src/exceptions.py](file:///rules/exams/apps/ai/src/exceptions.py)
+- **추상 코드 템플릿 (Template)**:
+```python
+from fastapi import Request, FastAPI
+from fastapi.responses import JSONResponse
+
+class InferenceEngineException(Exception):
+    def __init__(self, detail: str, model_name: str, status_code: int = 500):
+        self.detail = detail
+        self.model_name = model_name
+        self.status_code = status_code
+        super().__init__(detail)
+
+def register_ai_exception_handlers(app: FastAPI):
+    @app.exception_handler(InferenceEngineException)
+    async def ai_inference_exception_handler(request: Request, exc: InferenceEngineException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "error": "AI Inference Failed",
+                "model": exc.model_name,
+                "message": exc.detail
+            }
+        )
+```
+- **준수 사항 (Do's & Don'ts)**:
+  - 예외 클래스 선언과 FastAPI 핸들러 바인딩 코드는 프로젝트 부트스트랩 시점에 함께 주입될 수 있도록 단일 지점 등록 함수(`register_ai_exception_handlers`)를 마련하십시오.
+
+### 12) [AI-12] Model Config & Specs (모델/하이퍼파라미터 설정)
+- **목적**: 모델 가중치 파일 경로, 입력/출력 텐서 차원(Dim), 임베딩 크기 등 AI 실행 하이퍼파라미터를 안전하게 로드하고 관리합니다.
+- **물리 경로**: `apps/ai/src/config/specs.py` 또는 `apps/ai/src/config/model_config.py`
+- **구조 예시 파일**: [rules/exams/apps/ai/src/config/model_config.py](file:///rules/exams/apps/ai/src/config/model_config.py)
+- **추상 코드 템플릿 (Template)**:
+```python
+from pydantic_settings import BaseSettings
+from pydantic import Field
+
+class ModelSpecs(BaseSettings):
+    model_path: str = Field(default="models/model.onnx")
+    input_dimension: int = Field(default=120)
+    output_dimension: int = Field(default=2)
+    threshold: float = Field(default=0.85)
+
+    class Config:
+        env_prefix = "AI_MODEL_"
+        env_file = ".env"
+
+model_specs = ModelSpecs()
+```
+- **준수 사항 (Do's & Don'ts)**:
+  - 모델의 내부 텐서 디멘션이나 임계치(Threshold)와 같은 실행 파라미터는 소스 코드에 하드코딩하지 말고, Pydantic Settings 규격을 이용해 유동적으로 수정 가능하도록 작성하십시오.
 
 
