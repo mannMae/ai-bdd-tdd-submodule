@@ -4,7 +4,7 @@ glob: "apps/backend/**/*"
 ---
 # 7. 백엔드(FastAPI) 개발 가이드레일
 
-본 가이드는 FastAPI 기반 백엔드 애플리케이션의 높은 안정성과 일관성을 확보하기 위해 AI 에이전트가 반드시 준수해야 하는 규칙입니다. 코드의 세부 구현 양식(Boilerplate)은 하단의 **10. RTM 대응 표준 코드 양식**을 참조하십시오.
+본 가이드는 FastAPI 기반 백엔드 애플리케이션의 높은 안정성과 일관성을 확보하기 위해 AI 에이전트가 반드시 준수해야 하는 규칙입니다. 본 가이드라인은 **[FastAPI Best Practices](https://github.com/zhanymkanov/fastapi-best-practices)**(로컬 사본: `Desktop/practice/fastapi-best-practices`)의 권장 아키텍처 및 안티 패턴을 적극 수용하여 제정되었습니다. 코드의 세부 구현 양식(Boilerplate)은 하단의 **10. RTM 대응 표준 코드 양식**을 참조하십시오.
 
 ---
 

@@ -16,10 +16,12 @@ Git Submodule을 사용하면 중앙 레포지토리(이 저장소)에서 규칙
    git submodule add https://github.com/mannMae/ai-bdd-tdd-template.git .agents
    ```
 
-2. **초기 진입점 생성**: `AGENTS.sample.md` 파일을 부모 프로젝트의 최상단(root) 경로에 `AGENTS.md`라는 이름으로 복사합니다.
+2. **초기 진입점 및 프로젝트 맵 생성**: `AGENTS.sample.md` 및 `PROJECT_MAP.sample.md` 파일을 부모 프로젝트의 최상단(root) 경로에 복사합니다.
    ```bash
    cp .agents/AGENTS.sample.md ./AGENTS.md
+   cp .agents/PROJECT_MAP.sample.md ./PROJECT_MAP.md
    ```
+   *(복사한 `PROJECT_MAP.md` 파일은 해당 프로젝트의 디렉토리 구조와 기술 스택에 맞게 수정하십시오. AI 에이전트는 작업을 시작할 때 이 맵 문서를 먼저 읽고 소스 폴더를 탐색합니다.)*
 
 3. **팀원 공유**: 다른 팀원들이 이 프로젝트를 클론할 때는 다음 명령어를 사용해야 서브모듈까지 한 번에 가져올 수 있습니다.
    ```bash
@@ -32,8 +34,9 @@ Git Submodule을 사용하면 중앙 레포지토리(이 저장소)에서 규칙
 - **`rules/`**: Antigravity가 자동으로 감지하고 로드하는 BDD-TDD 라이프사이클 및 검증 게이트 규칙들입니다.
   - **`rules/templates/`**: 하위 프로젝트별 로컬 개발 가이드레일(`AI_GUIDERAILS`) 템플릿입니다. 프론트엔드, 백엔드(FastAPI), AI 모듈용 템플릿이 있습니다.
 - **`docs/`**: RTM, User Flow 등을 저장할 문서 폴더의 뼈대입니다. 부모 프로젝트에서 필요에 따라 참조하여 작성하세요.
-- **`AGENT_README.md`**: 이 문서입니다. (루트 프로젝트의 README.md와 이름이 충돌하지 않도록 변경됨)
+- **`AGENT_README.md`**: 이 문서입니다.
 - **`AGENTS.sample.md`**: 부모 프로젝트의 최상단에 복사해야 할 초기 진입점 샘플 파일입니다.
+- **`PROJECT_MAP.sample.md`**: 부모 프로젝트 최상단에 복사해서 사용할 구조 및 테스트 명령어 정의 템플릿입니다.
 
 ## 🛠️ 프로젝트별 로컬 개발 가이드레일 (`AI_GUIDERAILS`) 주입하기
 

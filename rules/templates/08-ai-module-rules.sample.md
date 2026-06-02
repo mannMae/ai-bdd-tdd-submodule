@@ -4,7 +4,7 @@ glob: "apps/ai-server/**/*"
 ---
 # 8. 로컬 ML 추론 (ONNX) 서버 개발 가이드레일
 
-로컬 ONNX 기반의 머신러닝/딥러닝 추론 API를 서빙하는 AI 서버의 안정성, CPU 동시성 성능 확보, OOM(Out of Memory) 예방, 입력값 무결성 및 의존성 관리를 위한 핵심 엔지니어링 가이드레일입니다.
+본 가이드라인은 **[Docflow](https://github.com/mannMae/docflow)**(로컬 사본: `Desktop/practice/docflow`)의 AI 에이전트 워크플로우 아키텍처 및 계층 구조(inbound -> usecases -> workflow -> core -> outbound)를 기반으로 하여 제정되었습니다. 로컬 ONNX 기반의 머신러닝/딥러닝 추론 API 및 LLM 에이전트 워크플로우를 서빙하는 AI 서버의 안정성, CPU 동시성 성능 확보, OOM(Out of Memory) 예방, 입력값 무결성 및 의존성 관리를 위한 핵심 엔지니어링 가이드레일입니다.
 
 ---
 

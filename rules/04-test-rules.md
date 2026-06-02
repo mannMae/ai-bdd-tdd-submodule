@@ -116,7 +116,8 @@ defineFeature(feature, (test) => {
 
 1. **규칙 격리 테스트**: 단위 테스트는 이전 단계인 통합 테스트 상단 주석에 정의된 **개별 유닛의 구체적인 규칙 항목에 대해서만 테스트 케이스를 추가**하며, 규칙 문서에 없는 임의의 비즈니스 로직이나 단순 구현 세부 사항을 테스트하지 않습니다.
 2. **1:1 매핑 및 출처 표기**: 테스트 케이스와 SUT 동작 규칙(Business Rules)을 1:1로 매핑하고, `test` 또는 `it` 메서드의 설명 문자열에 검증 규칙 내용을 그대로 적고, **해당 규칙이 정의된 통합 테스트 파일명을 출처로 표시(예: `(요구처: {통합테스트파일명})`)**합니다.
-3. **실제 데이터와 어서션 코드로 완성**: 단위 테스트는 해당 규칙이 실제로 준수되고 있는지를 확실히 드러내기 위해 **구체적인 Mock/테스트 데이터와 세밀한 단언문(Assertions)**으로 코드가 작성되어야 합니다.
+3. **적용 코드 폼 (Code Form) 필수 명시**: 모든 단위 테스트 파일은 최상단 메타데이터에 **해당 SUT가 어떠한 코드 표준 및 아키텍처 구조를 따르는지 명시하기 위해 적용 코드 폼(ID 및 물리 경로)을 반드시 선언**해야 합니다. (예: `적용 코드 폼 (Code Form): rules/exams/apps/backend/src/board/service.py (BE-02)`) 이를 생략하고 임의의 구조로 구현하여 통과할 수 없습니다.
+4. **실제 데이터와 어서션 코드로 완성**: 단위 테스트는 해당 규칙이 실제로 준수되고 있는지를 확실히 드러내기 위해 **구체적인 Mock/테스트 데이터와 세밀한 단언문(Assertions)**으로 코드가 작성되어야 합니다.
 
 ### [유닛 테스트 메타데이터 템플릿 (Metadata Template)]
 개별 단위 테스트 파일 상단에 격리 대상(SUT)과 동작 규칙을 명시하는 프레임워크 독립적인 메타데이터 설계 구조입니다.
@@ -126,6 +127,7 @@ defineFeature(feature, (test) => {
 /**
  * [1. 테스트 대상 유닛 (SUT - System Under Test)]
  * - {유닛분류}: {물리 파일경로} ({클래스/함수/훅/스토어액션 명칭})
+ *   - 적용 코드 폼 (Code Form): {코드 폼 사전의 물리 경로} ({코드 폼 ID})
  *   - 하위 유닛 (Sub-units): {유닛 내부에서 렌더링되거나 동작을 돕는 로컬 하위 유닛 목록 (해당하는 경우만 기입)}
  *   - State: {유닛 내부에서 관리 및 변형시키는 상태 속성 목록}
  *   - Actions/Methods: {동작 검증을 위해 외부로 제공하는 메서드 및 인터페이스}
@@ -144,6 +146,7 @@ defineFeature(feature, (test) => {
 /**
  * [1. 테스트 대상 하위 유닛 (SUT - System Under Test)]
  * - {유닛분류}: {물리 파일경로} ({클래스/함수/컴포넌트명})
+ *   - 적용 코드 폼 (Code Form): {코드 폼 사전의 물리 경로} ({코드 폼 ID})
  * 
  * [2. 최상위 부모 유닛 (Top-level Parent Unit)]
  * - {최상위유닛분류}: {물리 파일경로} ({최상위유닛명})
@@ -158,111 +161,93 @@ defineFeature(feature, (test) => {
 
 ### [유닛 테스트 구체적 예시 (Example)]
 
-#### ① 예시 A: 최상위 유닛 단위 테스트 (Store/Model 예시)
-```typescript
-/**
- * [1. 테스트 대상 유닛 (SUT)]
- * - 스토어: src/stores/score-store.ts (useScoreStore)
- *   - State: score (ScoreData | null), error (string | null)
- *   - Actions: setScore(data: unknown) => void, clearScore() => void
- * 
- * [2. 호출/의존하는 유닛 (Dependencies)]
- * - 스키마: src/stores/score-store.ts (ScoreSchema - Zod)
- * 
- * [3. SUT 동작 규칙 (Business Rules)]
- *   1. 성공 세팅: 검증 성공 시 score 상태를 주입된 곡 데이터(title, composer, parts)로 업데이트하고, error는 null로 초기화해야 한다. (요구처: core.schema.test.tsx)
- *   2. 실패 상태 유지: 검증 실패 시 기존 score 상태를 유지하고, error 필드를 "올바르지 않은 악보 파일 형식입니다"로 설정해야 한다. (요구처: core.schema.test.tsx)
- *   3. 초기화: clearScore 호출 시 score와 error 상태를 모두 null로 초기화해야 한다. (요구처: core.schema.test.tsx)
- */
+#### ① 예시 A: 최상위 유닛 단위 테스트 (Python Backend Service 예시)
+```python
+"""
+[1. 테스트 대상 유닛 (SUT - System Under Test)]
+- 서비스: apps/backend/src/board/service.py (CreatePostUsecase)
+- 적용 코드 폼 (Code Form): rules/exams/apps/backend/src/board/service.py (BE-02)
+  - State: None (Stateless Service)
+  - Actions/Methods: execute(request_dto: CreatePostRequest) -> dict
 
-import { describe, test, expect, beforeEach } from 'vitest';
-import { useScoreStore } from '../store/scoreStore';
+[2. 호출/의존하는 유닛 (Dependencies)]
+- 값 객체: apps/backend/src/board/post_vo.py (PostVO) [BE-03]
+- 데이터 모델: apps/backend/src/board/models.py (PostModel) [BE-05]
+- 데이터베이스 세션: sqlalchemy.ext.asyncio.AsyncSession
 
-describe('useScoreStore', () => {
-  beforeEach(() => {
-    // 테스트 실행 전 스토어 상태 초기화
-    useScoreStore.getState().clearScore();
-  });
+[3. SUT 동작 규칙 (Business Rules)]
+  1. 제목 유효성 검증 위임: 제목이 비어 있는 경우 ValueError가 발생해야 한다. (요구처: test_board_backend.py)
+  2. 영속화 성공: 제목이 100자 이하인 경우 PostModel로 변환하여 DB 세션에 add하고 성공 결과를 반환해야 한다. (요구처: test_board_backend.py)
+"""
 
-  test('[1] 성공 세팅: 검증 성공 시 score 상태를 주입된 곡 데이터(title, composer, parts)로 업데이트하고, error는 null로 초기화해야 한다', () => {
-    const validData = {
-      title: "Valid Score",
-      composer: "Test Composer",
-      parts: []
-    };
+import pytest
+from unittest.mock import AsyncMock
+from apps.backend.src.board.service import CreatePostUsecase
 
-    useScoreStore.getState().setScore(validData);
+class MockDTO:
+    def __init__(self, title, content):
+        self.title = title
+        self.content = content
+
+@pytest.mark.asyncio
+async def test_execute_raises_value_error_for_empty_title():
+    # Arrange
+    mock_session = AsyncMock()
+    usecase = CreatePostUsecase(mock_session)
+    invalid_dto = MockDTO(title="", content="내용")
     
-    const state = useScoreStore.getState();
-    expect(state.score).not.toBeNull();
-    expect(state.score?.title).toBe("Valid Score");
-    expect(state.error).toBeNull();
-  });
+    # Act & Assert
+    with pytest.raises(ValueError, match="제목은 비어 있을 수 없습니다"):
+        await usecase.execute(invalid_dto)
 
-  test('[2] 실패 상태 유지: 검증 실패 시 기존 score 상태를 유지하고, error 필드를 "올바르지 않은 악보 파일 형식입니다"로 설정해야 한다', () => {
-    const invalidData = {
-      composer: "Unknown" // 필수 필드(title, parts)가 누락된 데이터
-    };
-
-    useScoreStore.getState().setScore(invalidData);
-
-    const state = useScoreStore.getState();
-    expect(state.score).toBeNull();
-    expect(state.error).toBe("올바르지 않은 악보 파일 형식입니다");
-  });
-});
+@pytest.mark.asyncio
+async def test_execute_persists_post_model_successfully():
+    # Arrange
+    mock_session = AsyncMock()
+    usecase = CreatePostUsecase(mock_session)
+    valid_dto = MockDTO(title="올바른 제목", content="내용")
+    
+    # Act
+    result = await usecase.execute(valid_dto)
+    
+    # Assert
+    mock_session.add.assert_called_once()
+    mock_session.flush.assert_called_once()
+    assert result["status"] == "success"
 ```
 
-#### ② 예시 B: 부모-하위 계층형 단위 테스트 (UI 컴포넌트 예시)
-**최상위 유닛 단위 테스트 (`ScoreEditorPage.test.tsx`):**
+#### ② 예시 B: 하위 유닛 단위 테스트 (Frontend UI Common Component 예시)
 ```typescript
 /**
- * [1. 테스트 대상 유닛 (SUT)]
- * - 컴포넌트: src/features/editor/components/ScoreEditorPage.tsx (ScoreEditorPage)
- *   - 하위 유닛 (Sub-units):
- *     - src/features/editor/components/CloseScoreButton.tsx (CloseScoreButton)
- * 
- * [2. 호출/의존하는 유닛 (Dependencies)]
- * - 스토어: src/stores/score-store.ts (useScoreStore)
- * 
- * [3. SUT 동작 규칙 (Business Rules)]
- *   1. 에디터 식별: 최상위 엘리먼트는 data-testid="score-editor"를 갖는다. (요구처: core.schema.test.tsx)
- *   2. 닫기 기능 위임: 내부 CloseScoreButton에 클릭 이벤트 처리 및 스토어 clearScore 액션 호출 책임을 위임한다. (요구처: core.schema.test.tsx)
- */
-```
-
-**하위 유닛 테스트 (`CloseScoreButton.test.tsx`):**
-```typescript
-/**
- * [1. 테스트 대상 하위 유닛 (SUT)]
- * - 컴포넌트: src/features/editor/components/CloseScoreButton.tsx (CloseScoreButton)
+ * [1. 테스트 대상 하위 유닛 (SUT - System Under Test)]
+ * - 컴포넌트: apps/frontend/src/components/ui/form/InputField.tsx (InputField)
+ *   - 적용 코드 폼 (Code Form): rules/exams/apps/frontend/src/components/ui/form/InputField.tsx (FE-04)
  * 
  * [2. 최상위 부모 유닛 (Top-level Parent Unit)]
- * - 컴포넌트: src/features/editor/components/ScoreEditorPage.tsx (ScoreEditorPage)
+ * - 컴포넌트: apps/frontend/src/features/board/components/PostCreateForm.tsx (PostCreateForm)
  * 
  * [3. SUT 동작 규칙 (Business Rules)]
- *   1. 테스트 식별: 컴포넌트는 data-testid="close-score-button"을 제공해야 한다. (요구처: ScoreEditorPage.test.tsx)
- *   2. 콜백 호출: 클릭 시 상위 부모로부터 전달받은 onClick 콜백 함수를 실행해야 한다. (요구처: ScoreEditorPage.test.tsx)
+ *   1. 레이블 표시: label 속성이 제공된 경우 label 태그를 렌더링해야 한다. (요구처: PostCreateForm.test.tsx)
+ *   2. 에러 롤 노출: error 객체에 message가 명시된 경우 alert 롤을 가지고 있는 엘리먼트로 에러 메시지를 렌더링해야 한다. (요구처: PostCreateForm.test.tsx)
  */
 
-import { describe, test, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import CloseScoreButton from './CloseScoreButton';
+import { describe, test, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { InputField } from './InputField';
 
-describe('CloseScoreButton', () => {
-  test('[1] 테스트 식별: 컴포넌트는 data-testid="close-score-button"을 제공해야 한다', () => {
-    render(<CloseScoreButton onClick={() => {}} />);
-    expect(screen.getByTestId('close-score-button')).toBeInTheDocument();
+describe('InputField', () => {
+  test('[1] 레이블 표시: label 속성이 제공된 경우 label 태그를 렌더링해야 한다', () => {
+    render(<InputField label="제목" registration={{}} />);
+    expect(screen.getByText('제목')).toBeInTheDocument();
   });
 
-  test('[2] 콜백 호출: 클릭 시 상위 부모로부터 전달받은 onClick 콜백 함수를 실행해야 한다', () => {
-    const handleClick = vi.fn();
-    render(<CloseScoreButton onClick={handleClick} />);
+  test('[2] 에러 롤 노출: error 객체에 message가 명시된 경우 alert 롤을 가지고 있는 엘리먼트로 에러 메시지를 렌더링해야 한다', () => {
+    const errorMsg = '제목은 필수 입력 사항입니다';
+    render(<InputField registration={{}} error={{ message: errorMsg }} />);
     
-    const button = screen.getByTestId('close-score-button');
-    fireEvent.click(button);
-    
-    expect(handleClick).toHaveBeenCalledTimes(1);
+    const alertEl = screen.getByRole('alert');
+    expect(alertEl).toBeInTheDocument();
+    expect(alertEl).toHaveTextContent(errorMsg);
   });
 });
 ```

@@ -29,27 +29,27 @@
   <tbody>
     <tr>
       <td><b>S01. 모니터링 시작</b><br><i>(넘버패드 입력 후 시작)</i></td>
-      <td>• Numpad.tsx</td>
+      <td>• Numpad.tsx [FE-04]</td>
       <td>• apiClient.ts</td>
-      <td>• MonitoringSetting.tsx<br>• NumpadModal.tsx<br>• Monitoring.tsx</td>
-      <td>• useStartMonitoring.ts</td>
-      <td>• store/useMonitorStore.ts<br>• utils/storage.ts</td>
+      <td>• MonitoringSetting.tsx [FE-08]<br>• NumpadModal.tsx [FE-08]<br>• Monitoring.tsx [FE-08]</td>
+      <td>• useStartMonitoring.ts [FE-02]</td>
+      <td>• store/useMonitorStore.ts [FE-03]<br>• utils/storage.ts</td>
     </tr>
     <tr>
       <td><b>S02. 시뮬레이션 모드</b><br><i>(시뮬레이션 데이터 구동)</i></td>
-      <td>• Card.tsx</td>
+      <td>• Card.tsx [FE-04]</td>
       <td>• apiClient.ts</td>
-      <td>• Monitoring.tsx<br>• SimulationPanel.tsx</td>
-      <td>• useSimulate.ts</td>
-      <td>• store/useMonitorStore.ts<br>• utils/timeFormatter.ts</td>
+      <td>• Monitoring.tsx [FE-08]<br>• SimulationPanel.tsx [FE-08]</td>
+      <td>• useSimulate.ts [FE-02]</td>
+      <td>• store/useMonitorStore.ts [FE-03]<br>• utils/timeFormatter.ts</td>
     </tr>
     <tr>
       <td><b>S03. 모니터링 종료</b><br><i>(사용자 강제 종료)</i></td>
-      <td>• feedback/ConfirmModal.tsx</td>
+      <td>• feedback/ConfirmModal.tsx [FE-04]</td>
       <td>• apiClient.ts</td>
-      <td>• Monitoring.tsx</td>
-      <td>• useStopMonitoring.ts</td>
-      <td>• store/useMonitorStore.ts<br>• utils/storage.ts</td>
+      <td>• Monitoring.tsx [FE-08]</td>
+      <td>• useStopMonitoring.ts [FE-02]</td>
+      <td>• store/useMonitorStore.ts [FE-03]<br>• utils/storage.ts</td>
     </tr>
   </tbody>
 </table>
@@ -61,36 +61,52 @@
     <tr>
       <th rowspan="2" align="left">시나리오</th>
       <th colspan="1" align="center">공통 (Common)</th>
-      <th colspan="3" align="center">모니터링 피처 (Monitoring)</th>
+      <th colspan="7" align="center">모니터링 피처 (Monitoring)</th>
     </tr>
     <tr>
-      <th align="left">middleware/db<br><sub>src/common</sub></th>
+      <th align="left">db<br><sub>src</sub></th>
       <th align="left">routers<br><sub>src/monitoring</sub></th>
       <th align="left">services<br><sub>src/monitoring</sub></th>
-      <th align="left">models/deps<br><sub>src/monitoring</sub></th>
+      <th align="left">post_vo<br><sub>src/monitoring</sub></th>
+      <th align="left">dependencies<br><sub>src/monitoring</sub></th>
+      <th align="left">models<br><sub>src/monitoring</sub></th>
+      <th align="left">schemas<br><sub>src/monitoring</sub></th>
+      <th align="left">tests<br><sub>tests/monitoring</sub></th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td><b>S01. 모니터링 시작</b><br><i>(넘버패드 입력 후 시작)</i></td>
-      <td>• middleware/auth.py<br>• db/session.py</td>
-      <td>• routers.py</td>
-      <td>• services.py</td>
-      <td>• models.py<br>• dependencies.py</td>
+      <td>• database.py [BE-04]</td>
+      <td>• router.py [BE-01]</td>
+      <td>• service.py [BE-02]</td>
+      <td>• vo.py [BE-03]</td>
+      <td>• dependencies.py [BE-06]</td>
+      <td>• models.py [BE-05]</td>
+      <td>• schemas.py [BE-07]</td>
+      <td>• test_monitoring.py [BE-08]</td>
     </tr>
     <tr>
       <td><b>S02. 시뮬레이션 모드</b><br><i>(시뮬레이션 데이터 구동)</i></td>
-      <td>• db/session.py</td>
-      <td>• routers.py</td>
-      <td>• services.py</td>
-      <td>• models.py<br>• dependencies.py</td>
+      <td>• database.py [BE-04]</td>
+      <td>• router.py [BE-01]</td>
+      <td>• service.py [BE-02]</td>
+      <td>• vo.py [BE-03]</td>
+      <td>• dependencies.py [BE-06]</td>
+      <td>• models.py [BE-05]</td>
+      <td>• schemas.py [BE-07]</td>
+      <td>• test_monitoring.py [BE-08]</td>
     </tr>
     <tr>
       <td><b>S03. 모니터링 종료</b><br><i>(사용자 강제 종료)</i></td>
-      <td>• middleware/auth.py</td>
-      <td>• routers.py</td>
-      <td>• services.py</td>
-      <td>• models.py<br>• dependencies.py</td>
+      <td>• database.py [BE-04]</td>
+      <td>• router.py [BE-01]</td>
+      <td>• service.py [BE-02]</td>
+      <td>-</td>
+      <td>• dependencies.py [BE-06]</td>
+      <td>• models.py [BE-05]</td>
+      <td>• schemas.py [BE-07]</td>
+      <td>• test_monitoring.py [BE-08]</td>
     </tr>
   </tbody>
 </table>
@@ -102,36 +118,52 @@
     <tr>
       <th rowspan="2" align="left">시나리오</th>
       <th colspan="1" align="center">공통 (Common)</th>
-      <th colspan="3" align="center">AI 피처 (Prediction)</th>
+      <th colspan="7" align="center">AI 피처 (Prediction)</th>
     </tr>
     <tr>
-      <th align="left">base<br><sub>src/common</sub></th>
-      <th align="left">routers<br><sub>src/prediction</sub></th>
-      <th align="left">models<br><sub>models</sub></th>
-      <th align="left">config<br><sub>src/prediction</sub></th>
+      <th align="left">bootstrap<br><sub>src</sub></th>
+      <th align="left">inbound<br><sub>src/inbound</sub></th>
+      <th align="left">usecases<br><sub>src/usecases</sub></th>
+      <th align="left">workflow<br><sub>src/workflow</sub></th>
+      <th align="left">core<br><sub>src/core</sub></th>
+      <th align="left">outbound<br><sub>src/outbound</sub></th>
+      <th align="left">types<br><sub>src/types</sub></th>
+      <th align="left">tests<br><sub>tests</sub></th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td><b>S01. 모니터링 시작</b><br><i>(넘버패드 입력 후 시작)</i></td>
-      <td>• predictor.py</td>
-      <td>• routers.py</td>
-      <td>• model.onnx</td>
-      <td>• config.py</td>
+      <td>• bootstrap.py [AI-06]</td>
+      <td>• router.py [AI-01]</td>
+      <td>• inference.py [AI-02]</td>
+      <td>-</td>
+      <td>• processor.py [AI-04]</td>
+      <td>• gateway.py [AI-05]</td>
+      <td>• value.py [AI-07]</td>
+      <td>• test_inference.py [AI-08]</td>
     </tr>
     <tr>
       <td><b>S02. 시뮬레이션 모드</b><br><i>(시뮬레이션 데이터 구동)</i></td>
-      <td>• predictor.py</td>
-      <td>• routers.py</td>
-      <td>• model.onnx</td>
-      <td>• config.py</td>
+      <td>• bootstrap.py [AI-06]</td>
+      <td>• router.py [AI-01]</td>
+      <td>• inference.py [AI-02]</td>
+      <td>• process.py [AI-03]</td>
+      <td>• processor.py [AI-04]</td>
+      <td>• gateway.py [AI-05]</td>
+      <td>• value.py [AI-07]</td>
+      <td>• test_inference.py [AI-08]</td>
     </tr>
     <tr>
       <td><b>S03. 모니터링 종료</b><br><i>(사용자 강제 종료)</i></td>
+      <td>• bootstrap.py [AI-06]</td>
+      <td>• router.py [AI-01]</td>
+      <td>• inference.py [AI-02]</td>
       <td>-</td>
       <td>-</td>
       <td>-</td>
-      <td>-</td>
+      <td>• value.py [AI-07]</td>
+      <td>• test_inference.py [AI-08]</td>
     </tr>
   </tbody>
 </table>

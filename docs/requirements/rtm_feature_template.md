@@ -20,28 +20,28 @@
     </tr>
     <tr>
       <th align="left">components<br><sub>src/components</sub></th>
-      <th align="left">api/utils<br><sub>src/common</sub></th>
+      <th align="left">app<br><sub>src/app</sub></th>
       <th align="left">components<br><sub>src/features/{기능명}/components</sub></th>
       <th align="left">api<br><sub>src/features/{기능명}/api</sub></th>
-      <th align="left">store/utils<br><sub>src/features/{기능명}</sub></th>
+      <th align="left">store<br><sub>src/features/{기능명}/stores</sub></th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td><b>S01. {시나리오명}</b><br><i>({시나리오 트리거 조건})</i></td>
-      <td>• {공통컴포넌트파일명}.tsx</td>
-      <td>• {공통클라이언트파일명}.ts</td>
-      <td>• {전용컴포넌트파일명}.tsx</td>
-      <td>• {전용API통신코드파일명}.ts</td>
-      <td>• store/{전용스토어파일명}.ts<br>• utils/{전용유틸파일명}.ts</td>
+      <td>• {공통컴포넌트파일명}.tsx [FE-04]</td>
+      <td>• provider.tsx [FE-06]</td>
+      <td>• {전용컴포넌트파일명}.tsx [FE-08]</td>
+      <td>• {전용API통신코드파일명}.ts [FE-02]</td>
+      <td>• {전용스토어파일명}.ts [FE-03]</td>
     </tr>
     <tr>
       <td><b>S02. {시나리오명}</b><br><i>({시나리오 트리거 조건})</i></td>
-      <td>• {공통컴포넌트파일명}.tsx</td>
-      <td>• {공통클라이언트파일명}.ts</td>
-      <td>• {전용컴포넌트파일명}.tsx</td>
-      <td>• {전용API통신코드파일명}.ts</td>
-      <td>• store/{전용스토어파일명}.ts<br>• utils/{전용유틸파일명}.ts</td>
+      <td>• {공통컴포넌트파일명}.tsx [FE-04]</td>
+      <td>• router.tsx [FE-07]</td>
+      <td>• {전용컴포넌트파일명}.tsx [FE-08]</td>
+      <td>• {전용API통신코드파일명}.ts [FE-02]</td>
+      <td>• {전용스토어파일명}.ts [FE-03]</td>
     </tr>
   </tbody>
 </table>
@@ -53,29 +53,41 @@
     <tr>
       <th rowspan="2" align="left">시나리오</th>
       <th colspan="1" align="center">공통 (Common)</th>
-      <th colspan="3" align="center">{기능명} 피처 ({Feature})</th>
+      <th colspan="7" align="center">{기능명} 피처 ({Feature})</th>
     </tr>
     <tr>
-      <th align="left">middleware/db<br><sub>src/common</sub></th>
+      <th align="left">db<br><sub>src</sub></th>
       <th align="left">routers<br><sub>src/{기능명}</sub></th>
       <th align="left">services<br><sub>src/{기능명}</sub></th>
-      <th align="left">models/deps<br><sub>src/{기능명}</sub></th>
+      <th align="left">post_vo<br><sub>src/{기능명}</sub></th>
+      <th align="left">dependencies<br><sub>src/{기능명}</sub></th>
+      <th align="left">models<br><sub>src/{기능명}</sub></th>
+      <th align="left">schemas<br><sub>src/{기능명}</sub></th>
+      <th align="left">tests<br><sub>tests/{기능명}</sub></th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td><b>S01. {시나리오명}</b><br><i>({시나리오 트리거 조건})</i></td>
-      <td>• middleware/{공통미들웨어파일명}.py<br>• db/{공통DB세션파일명}.py</td>
-      <td>• {라우터파일명}.py</td>
-      <td>• {유스케이스파일명}.py</td>
-      <td>• models.py<br>• dependencies.py</td>
+      <td>• database.py [BE-04]</td>
+      <td>• router.py [BE-01]</td>
+      <td>• service.py [BE-02]</td>
+      <td>• {VO파일명}_vo.py [BE-03]</td>
+      <td>• dependencies.py [BE-06]</td>
+      <td>• models.py [BE-05]</td>
+      <td>• schemas.py [BE-07]</td>
+      <td>• test_create_post.py [BE-08]</td>
     </tr>
     <tr>
       <td><b>S02. {시나리오명}</b><br><i>({시나리오 트리거 조건})</i></td>
-      <td>• db/{공통DB세션파일명}.py</td>
-      <td>• {라우터파일명}.py</td>
-      <td>• {유스케이스파일명}.py</td>
-      <td>• models.py<br>• dependencies.py</td>
+      <td>• database.py [BE-04]</td>
+      <td>• router.py [BE-01]</td>
+      <td>• service.py [BE-02]</td>
+      <td>• {VO파일명}_vo.py [BE-03]</td>
+      <td>• dependencies.py [BE-06]</td>
+      <td>• models.py [BE-05]</td>
+      <td>• schemas.py [BE-07]</td>
+      <td>• test_create_post.py [BE-08]</td>
     </tr>
   </tbody>
 </table>
@@ -87,29 +99,41 @@
     <tr>
       <th rowspan="2" align="left">시나리오</th>
       <th colspan="1" align="center">공통 (Common)</th>
-      <th colspan="3" align="center">AI 피처 (Prediction)</th>
+      <th colspan="7" align="center">AI 피처 (Prediction)</th>
     </tr>
     <tr>
-      <th align="left">base<br><sub>src/common</sub></th>
-      <th align="left">routers<br><sub>src/prediction</sub></th>
-      <th align="left">models<br><sub>models</sub></th>
-      <th align="left">config<br><sub>src/prediction</sub></th>
+      <th align="left">bootstrap<br><sub>src</sub></th>
+      <th align="left">inbound<br><sub>src/inbound</sub></th>
+      <th align="left">usecases<br><sub>src/usecases</sub></th>
+      <th align="left">workflow<br><sub>src/workflow</sub></th>
+      <th align="left">core<br><sub>src/core</sub></th>
+      <th align="left">outbound<br><sub>src/outbound</sub></th>
+      <th align="left">types<br><sub>src/types</sub></th>
+      <th align="left">tests<br><sub>tests</sub></th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td><b>S01. {시나리오명}</b><br><i>({시나리오 트리거 조건})</i></td>
-      <td>• {공통추론클래스파일명}.py</td>
-      <td>• {라우터파일명}.py</td>
-      <td>• {모델파일명}.onnx</td>
-      <td>• {설정파일명}.py</td>
+      <td>• bootstrap.py [AI-06]</td>
+      <td>• router.py [AI-01]</td>
+      <td>• inference.py [AI-02]</td>
+      <td>• process.py [AI-03]</td>
+      <td>• processor.py [AI-04]</td>
+      <td>• gateway.py [AI-05]</td>
+      <td>• value.py [AI-07]</td>
+      <td>• test_inference.py [AI-08]</td>
     </tr>
     <tr>
       <td><b>S02. {시나리오명}</b><br><i>({시나리오 트리거 조건})</i></td>
-      <td>-</td>
-      <td>-</td>
-      <td>-</td>
-      <td>-</td>
+      <td>• bootstrap.py [AI-06]</td>
+      <td>• router.py [AI-01]</td>
+      <td>• inference.py [AI-02]</td>
+      <td>• process.py [AI-03]</td>
+      <td>• processor.py [AI-04]</td>
+      <td>• gateway.py [AI-05]</td>
+      <td>• value.py [AI-07]</td>
+      <td>• test_inference.py [AI-08]</td>
     </tr>
   </tbody>
 </table>
@@ -119,14 +143,14 @@
 ## 💡 각 영역별 작성 가이드 및 표준 코드 양식 (Code Forms)
 
 > [!IMPORTANT]
-> **🚨 AI 에이전트 개발 가이드라인 (RTM 개발 계약)**
-> 1. **정답표 및 준수 여부 심사**: 이 RTM(기술 매핑 문서)은 구현 완료 후 사용자가 코드가 잘 작성되었는지 채점하기 위한 정답표이자 규칙 검증 계약서입니다.
-> 2. **엄격한 규칙 준수**: 각 컬럼에 정의된 물리 디렉토리 경로, 구조적 역할, 그리고 하단에 명시된 **[표준 코드 양식(Templates)]**을 정확히 준수하여 소스 코드가 작성되어야 합니다.
-> 3. **반려 기준**: 다음 사항에 하나라도 해당할 경우, 구현 결과물은 예외 없이 **반려(Reject)** 처리됩니다.
->    - 지정된 기본 디렉토리 경로가 아닌 임의의 위치에 파일을 작성한 경우.
->    - 표준 코드 양식(예: Usecase의 단일 책임 클래스 구조, 불변 VO의 dataclass 선언 등)을 따르지 않고 임의의 아키텍처 및 보일러플레이트로 구현한 경우.
->    - RTM 테이블에 누락되었거나 RTM의 매핑 정보와 다르게 임의로 파일을 임포트하여 의존 관계를 깬 경우.
-> 4. **개발 전 필수 확인**: AI 에이전트는 코드를 구현하기 전에 반드시 본 RTM의 가이드 및 코드 양식을 읽고 분석한 뒤, 이에 정확히 부합하는 형태의 프로덕션 코드만을 작성해야 합니다.
+> **🚨 AI 에이전트 RTM 행-열 계약 (Row-Column Enforcement Contract)**
+> 1. **행(Row)-열(Column) 결합 의무**: 이 RTM 문서의 행(시나리오 = 구현해야 할 컨텐츠)과 열(물리적 디렉토리 및 표준 코드 폼 = 구현의 레퍼런스)은 강력한 실행 규격 계약서입니다.
+> 2. **코드 폼(Code Form) 상속 필수**: 셀에 기재된 소스 코드를 생성/수정할 때, 에이전트는 해당하는 **열의 코드 폼 번호([Code Form])의 구조 및 보일러플레이트를 반드시 100% 모방(상속)하여 작성**해야 합니다. 임의의 아키텍처나 구조 편차를 적용하는 것을 엄격히 금지합니다.
+> 3. **반려(Reject) 사유**: 아래 사항 위반 시 즉시 작업은 반려됩니다:
+>    - 지정된 열의 기본 물리 디렉토리가 아닌 다른 임의의 경로에 파일을 생성한 경우.
+>    - 표준 코드 폼(예: `services` 열 ➔ 단일 책임 Usecase 클래스 구조, `models` 열 ➔ frozen VO dataclass 등)에 위배되는 방식으로 freestyle 코딩을 한 경우.
+>    - RTM에 명시되지 않은 파일 또는 의존성을 임의로 추가하여 도메인 간의 단방향 결합을 깨뜨린 경우.
+> 4. **개발 전 필수 조치**: 에이전트는 코딩 시작 전에 RTM 매핑 매트릭스의 열별 `[Code Form]` 레퍼런스를 개발 가이드레일 파일에서 직접 로드하여 숙지해야 합니다.
 
 ---
 
@@ -150,7 +174,7 @@
 
 ### 2) 백엔드 (Backend - 디렉토리 단위 매핑)
 
-백엔드 파일들은 실제 프로젝트 디렉토리 구조(`routers`, `services`, `models`, `dependencies`)에 맞추어 매핑하여 기술하며, 코드 작성 시 [백엔드 개발 가이드레일(07-backend-rules.md)](file:///rules/templates/07-backend-rules.sample.md)을 준수해야 합니다.
+백엔드 파일들은 실제 프로젝트 디렉토리 구조(`db`, `routers`, `services`, `post_vo`, `dependencies`, `models`)에 맞추어 매핑하여 기술하며, 코드 작성 시 [백엔드 개발 가이드레일(07-backend-rules.md)](file:///rules/templates/07-backend-rules.sample.md)을 준수해야 합니다.
 
 #### ① routers
 *   **정의**: 백엔드가 외부 요청을 받아들이는 라우터 인터페이스 **순수 파일명** 및 HTTP/WS 엔드포인트 명세.
@@ -160,9 +184,16 @@
 *   **정의**: 단일 비즈니스 규칙 및 Usecase를 수행하는 서비스 비즈니스 클래스 정의 파일의 **순수 파일명**.
 *   **표준 코드 양식**: [Backend Rules - services 표준 코드 양식](file:///rules/templates/07-backend-rules.sample.md#services)을 준수하여 작성해야 합니다.
 
-#### ③ models/deps
-*   **정의**: 데이터베이스 ORM 모델 정의 파일, 불변 값 객체(VO), 의존성 주입(Depends) 및 미들웨어 관련 파일의 **순수 파일명**들을 기재합니다.
-*   **표준 코드 양식**: [Backend Rules - models 및 dependencies 표준 코드 양식](file:///rules/templates/07-backend-rules.sample.md#modelsdeps)을 준수하여 작성해야 합니다.
+#### ③ post_vo
+*   **정의**: 비즈니스 정책 및 무결성 제약조건을 검증하는 Immutable 값 객체(VO) 정의 파일의 **순수 파일명**.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-03]` 표준 코드 양식을 준수하여 작성해야 합니다.
+
+#### ④ dependencies
+*   **정의**: FastAPI의 의존성 주입(`Depends`)을 위한 팩토리 함수 정의 파일의 **순수 파일명**.
+
+#### ⑤ models
+*   **정의**: 데이터베이스 테이블 스키마에 매핑되는 SQLAlchemy ORM 모델 정의 파일의 **순수 파일명**.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-05]` 표준 코드 양식을 준수하여 작성해야 합니다.
 
 ---
 
