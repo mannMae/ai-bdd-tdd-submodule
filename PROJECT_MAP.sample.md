@@ -34,6 +34,60 @@
 | └ 가중치/모델 | `models/` | `models/` | ML/DL 모델 가중치 파일 (.bin, .pth) |
 | └ 추론 라우터 | `src/prediction/` | `src/prediction/router.py` | 추론 라우터 및 전처리 파이프라인 |
 
+### 시각적 프로젝트 구조 예시 (Visual Directory Tree Example)
+
+```text
+root/
+├── apps/
+│   ├── frontend/                 # 🖥️ 프론트엔드 애플리케이션 루트 (FE Root)
+│   │   └── src/
+│   │       ├── app/
+│   │       │   ├── router.tsx    # 라우팅 설정 파일 (FE-ROUTER)
+│   │       │   └── provider.tsx  # 전역 Context / Query Provider 설정 (FE-PROVIDER)
+│   │       ├── components/       # 도메인 비의존적인 공통 컴포넌트
+│   │       │   └── ui/           # 버튼, 모달, 입력필드 등 (FE-SHARED-COMP)
+│   │       └── features/         # 비즈니스 영역별 Bounded Context 피처 폴더
+│   │           └── {feature}/    # 피처 도메인명 (예: auth, monitoring)
+│   │               ├── components/ # 피처 종속적 UI 컴포넌트 (FE-FEATURE-COMP)
+│   │               ├── api/      # react-query API 훅 (FE-QUERY, FE-MUTATION)
+│   │               ├── stores/   # zustand 상태 관리 스토어 (FE-STORE)
+│   │               ├── hooks/    # UI 제어용 커스텀 훅 (FE-HOOK)
+│   │               ├── utils/    # 도메인 전용 헬퍼 함수 (FE-UTIL)
+│   │               └── types/    # TS 타입/인터페이스 선언 (FE-TYPE)
+│   │
+│   ├── backend/                  # ⚙️ 백엔드 서비스 루트 (BE Root)
+│   │   └── src/
+│   │       ├── main.py           # 애플리케이션 진입점 및 Lifespan 제어
+│   │       ├── config.py         # 전역/도메인 공통 설정 (BE-CONFIG)
+│   │       ├── database.py       # DB 커넥션 및 Session 주입 모듈 (BE-DATABASE)
+│   │       ├── shared/           # 전역 공유 모듈 (BE-SHARED-*)
+│   │       │   ├── models.py     # SQLAlchemy Base 모델 선언 (BE-SHARED-MODEL)
+│   │       │   └── exceptions.py # 공통 ExceptionHandler 등록 (BE-SHARED-EXCEPTION)
+│   │       └── {domain}/         # 도메인별 Bounded Context 폴더 (예: auth, monitoring)
+│   │           ├── router.py     # API 라우터 진입점 (BE-DOMAIN-ROUTER)
+│   │           ├── service.py    # Usecase 비즈니스 로직 클래스 (BE-DOMAIN-SERVICE)
+│   │           ├── vo.py         # 도메인 불변 값 객체 (BE-DOMAIN-VO)
+│   │           ├── models.py     # 도메인 ORM 테이블 모델 (BE-DOMAIN-MODEL)
+│   │           ├── schemas.py    # 입출력 직렬화 DTO 스키마 (BE-DOMAIN-SCHEMA)
+│   │           ├── dependencies.py # API 파라미터 사전 검증 Depends (BE-DOMAIN-DEPENDENCY)
+│   │           └── client.py     # 도메인 전용 외부 호출 클라이언트 (BE-DOMAIN-CLIENT)
+│   │
+│   └── ai-server/                # 🤖 AI 추론 모듈 루트 (AI Root)
+│       ├── app.py                # FastAPI 진입점 및 lifespan DI 컨테이너 조립
+│       ├── main.py               # CLI 배치/추론 명령 진입점
+│       ├── artifacts/            # ONNX 가중치 파일 및 메타데이터 보관
+│       └── src/
+│           ├── bootstrap.py      # DI Container 및 싱글톤 팩토리 (AI-BOOTSTRAP)
+│           └── {domain}/         # 도메인별 Bounded Context 폴더 (예: fhr_predictor)
+│               ├── router.py     # FastAPI APIRouter 엔드포인트 (AI-DOMAIN-ROUTER)
+│               ├── inference.py  # 추론 조율 오케스트레이터 (AI-DOMAIN-USECASE)
+│               ├── adapter.py    # ONNX 세션 모델 구동 엔진 (AI-DOMAIN-ADAPTER)
+│               ├── types.py      # DTO 및 예측 모델 입출력 타입 (AI-DOMAIN-TYPE)
+│               ├── preprocessing.py # 시그널 전처리 핵심 연산 (AI-DOMAIN-CORE)
+│               └── postprocessing.py # 임계값 필터링 등 후처리 연산 (AI-DOMAIN-CORE)
+└── packages/                     # 모노레포 공통 패키지 (선택 사항)
+```
+
 ---
 
 ## 3. 기술 스택 & 테스트 실행 명령어 레시피 (Tech Stack & Test Recipes)
