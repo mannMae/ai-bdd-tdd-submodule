@@ -8,7 +8,6 @@ version: 1.0.0
 
 개발 중 새로운 코드 파일(SUT)을 생성하거나 기존 코드를 리팩토링하여 분할할 때, 아래의 명확한 아키텍처적/테스트적 기준을 준수해야 합니다. 임의의 기준으로 파일을 쪼개거나 무분별하게 병합하는 것은 엄격히 금지됩니다.
 
-
 ---
 
 ## 1. 🖥️ 프론트엔드 컴포넌트 분할 기준
@@ -28,7 +27,7 @@ version: 1.0.0
 
 ### ③ 공통 공유 컴포넌트 (FE-SHARED-COMP) 분할
 *   **분할 기준**: 특정 비즈니스 도메인(예: 결제, 주문 등)에 종속되지 않고, 여러 피처에서 범용적으로 재사용되는 UI 요소(Button, Modal, InputField, Card, Toast 등)는 비즈니스 로직을 완전히 배제하고 `src/components/ui/` 하위로 분할합니다.
-*   **핵심 원칙**: 공통 공유 컴포넌트는 `FE-QUERY`, `FE-MUTATION`, `FE-STORE` 등 비즈니스 상태를 임포트할 수 없으며, 모든 제어는 외부 props를 통해서만 수행해야 합니다.
+*   **핵심 원칙**: 공통 공유 컴포넌트는 `FE-FEATURE-QUERY`, `FE-FEATURE-MUTATION`, `FE-FEATURE-STORE` 등 피처 전용 비즈니스 상태를 임포트할 수 없으며, 모든 제어는 외부 props를 통해서만 수행해야 합니다.
 
 ---
 
@@ -37,11 +36,11 @@ version: 1.0.0
 BDD-TDD 프로세스 하에서 단위 테스트의 대상이 되는 "유닛(Unit)"을 도출하고 분할할 때 다음 기준을 따릅니다.
 
 ### ① 컴포넌트 로직의 훅(Hook) / 스토어(Store) 추출 분할
-*   **분할 기준**: 컴포넌트 내부의 비즈니스 로직(API 호출, 복잡한 상태 분기, 타이머 제어 등)이 15라인을 넘어가거나 독립적인 검증이 필요할 때, 해당 로직을 컴포넌트에 남겨두지 말고 **Custom Hook (`FE-HOOK`)** 또는 **Zustand Store (`FE-STORE`)**로 분할하여 독립 유닛화합니다.
+*   **분할 기준**: 컴포넌트 내부의 비즈니스 로직(API 호출, 복잡한 상태 분기, 타이머 제어 등)이 15라인을 넘어가거나 독립적인 검증이 필요할 때, 해당 로직을 컴포넌트에 남겨두지 말고 **피처 커스텀 훅 (`FE-FEATURE-HOOK`)** 또는 **피처 전용 스토어 (`FE-FEATURE-STORE`)**로 분할하여 독립 유닛화합니다.
 *   **효과**: UI 렌더링에 얽매이지 않고 비즈니스 상태 변화만을 메모리 상에서 격리하여 단위 테스트할 수 있습니다.
 
 ### ② 헬퍼 함수 및 가공 로직의 유틸(Util) 추출 분할
-*   **분할 기준**: 날짜 포맷팅, 문자열 파싱, 복잡한 수학적 수치 계산, 결측치 보간 등 부수 효과(Side Effect)가 없고 입력값에 따른 출력값만 존재하는 데이터 연산은 반드시 **Utility Module (`FE-UTIL` / `BE-UTIL` / `AI-UTIL`)**의 순수 함수로 완전히 쪼갭니다.
+*   **분할 기준**: 날짜 포맷팅, 문자열 파싱, 복잡한 수학적 수치 계산, 결측치 보간 등 부수 효과(Side Effect)가 없고 입력값에 따른 출력값만 존재하는 데이터 연산은 반드시 **유틸리티 모듈 (`FE-FEATURE-UTIL`, `FE-SHARED-UTIL` 등)**의 순수 함수로 완전히 쪼갭니다.
 *   **효과**: Mocking의 오버헤드가 없는 완벽한 순수 함수 형태의 유닛이 되므로, 단위 테스트 작성 비용을 대폭 줄일 수 있습니다.
 
 ### ③ 백엔드(FastAPI) 계층 간 유닛 분할
@@ -57,12 +56,12 @@ BDD-TDD 프로세스 하에서 단위 테스트의 대상이 되는 "유닛(Unit
 
 ### ① 단일 파일 분리 대상 (1 File per Unit)
 다음 요소들은 관심사 분리와 변경 영향 최소화를 위해 **반드시 1개 파일당 1개의 단위(클래스/함수)만 정의**하도록 단일 파일로 격리합니다.
-*   **프론트엔드 API 요청 (`FE-QUERY` / `FE-MUTATION`)**: 
+*   **프론트엔드 API 요청 (`FE-FEATURE-QUERY` / `FE-SHARED-QUERY` / `FE-FEATURE-MUTATION` / `FE-SHARED-MUTATION`)**: 
     - *기준*: 단일 API 엔드포인트 호출 모듈(zod schema + fetcher + react-query hook)마다 **개별 파일로 분리**합니다. (예: `get-user.ts`, `update-profile.ts` 등)
     - *이유*: 특정 API 호출부의 스키마 변경이 다른 API 코드에 영향을 주지 않도록 하고, 트리 셰이킹 최적화를 극대화합니다.
 *   **프론트엔드 라우트 페이지 (`FE-PAGE`)**:
     - *기준*: URL 라우팅 경로와 매핑되는 진입점 페이지는 **페이지당 1개의 파일**로 작성합니다.
-*   **커스텀 훅 및 공통 컴포넌트 (`FE-HOOK`, `FE-SHARED-COMP`)**:
+*   **커스텀 훅 및 공통 컴포넌트 (`FE-FEATURE-HOOK` / `FE-SHARED-HOOK`, `FE-FEATURE-COMP` / `FE-SHARED-COMP`)**:
     - *기준*: 재사용을 전제로 하는 개별 훅과 공통 컴포넌트는 **파일당 1개씩 분리**하여 선언합니다.
 *   **백엔드 Usecase 서비스 (Clean Architecture 적용 시 `BE-SERVICE`)**:
     - *기준*: 프로젝트 아키텍처 규모가 크거나 완전한 Clean 아키텍처를 지향하는 경우, `service.py` 하나에 모으지 않고 **Usecase 단위별 파일로 격리**합니다. (예: `usecases/create_post.py`, `usecases/delete_post.py` 등)
@@ -77,23 +76,24 @@ BDD-TDD 프로세스 하에서 단위 테스트의 대상이 되는 "유닛(Unit
 *   **도메인 값 객체 (`BE-VO`, `BE-SERVICE` CRUD 위주)**:
     - *기준*: 도메인 내의 여러 불변 값 객체는 `vo.py` 파일 내에 클래스 단위로 모아서 정의합니다.
     - *기준*: 간단한 CRUD 중심 프로젝트의 경우, 비즈니스 흐름이 단순하므로 Usecase 파일들을 쪼개지 않고 단일 `service.py` 파일 내에 여러 Usecase/Service 클래스를 모아서 정의할 수 있습니다.
-*   **공통 유틸리티 모듈 (`FE-UTIL`, `BE-UTIL`, `AI-UTIL`)**:
+*   **공통 및 피처 유틸리티 모듈 (`FE-FEATURE-UTIL` / `FE-SHARED-UTIL`, `BE-DOMAIN-UTIL` / `BE-SHARED-UTIL`, `AI-DOMAIN-UTIL` / `AI-SHARED-UTIL`)**:
     - *기준*: 기능적 관심사(예: 날짜 처리, 브라우저 스토리지 연동 등)에 따라 파일 하나에 연관된 여러 개의 순수 함수를 모아서 작성합니다. (예: `utils/date.ts` 파일 안에 `formatDate`, `getDifference` 등을 함께 작성)
-*   **도메인 전역 타입 정의 (`FE-TYPE`, `AI-TYPE`)**:
-    - *기준*: 동일 도메인 내부에서 공유되는 여러 TypeScript interface/type 선언이나 AI API 입출력 Pydantic DTO + VO는 `types/index.ts` 혹은 `types/value.py`와 같이 **단일 파일 안에 그룹화**하여 모아둡니다.
-
----
-
-# 📖 프론트엔드 코드 폼 사전 (Frontend Code Form Dictionary)
-
-이 문서는 프론트엔드 프로젝트에서 허용되는 표준 아키텍처 및 공통 보일러플레이트 구조를 관리하는 사전입니다. 
-각 코드 유형은 명확한 물리 경로와 파일명을 따르며, 코드 상단 주석에 명시된 경로를 기준으로 상대 경로 및 절대 경로(`@/*`) 임포트를 통제합니다.
+*   **도메인 및 피처 전역 타입 정의 (`FE-FEATURE-TYPE` / `FE-SHARED-TYPE`, `AI-TYPE`)**:
+    - *기준*: 동일 도메인/피처 내부에서 공유되는 여러 TypeScript interface/type 선언이나 AI API 입출력 Pydantic DTO + VO는 `types/index.ts` 혹은 `types/value.py`와 같이 **단일 파일 안에 그룹화**하여 모아둡니다.
 
 ---
 
 ## 🖥️ 프론트엔드 코드 폼 (Frontend Code Forms)
 
-### 1) [FE-PAGE] Page Component (화면 진입점/라우트)
+이 절에서는 프론트엔드 코드의 역할을 전역/인프라 영역, 피처 전용 영역, 공통 공유 영역의 3가지 대분류로 분할하여 관리합니다.
+
+---
+
+### ① Global / Infrastructure (전역 / 인프라) 코드 폼
+
+이 영역의 코드 폼들은 애플리케이션의 최상단 제어 흐름, 라우팅, 전역 컨텍스트 주입 등 인프라스트럭처 수준의 역할을 담당합니다.
+
+#### 1) [FE-PAGE] Page Component (화면 진입점/라우트)
 - **목적**: 화면의 최상위 진입점으로서 레이아웃을 씌우고, URL 파라미터 파싱 및 하위 피처(Feature) 컴포넌트들을 배치/조립하는 조율자 컴포넌트입니다.
 - **물리 경로**: `apps/frontend/src/app/routes/{name}.tsx` 또는 `apps/frontend/src/pages/{name}.tsx`
 - **구조 예시 및 템플릿**:
@@ -130,7 +130,111 @@ export const DashboardPage: React.FC = () => {
 - **준수 사항 (Do's & Don'ts)**:
   - 직접적인 API 호출(React Query), Zustand 스토어 구독, react-hook-form을 통한 복잡한 폼 벨리데이션 로직을 작성하지 마십시오. (해당 로직은 모두 하위의 `FE-FEATURE-COMP` 컴포넌트로 이관되어야 합니다.)
 
-### 2) [FE-FEATURE-COMP] Feature-specific Component (피처 컴포넌트)
+#### 2) [FE-ROUTER] App Entry & Route Config (Router)
+- **목적**: react-router-dom을 사용하여 페이지 경로 분기를 선언하고 주입하는 앱 라우터 설정 파일 양식입니다.
+- **물리 경로**: `apps/frontend/src/app/router.tsx`
+- **구조 예시 및 템플릿**:
+```typescript
+// Path: apps/frontend/src/app/router.tsx
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+export const createAppRouter = () =>
+  createBrowserRouter([
+    {
+      path: '/path',
+      element: <div>Page Component</div>,
+    },
+  ]);
+
+export const AppRouter = () => {
+  const router = createAppRouter();
+  return <RouterProvider router={router} />;
+};
+```
+
+#### 3) [FE-PROVIDER] Application Provider Wrapper (Providers)
+- **목적**: QueryClient, Language Context, Notification Context 등을 최상단에서 통합 래핑하는 전역 프로바이더 양식입니다.
+- **물리 경로**: `apps/frontend/src/app/provider.tsx`
+- **구조 예시 및 템플릿**:
+```typescript
+// Path: apps/frontend/src/app/provider.tsx
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
+
+export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
+};
+```
+
+#### 4) [FE-FORM-WRAP] Form Container Wrapper Component
+- **목적**: react-hook-form과 Zod resolver를 감싸 폼 데이터를 선언형으로 통제하는 공통 `<Form>` 래퍼 컴포넌트입니다.
+- **물리 경로**: `apps/frontend/src/components/ui/form/Form.tsx`
+- **구조 예시 및 템플릿**:
+```typescript
+// Path: apps/frontend/src/components/ui/form/Form.tsx
+import type { ReactNode } from 'react';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import type { UseFormReturn, UseFormProps, FieldValues } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ZodType } from 'zod';
+
+type FormProps<TFormValues extends FieldValues, Schema> = {
+  onSubmit: (values: TFormValues, methods: UseFormReturn<TFormValues>) => void;
+  children: (methods: UseFormReturn<TFormValues>) => ReactNode;
+  options?: UseFormProps<TFormValues>;
+  schema: Schema;
+};
+
+export const Form = <
+  Schema extends ZodType<any, any, any>,
+  TFormValues extends FieldValues = any,
+>({ onSubmit, children, options, schema }: FormProps<TFormValues, Schema>) => {
+  const methods = useForm<TFormValues>({ ...options, resolver: zodResolver(schema) });
+  return (
+    <form onSubmit={methods.handleSubmit((values) => onSubmit(values, methods))}>
+      {children(methods)}
+    </form>
+  );
+};
+```
+
+#### 5) [FE-LIB] External Library Wrapper (lib)
+- **목적**: Axios, TanStack Query 등 외부 SDK 및 라이브러리 인스턴스를 프로젝트 표준 인터셉터/옵션과 결합하여 초기화하고 내보내기 위한 공통 설정 양식입니다.
+- **물리 경로**: `apps/frontend/src/lib/{library-name}.ts`
+- **구조 예시 및 템플릿**:
+```typescript
+// Path: apps/frontend/src/lib/api-client.ts
+import axios from 'axios';
+
+// 1. Configure and create instance
+export const apiClient = axios.create({
+  baseURL: '/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// 2. Setup interceptors (common pattern wrapper)
+apiClient.interceptors.request.use((config) => {
+  // Add Authorization headers or logging
+  return config;
+});
+```
+
+---
+
+### ② Feature-specific (피처 전용) 코드 폼
+
+이 영역의 코드 폼들은 특정 도메인 피처 폴더(`features/{feature}/`) 아래에 종속되며, 해당 피처 내에서만 사용되는 상태, 로직, UI 등을 담당합니다.
+
+#### 1) [FE-FEATURE-COMP] Feature-specific Component (피처 컴포넌트)
 - **목적**: 폼 컨텍스트, API Fetch/Mutation 모듈, UI 인풋 요소들을 모아 비즈니스 가치를 완수하는 단위 도메인 피처 조립 컴포넌트입니다.
 - **물리 경로**: `apps/frontend/src/features/{feature}/components/{name}.tsx`
 - **구조 예시 및 템플릿**:
@@ -199,48 +303,33 @@ export const FeatureComponent: React.FC<FeatureProps> = ({ onSuccess }) => {
   - 폼 리렌더링 최적화를 위해 Context를 주입하는 **Outer(컨테이너) 컴포넌트**와 요소를 렌더링하는 **Inner(렌더러) 컴포넌트**를 명확하게 분리하여 작성해야 합니다.
   - 가상 키보드나 외부 트리거를 처리하기 위해 `onSubmitRef` 와 같은 ref 바인딩 형식을 준수해야 합니다.
 
-### 3) [FE-SHARED-COMP] Shared Reusable Component (공통 공유 컴포넌트)
-- **목적**: 특정 피처 도메인에 종속되지 않고, 애플리케이션 전역에서 범용적으로 재사용되는 공통 공유 컴포넌트(Button, Dialog/Modal, Card, InputField 등)입니다.
-- **물리 경로**: `apps/frontend/src/components/ui/{name}.tsx` 또는 `apps/frontend/src/components/ui/form/{name}.tsx`
+#### 2) [FE-FEATURE-HOOK] Feature-specific Custom Hook (General)
+- **목적**: 특정 피처 컴포넌트의 생명주기와 연동되거나, 해당 피처 특화 UI 동작 상태 및 이벤트를 처리하기 위한 커스텀 훅입니다.
+- **물리 경로**: `apps/frontend/src/features/{feature}/hooks/{name}.ts`
 - **구조 예시 및 템플릿**:
 ```typescript
-// Path: apps/frontend/src/components/ui/form/InputField.tsx
-import React, { useState } from 'react';
-import type { UseFormRegisterReturn } from 'react-hook-form';
-import FormError from '../form-error/FormError';
+// Path: apps/frontend/src/features/{feature}/hooks/useFeatureTimer.ts
+import { useState, useEffect } from 'react';
 
-export interface InputFieldProps {
-  id?: string;
-  label?: string;
-  type?: string;
-  registration?: Partial<UseFormRegisterReturn>;
-  error?: { message?: string };
-}
+export const useFeatureTimer = (initialSeconds: number = 60) => {
+  const [seconds, setSeconds] = useState(initialSeconds);
+  
+  useEffect(() => {
+    if (seconds <= 0) return;
+    const interval = setInterval(() => {
+      setSeconds((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [seconds]);
 
-export const InputField: React.FC<InputFieldProps> = ({ id, label, type = 'text', registration, error }) => {
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const isPassword = type === 'password';
-  const inputType = isPassword && isPasswordVisible ? 'text' : type;
-
-  return (
-    <div>
-      {label && <label htmlFor={id}>{label}</label>}
-      <div className="relative">
-        <input id={id} type={inputType} {...registration} />
-        {isPassword && (
-          <button type="button" onClick={() => setIsPasswordVisible(!isPasswordVisible)}>
-            {isPasswordVisible ? '숨기기' : '보기'}
-          </button>
-        )}
-        <FormError message={error?.message} />
-      </div>
-    </div>
-  );
+  return seconds;
 };
 ```
+- **준수 사항 (Do's & Don'ts)**:
+  - 해당 피처 내부의 UI 비즈니스 로직과 UI 상태 제어 목적에 충실하게 디자인하십시오.
 
-### 4) [FE-QUERY] API Query Hook (React Query)
-- **목적**: GET 요청을 처리하고, 서버 데이터를 조회/캐싱하기 위한 Custom Hook입니다.
+#### 3) [FE-FEATURE-QUERY] Feature-specific API Query Hook (React Query)
+- **목적**: 특정 피처 도메인에 한정하여 서버 데이터를 조회/캐싱하기 위한 Custom Hook입니다.
 - **물리 경로**: `apps/frontend/src/features/{feature}/api/get-{domain}.ts`
 - **구조 예시 및 템플릿**:
 ```typescript
@@ -281,8 +370,8 @@ export const useUser = ({ userId, queryConfig }: { userId: string; queryConfig?:
   - 반드시 Zod 스키마와 타입(`z.infer`) 정의가 상단에 위치해야 합니다.
   - TanStack Query v5의 `queryOptions` 표준 API를 사용하여 쿼리 키와 함수 정의를 단일화해야 합니다.
 
-### 5) [FE-MUTATION] API Fetch/Mutation Module (fetch / react-query)
-- **목적**: POST, PUT, DELETE 등 서버 상태를 변경하는 요청을 처리하며, 422 밸리데이션 에러를 커스텀 핸들링합니다.
+#### 4) [FE-FEATURE-MUTATION] Feature-specific API Fetch/Mutation Module (fetch / react-query)
+- **목적**: 특정 피처 도메인에서 POST, PUT, DELETE 등 서버 상태를 변경하는 요청을 처리하며, 422 밸리데이션 에러를 커스텀 핸들링합니다.
 - **물리 경로**: `apps/frontend/src/features/{feature}/api/{action}.ts`
 - **구조 예시 및 템플릿**:
 ```typescript
@@ -329,200 +418,172 @@ export const postData = async ({ data }: { data: RequestData }): Promise<any> =>
 - **준수 사항 (Do's & Don'ts)**:
   - 422 에러와 같은 validationError 수신 시, 각 입력 폼 필드와 연동될 수 있는 에러 맵 형태로 던져야 합니다.
 
-### 6) [FE-STORE] Global Store (Zustand Store)
-- **목적**: 전역 UI 상태(모달 열림 상태, 알림, 다크모드 등)를 제어하기 위한 스토어입니다.
-- **물리 경로**: `apps/frontend/src/stores/{store-name}.ts` 또는 `apps/frontend/src/features/{feature}/stores/{store-name}.ts`
+#### 5) [FE-FEATURE-STORE] Feature-specific Global Store (Zustand Store)
+- **목적**: 특정 피처 도메인의 내부 UI 상태(선택된 필터 상태, 사이드 패널 토글, 임시 입력 값 등)를 공유/제어하기 위한 스토어입니다.
+- **물리 경로**: `apps/frontend/src/features/{feature}/stores/{store-name}.ts`
 - **구조 예시 및 템플릿**:
 ```typescript
-// Path: apps/frontend/src/stores/{store-name}.ts
+// Path: apps/frontend/src/features/{feature}/stores/{store-name}.ts
 import { create } from 'zustand';
 
-type UIState = {
-  isOpen: boolean;
-  open: () => void;
-  close: () => void;
+type FeatureState = {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 };
 
-export const useUIStore = create<UIState>((set) => ({
-  isOpen: false,
-  open: () => set({ isOpen: true }),
-  close: () => set({ isOpen: false }),
+export const useFeatureStore = create<FeatureState>((set) => ({
+  activeTab: 'overview',
+  setActiveTab: (tab) => set({ activeTab: tab }),
 }));
 ```
-- **준수 사항 (Do's & Don't)**:
-  - 자주 바뀌는 도메인 서버 데이터를 이 스토어에 임의로 영속화하여 동기화하지 마십시오. (서버 데이터는 `FE-QUERY` 서버 캐시로 관리)
-
-### 7) [FE-HOOK] Custom Hook (General)
-- **목적**: 컴포넌트 생명주기와 연동되거나, UI 동작 상태 및 이벤트를 처리하기 위한 범용 커스텀 훅입니다. (서버 데이터 페칭 목적의 훅은 `FE-QUERY`을 사용하십시오)
-- **물리 경로**: `apps/frontend/src/hooks/{name}.ts` 또는 `apps/frontend/src/features/{feature}/hooks/{name}.ts`
-- **구조 예시 및 템플릿**:
-```typescript
-// Path: apps/frontend/src/hooks/useToggle.ts
-import { useState, useCallback } from 'react';
-
-export const useToggle = (initialState: boolean = false): [boolean, () => void] => {
-  const [state, setState] = useState(initialState);
-  const toggle = useCallback(() => setState((state) => !state), []);
-  return [state, toggle];
-};
-```
 - **준수 사항 (Do's & Don'ts)**:
-  - 훅 내부에서만 사용되는 비즈니스 로직과 UI 상태 제어 목적에 충실하게 디자인하십시오.
-  - 전역 스토어(`FE-STORE`)와 과도하게 결합되지 않도록 관심사를 분리하고, 필요한 경우 인수(Parameters)로 상태/액션을 전달받도록 설계하십시오.
+  - 자주 바뀌는 도메인 서버 데이터를 이 스토어에 임의로 영속화하여 동기화하지 마십시오. (서버 데이터는 `FE-FEATURE-QUERY` 서버 캐시로 관리)
+  - 이 스토어는 해당 피처 외부에서 임포트되어 의존성을 가지면 안 됩니다.
 
-### 8) [FE-UTIL] Utility Module (Utils / Helper)
-- **목적**: 브라우저 저장소 관리 및 비즈니스 공통 연산 등 부수 효과가 없거나 인프라 API를 래핑한 순수 함수/객체 헬퍼 모듈입니다.
-- **물리 경로**: `apps/frontend/src/utils/{name}.ts` 또는 `apps/frontend/src/features/{feature}/utils/{name}.ts`
+#### 6) [FE-FEATURE-UTIL] Feature-specific Utility Module (Utils / Helper)
+- **목적**: 특정 피처 도메인 내부에서만 사용되는 데이터 포맷팅, 수치 계산 등 부수 효과가 없는 순수 함수/객체 헬퍼 모듈입니다.
+- **물리 경로**: `apps/frontend/src/features/{feature}/utils/{name}.ts`
 - **구조 예시 및 템플릿**:
 ```typescript
-// Path: apps/frontend/src/utils/storage.ts
+// Path: apps/frontend/src/features/{feature}/utils/scoreCalculator.ts
 
-// 1. Browser Storage Util: 브라우저 저장소 관리 양식
-export const storage = {
-  get: (key: string): string | null => localStorage.getItem(key),
-  set: (key: string, value: string): void => localStorage.setItem(key, value),
-  remove: (key: string): void => localStorage.removeItem(key),
-};
-
-// 2. Pure Helper: 비즈니스 연산 유틸 함수 양식
-export const formatSecondsToMinutes = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
+export const calculateAverageScore = (scores: number[]): number => {
+  if (scores.length === 0) return 0;
+  const sum = scores.reduce((acc, curr) => acc + curr, 0);
+  return sum / scores.length;
 };
 ```
 - **준수 사항 (Do's & Don'ts)**:
   - 가능한 한 부수 효과(Side Effect)가 없는 순수 함수 형태로 작성하여 독립적인 단위 테스트가 가능하게 만드십시오.
-  - 전역 상태나 서버 캐시 등 React 생명주기 및 훅과 결합된 상태 관리는 이 레이어에서 수행하지 마십시오. (대신 Custom Hook 또는 Zustand Store 사용)
 
-### 9) [FE-ROUTER] App Entry & Route Config (Router)
-- **목적**: react-router-dom을 사용하여 페이지 경로 분기를 선언하고 주입하는 앱 라우터 설정 파일 양식입니다.
-- **물리 경로**: `apps/frontend/src/app/router.tsx`
+#### 7) [FE-FEATURE-TYPE] Feature-specific Types
+- **목적**: 특정 피처 도메인 내부에서만 공유되고 사용되는 TypeScript interface, type, 또는 local state type 선언부입니다.
+- **물리 경로**: `apps/frontend/src/features/{feature}/types/index.ts` 또는 `apps/frontend/src/features/{feature}/types/{name}.ts`
 - **구조 예시 및 템플릿**:
 ```typescript
-// Path: apps/frontend/src/app/router.tsx
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+// Path: apps/frontend/src/features/{feature}/types/index.ts
 
-export const createAppRouter = () =>
-  createBrowserRouter([
-    {
-      path: '/path',
-      element: <div>Page Component</div>,
-    },
-  ]);
-
-export const AppRouter = () => {
-  const router = createAppRouter();
-  return <RouterProvider router={router} />;
-};
-```
-
-### 10) [FE-PROVIDER] Application Provider Wrapper (Providers)
-- **목적**: QueryClient, Language Context, Notification Context 등을 최상단에서 통합 래핑하는 전역 프로바이더 양식입니다.
-- **물리 경로**: `apps/frontend/src/app/provider.tsx`
-- **구조 예시 및 템플릿**:
-```typescript
-// Path: apps/frontend/src/app/provider.tsx
-import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const queryClient = new QueryClient();
-
-export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
-};
-```
-
-### 11) [FE-FORM-WRAP] Form Container Wrapper Component
-- **목적**: react-hook-form과 Zod resolver를 감싸 폼 데이터를 선언형으로 통제하는 공통 `<Form>` 래퍼 컴포넌트입니다.
-- **물리 경로**: `apps/frontend/src/components/ui/form/Form.tsx`
-- **구조 예시 및 템플릿**:
-```typescript
-// Path: apps/frontend/src/components/ui/form/Form.tsx
-import type { ReactNode } from 'react';
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import type { UseFormReturn, UseFormProps, FieldValues } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { ZodType } from 'zod';
-
-type FormProps<TFormValues extends FieldValues, Schema> = {
-  onSubmit: (values: TFormValues, methods: UseFormReturn<TFormValues>) => void;
-  children: (methods: UseFormReturn<TFormValues>) => ReactNode;
-  options?: UseFormProps<TFormValues>;
-  schema: Schema;
-};
-
-export const Form = <
-  Schema extends ZodType<any, any, any>,
-  TFormValues extends FieldValues = any,
->({ onSubmit, children, options, schema }: FormProps<TFormValues, Schema>) => {
-  const methods = useForm<TFormValues>({ ...options, resolver: zodResolver(schema) });
-  return (
-    <form onSubmit={methods.handleSubmit((values) => onSubmit(values, methods))}>
-      {children(methods)}
-    </form>
-  );
-};
-```
-
-### 12) [FE-TYPE] Domain Types
-- **목적**: Zod 스키마 자동 추론 외에, 비즈니스 도메인의 핵심 데이터 인터페이스나 UI 전용 공통 타입을 정의하는 양식입니다.
-- **물리 경로**: `apps/frontend/src/types/{domain}.ts` 또는 `apps/frontend/src/features/{feature}/types/index.ts`
-- **구조 예시 및 템플릿**:
-```typescript
-// Path: apps/frontend/src/types/user.ts
-
-// 1. Domain Entity Interface: 비즈니스 핵심 엔티티 선언
-export interface UserEntity {
+export interface FeatureLocalState {
   id: string;
-  email: string;
-  createdAt: string;
+  isSelected: boolean;
 }
-
-// 2. UI / Generic State Types: 전역/공통 상태 제어 구조 선언
-export type AsyncState<T> = {
-  data: T | null;
-  isLoading: boolean;
-  error: Error | null;
-};
 ```
 - **준수 사항 (Do's & Don'ts)**:
-  - 이 파일에는 런타임에 실행되는 비즈니스 로직 함수나 클래스를 절대 정의하지 마십시오. 오직 순수 타입(Type/Interface) 선언에만 집중해야 합니다.
-  - 순환 참조(Circular Dependency)를 방지하기 위해 타 컴포넌트나 피처 소스 코드를 내부로 임포트하지 마십시오.
-
-### 13) [FE-LIB] External Library Wrapper (lib)
-- **목적**: Axios, TanStack Query 등 외부 SDK 및 라이브러리 인스턴스를 프로젝트 표준 인터셉터/옵션과 결합하여 초기화하고 내보내기 위한 공통 설정 양식입니다.
-- **물리 경로**: `apps/frontend/src/lib/{library-name}.ts`
-- **구조 예시 및 템플릿**:
-```typescript
-// Path: apps/frontend/src/lib/api-client.ts
-import axios from 'axios';
-
-// 1. Configure and create instance
-export const apiClient = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// 2. Setup interceptors (common pattern wrapper)
-apiClient.interceptors.request.use((config) => {
-  // Add Authorization headers or logging
-  return config;
-});
-```
+  - 이 파일에는 런타임 로직(클래스, 함수 등)을 포함할 수 없으며 오직 타입 선언만 위치해야 합니다.
+  - 피처 외부로 유출되어 전역적인 의존성을 갖지 않도록 캡슐화 수준을 유지해야 합니다.
 
 ---
 
 ## ⚙️ 백엔드 코드 폼 (Backend Code Forms)
 
-### 1) [BE-ROUTER] API Router (FastAPI APIRouter)
+이 절에서는 백엔드 코드의 역할을 전역/인프라 영역과 도메인 전용 영역의 2가지 대분류로 분할하여 관리합니다.
+
+---
+
+### ① Global / Infrastructure (전역 / 인프라) 코드 폼
+
+이 영역의 코드 폼들은 데이터베이스 세션 관리, 공통 예외 핸들러, 공통 설정값 및 외부 클라이언트 래핑 등 인프라스트럭처 수준의 역할을 담당합니다.
+
+#### 1) [BE-DATABASE] Database Session Manager
+- **목적**: SQLAlchemy 2.0 비동기 데이터베이스 커넥션 엔진과 세션 팩토리를 관리합니다.
+- **물리 경로**: `apps/backend/src/database.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/database.py
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+DATABASE_URL = "postgresql+asyncpg://user:pass@localhost:5432/db"
+
+engine = create_async_engine(DATABASE_URL, pool_pre_ping=True)
+SessionFactory = async_sessionmaker(engine, expire_on_commit=False)
+
+async def get_db() -> AsyncSession:
+    async with SessionFactory() as session:
+        yield session
+```
+
+#### 2) [BE-CLIENT] External Client (외부 서비스 연동 클라이언트)
+- **목적**: 외부 API 호출을 안전하게 처리하고, 타임아웃 및 재시도 로직을 캡슐화합니다.
+- **물리 경로**: `apps/backend/src/lib/{client_name}_client.py` 또는 `apps/backend/src/lib/clients.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/lib/payment_client.py
+import httpx
+from typing import Dict, Any
+
+class ExternalAPIClient:
+    def __init__(self, base_url: str, timeout: float = 5.0):
+        self.base_url = base_url
+        self.timeout = timeout
+
+    async def fetch_data(self, endpoint: str) -> Dict[str, Any]:
+        async with httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout) as client:
+            response = await client.get(endpoint)
+            response.raise_for_status()
+            return response.json()
+```
+
+#### 3) [BE-EXCEPTION] Custom Exception & Handler (예외 및 전역 핸들러)
+- **목적**: 도메인 비즈니스 예외를 전역으로 일관되게 캡슐화하여 API 클라이언트에 표준화된 에러 응답을 반환합니다.
+- **물리 경로**: `apps/backend/src/exceptions.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/exceptions.py
+from fastapi import Request, FastAPI
+from fastapi.responses import JSONResponse
+
+class DomainException(Exception):
+    def __init__(self, message: str, status_code: int = 400):
+        self.message = message
+        self.status_code = status_code
+        super().__init__(message)
+
+def register_exception_handlers(app: FastAPI):
+    @app.exception_handler(DomainException)
+    async def domain_exception_handler(request: Request, exc: DomainException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.message}
+        )
+```
+
+#### 4) [BE-CONFIG] Config Settings (설정값 관리)
+- **목적**: Pydantic Settings를 사용하여 환경 변수를 검증하고, 시스템 전역에서 사용할 설정 싱글톤을 로드합니다.
+- **물리 경로**: `apps/backend/src/config.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/config.py
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class Settings(BaseSettings):
+    app_name: str = "My FastAPI Application"
+    database_url: str
+    debug: bool = False
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+settings = Settings()
+```
+
+#### 5) [BE-SHARED-UTIL] Shared Utility Module (Backend)
+- **목적**: 날짜 연산, 암호화 헬퍼, 공통 문자열 처리 등 백엔드 전역에서 공통적으로 쓰이는 순수 비즈니스 유틸리티 모듈입니다.
+- **물리 경로**: `apps/backend/src/utils/{name}.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/utils/date_helper.py
+from datetime import datetime, timezone
+
+def get_utc_now() -> datetime:
+    return datetime.now(timezone.utc)
+```
+
+---
+
+### ② Domain-specific (도메인 전용) 코드 폼
+
+이 영역의 코드 폼들은 특정 비즈니스 도메인 폴더(`src/{domain}/`) 하위에 격리되어 관리됩니다.
+
+#### 1) [BE-ROUTER] API Router (FastAPI APIRouter)
 - **목적**: API 엔드포인트를 정의하고 HTTP 응답 스펙과 Status Code를 정의하는 레이어입니다.
 - **물리 경로**: `apps/backend/src/{domain}/router.py`
 - **구조 예시 및 템플릿**:
@@ -531,8 +592,8 @@ apiClient.interceptors.request.use((config) => {
 from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from pydantic import UUID4
-from .schemas import PostResponse, PostCreate, ErrorResponse # 상대 임포트 (BE-SCHEMA)
-from .dependencies import valid_owned_post, valid_active_user # 상대 임포트 (BE-DEPENDENCY)
+from .schemas import PostResponse, PostCreate, ErrorResponse
+from .dependencies import valid_owned_post, valid_active_user
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
@@ -554,7 +615,7 @@ async def create_post(
     pass
 ```
 
-### 2) [BE-SERVICE] Service / Usecase (비즈니스 로직 서비스)
+#### 2) [BE-SERVICE] Service / Usecase (비즈니스 로직 서비스)
 - **목적**: 단일 책임을 지는 비즈니스 로직 및 Usecase를 수행하는 서비스 클래스입니다.
 - **물리 경로**: `apps/backend/src/{domain}/service.py`
 - **구조 예시 및 템플릿**:
@@ -728,104 +789,130 @@ async def test_create_post_endpoint(client: AsyncClient):
     assert data["creator_id"] == "test_user"
 ```
 
-### 8) [BE-UTIL] Utility Module (Backend)
-- **목적**: 날짜 연산, 암호화 헬퍼, 문자열 처리 등 백엔드에서 공통적으로 쓰이는 순수 비즈니스 유틸리티 모듈입니다.
-- **물리 경로**: `apps/backend/src/utils/{name}.py` 또는 `apps/backend/src/{domain}/utils.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/backend/src/utils/date_helper.py
-from datetime import datetime, timezone
-
-def get_utc_now() -> datetime:
-    return datetime.now(timezone.utc)
-```
-
-### 9) [BE-DATABASE] Database Session Manager
-- **목적**: SQLAlchemy 2.0 비동기 데이터베이스 커넥션 엔진과 세션 팩토리를 관리합니다.
-- **물리 경로**: `apps/backend/src/database.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/backend/src/database.py
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-
-DATABASE_URL = "postgresql+asyncpg://user:pass@localhost:5432/db"
-
-engine = create_async_engine(DATABASE_URL, pool_pre_ping=True)
-SessionFactory = async_sessionmaker(engine, expire_on_commit=False)
-
-async def get_db() -> AsyncSession:
-    async with SessionFactory() as session:
-        yield session
-```
-
-### 10) [BE-CLIENT] External Client (외부 서비스 연동 클라이언트)
-- **목적**: 외부 API 호출을 안전하게 처리하고, 타임아웃 및 재시도 로직을 캡슐화합니다.
-- **물리 경로**: `apps/backend/src/lib/{client_name}_client.py` 또는 `apps/backend/src/{domain}/clients.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/backend/src/lib/payment_client.py
-import httpx
-from typing import Dict, Any
-
-class ExternalAPIClient:
-    def __init__(self, base_url: str, timeout: float = 5.0):
-        self.base_url = base_url
-        self.timeout = timeout
-
-    async def fetch_data(self, endpoint: str) -> Dict[str, Any]:
-        async with httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout) as client:
-            response = await client.get(endpoint)
-            response.raise_for_status()
-            return response.json()
-```
-
-### 11) [BE-EXCEPTION] Custom Exception & Handler (예외 및 전역 핸들러)
-- **목적**: 도메인 비즈니스 예외를 전역으로 일관되게 캡슐화하여 API 클라이언트에 표준화된 에러 응답을 반환합니다.
-- **물리 경로**: `apps/backend/src/exceptions.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/backend/src/exceptions.py
-from fastapi import Request, FastAPI
-from fastapi.responses import JSONResponse
-
-class DomainException(Exception):
-    def __init__(self, message: str, status_code: int = 400):
-        self.message = message
-        self.status_code = status_code
-        super().__init__(message)
-
-def register_exception_handlers(app: FastAPI):
-    @app.exception_handler(DomainException)
-    async def domain_exception_handler(request: Request, exc: DomainException):
-        return JSONResponse(
-            status_code=exc.status_code,
-            content={"detail": exc.message}
-        )
-```
-
-### 12) [BE-CONFIG] Config Settings (설정값 관리)
-- **목적**: Pydantic Settings를 사용하여 환경 변수를 검증하고, 시스템 전역에서 사용할 설정 싱글톤을 로드합니다.
-- **물리 경로**: `apps/backend/src/config.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/backend/src/config.py
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
-class Settings(BaseSettings):
-    app_name: str = "My FastAPI Application"
-    database_url: str
-    debug: bool = False
-
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
-settings = Settings()
-```
 
 ---
 
 ## 🤖 AI 모듈 코드 폼 (AI Code Forms)
 
-### 1) [AI-ROUTER] Inbound Router (추론 API 라우터)
+이 절에서는 AI 모듈 코드의 역할을 전역/인프라 영역과 도메인 전용 영역의 2가지 대분류로 분할하여 관리합니다.
+
+---
+
+### ① Global / Infrastructure (전역 / 인프라) 코드 폼
+
+이 영역의 코드 폼들은 의존성 주입 컨테이너, 프롬프트 템플릿, AI 예외 핸들러 및 모델 스펙 설정값 등 인프라스트럭처 수준의 역할을 담당합니다.
+
+#### 1) [AI-BOOTSTRAP] Bootstrap & DI Container (의존성 주입)
+- **목적**: 전역 환경 설정을 로드하고, 게이트웨이 및 Usecase 의존성을 단일 지점에서 조립하여 생성합니다.
+- **물리 경로**: `apps/ai/src/bootstrap.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/ai/src/bootstrap.py
+from src.outbound.gateway import ModelGateway
+from src.core.processor import FeatureExtractor
+from src.usecases.inference import InferenceUsecase
+
+class DIContainer:
+    def __init__(self):
+        self.model_gateway = ModelGateway(model_path="models/model.onnx")
+        self.extractor = FeatureExtractor()
+        
+        self.inference_usecase = InferenceUsecase(
+            model_gateway=self.model_gateway,
+            extractor=self.extractor
+        )
+
+container = DIContainer()
+```
+
+#### 2) [AI-PROMPT] Prompt Templates (프롬프트 템플릿 모듈)
+- **목적**: LLM 애플리케이션 및 에이전트 구동에 필요한 전용 프롬프트 템플릿을 코드와 분리하여 선언적으로 관리합니다.
+- **물리 경로**: `apps/ai/src/prompts/medical_prompts.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/ai/src/prompts/medical_prompts.py
+from langchain_core.prompts import PromptTemplate
+
+SYSTEM_PROMPT = """당신은 의료 데이터 분석 AI 비서입니다. 
+주어진 신호 데이터를 기반으로 상태를 감지하여 보고하십시오.
+"""
+
+USER_PROMPT_TEMPLATE = PromptTemplate.from_template(
+    "이전 상태 기록: {history}\n현재 신호 데이터: {current_signal}\n위험 상태 여부를 판정해 주세요."
+)
+```
+
+#### 3) [AI-EXCEPTION] AI Custom Exception & Handler (AI 예외 및 응답 핸들러)
+- **목적**: 모델 가중치 로딩 실패, 이상치 감지, LLM API 호출 한도 초과 등 AI 추론 특화 예외를 처리하고 API 규격에 맞춰 에러 응답을 포맷팅합니다.
+- **물리 경로**: `apps/ai/src/exceptions.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/ai/src/exceptions.py
+from fastapi import Request, FastAPI
+from fastapi.responses import JSONResponse
+
+class InferenceEngineException(Exception):
+    def __init__(self, detail: str, model_name: str, status_code: int = 500):
+        self.detail = detail
+        self.model_name = model_name
+        self.status_code = status_code
+        super().__init__(detail)
+
+def register_ai_exception_handlers(app: FastAPI):
+    @app.exception_handler(InferenceEngineException)
+    async def ai_inference_exception_handler(request: Request, exc: InferenceEngineException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "error": "AI Inference Failed",
+                "model": exc.model_name,
+                "message": exc.detail
+            }
+        )
+```
+
+#### 4) [AI-CONFIG] Model Config & Specs (모델/하이퍼파라미터 설정)
+- **목적**: 모델 가중치 파일 경로, 입력/출력 텐서 차원(Dim), 임베딩 크기 등 AI 실행 하이퍼파라미터를 안전하게 로드하고 관리합니다.
+- **물리 경로**: `apps/ai/src/config/model_config.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/ai/src/config/model_config.py
+from pydantic_settings import BaseSettings
+from pydantic import Field
+
+class ModelSpecs(BaseSettings):
+    model_path: str = Field(default="models/model.onnx")
+    input_dimension: int = Field(default=120)
+    output_dimension: int = Field(default=2)
+    threshold: float = Field(default=0.85)
+
+    class Config:
+        env_prefix = "AI_MODEL_"
+        env_file = ".env"
+
+model_specs = ModelSpecs()
+```
+
+#### 5) [AI-SHARED-UTIL] Shared Utility Module (AI)
+- **목적**: 텍스트 특수문자 제거(정규화), 텐서 연산 헬퍼, 오프라인 메트릭 계산 등 AI 파이프라인 전반에 사용되는 순수 헬퍼 모듈입니다.
+- **물리 경로**: `apps/ai/src/utils/{name}.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/ai/src/utils/text_helper.py
+import re
+
+def clean_text(text: str) -> str:
+    cleaned = re.sub(r"[^\w\s]", "", text)
+    return cleaned.strip()
+```
+
+---
+
+### ② Domain-specific (도메인 전용) 코드 폼
+
+이 영역의 코드 폼들은 특정 추론/에이전트 비즈니스 도메인 폴더 하위에 격리되어 관리됩니다.
+
+#### 1) [AI-ROUTER] Inbound Router (추론 API 라우터)
 - **목적**: 외부 요청을 수신하여 AI 추론 Usecase를 호출하고 결과를 반환하는 진입점 레이어입니다.
 - **물리 경로**: `apps/ai/src/inbound/router.py`
 - **구조 예시 및 템플릿**:
@@ -852,7 +939,7 @@ async def predict(
     return result
 ```
 
-### 2) [AI-USECASE] Inference Usecase (추론 오케스트레이터)
+#### 2) [AI-USECASE] Inference Usecase (추론 오케스트레이터)
 - **목적**: Core(전/후처리) 및 Outbound(모델 추론 및 외부 API) 레이어를 조율하여 추론 연산을 오케스트레이션합니다.
 - **물리 경로**: `apps/ai/src/usecases/inference.py`
 - **구조 예시 및 템플릿**:
@@ -1010,106 +1097,4 @@ async def test_inference_usecase_flow():
     mock_gateway.predict.assert_called_once()
 ```
 
-### 8) [AI-UTIL] Utility Module (AI)
-- **목적**: 텍스트 특수문자 제거(정규화), 텐서 연산 헬퍼, 오프라인 메트릭 계산 등 AI 파이프라인 전반에 사용되는 순수 헬퍼 모듈입니다.
-- **물리 경로**: `apps/ai/src/utils/text_helper.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/ai/src/utils/text_helper.py
-import re
 
-def clean_text(text: str) -> str:
-    cleaned = re.sub(r"[^\w\s]", "", text)
-    return cleaned.strip()
-```
-
-### 9) [AI-BOOTSTRAP] Bootstrap & DI Container (의존성 주입)
-- **목적**: 전역 환경 설정을 로드하고, 게이트웨이 및 Usecase 의존성을 단일 지점에서 조립하여 생성합니다.
-- **물리 경로**: `apps/ai/src/bootstrap.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/ai/src/bootstrap.py
-from src.outbound.gateway import ModelGateway
-from src.core.processor import FeatureExtractor
-from src.usecases.inference import InferenceUsecase
-
-class DIContainer:
-    def __init__(self):
-        self.model_gateway = ModelGateway(model_path="models/model.onnx")
-        self.extractor = FeatureExtractor()
-        
-        self.inference_usecase = InferenceUsecase(
-            model_gateway=self.model_gateway,
-            extractor=self.extractor
-        )
-
-container = DIContainer()
-```
-
-### 10) [AI-PROMPT] Prompt Templates (프롬프트 템플릿 모듈)
-- **목적**: LLM 애플리케이션 및 에이전트 구동에 필요한 전용 프롬프트 템플릿을 코드와 분리하여 선언적으로 관리합니다.
-- **물리 경로**: `apps/ai/src/prompts/medical_prompts.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/ai/src/prompts/medical_prompts.py
-from langchain_core.prompts import PromptTemplate
-
-SYSTEM_PROMPT = """당신은 의료 데이터 분석 AI 비서입니다. 
-주어진 신호 데이터를 기반으로 상태를 감지하여 보고하십시오.
-"""
-
-USER_PROMPT_TEMPLATE = PromptTemplate.from_template(
-    "이전 상태 기록: {history}\n현재 신호 데이터: {current_signal}\n위험 상태 여부를 판정해 주세요."
-)
-```
-
-### 11) [AI-EXCEPTION] AI Custom Exception & Handler (AI 예외 및 응답 핸들러)
-- **목적**: 모델 가중치 로딩 실패, 이상치 감지, LLM API 호출 한도 초과 등 AI 추론 특화 예외를 처리하고 API 규격에 맞춰 에러 응답을 포맷팅합니다.
-- **물리 경로**: `apps/ai/src/exceptions.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/ai/src/exceptions.py
-from fastapi import Request, FastAPI
-from fastapi.responses import JSONResponse
-
-class InferenceEngineException(Exception):
-    def __init__(self, detail: str, model_name: str, status_code: int = 500):
-        self.detail = detail
-        self.model_name = model_name
-        self.status_code = status_code
-        super().__init__(detail)
-
-def register_ai_exception_handlers(app: FastAPI):
-    @app.exception_handler(InferenceEngineException)
-    async def ai_inference_exception_handler(request: Request, exc: InferenceEngineException):
-        return JSONResponse(
-            status_code=exc.status_code,
-            content={
-                "error": "AI Inference Failed",
-                "model": exc.model_name,
-                "message": exc.detail
-            }
-        )
-```
-
-### 12) [AI-CONFIG] Model Config & Specs (모델/하이퍼파라미터 설정)
-- **목적**: 모델 가중치 파일 경로, 입력/출력 텐서 차원(Dim), 임베딩 크기 등 AI 실행 하이퍼파라미터를 안전하게 로드하고 관리합니다.
-- **물리 경로**: `apps/ai/src/config/model_config.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/ai/src/config/model_config.py
-from pydantic_settings import BaseSettings
-from pydantic import Field
-
-class ModelSpecs(BaseSettings):
-    model_path: str = Field(default="models/model.onnx")
-    input_dimension: int = Field(default=120)
-    output_dimension: int = Field(default=2)
-    threshold: float = Field(default=0.85)
-
-    class Config:
-        env_prefix = "AI_MODEL_"
-        env_file = ".env"
-
-model_specs = ModelSpecs()
-```
