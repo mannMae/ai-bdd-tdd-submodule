@@ -44,9 +44,9 @@ BDD-TDD 프로세스 하에서 단위 테스트의 대상이 되는 "유닛(Unit
 *   **효과**: Mocking의 오버헤드가 없는 완벽한 순수 함수 형태의 유닛이 되므로, 단위 테스트 작성 비용을 대폭 줄일 수 있습니다.
 
 ### ③ 백엔드(FastAPI) 계층 간 유닛 분할
-*   **BE-ROUTER (라우터)**: 오직 HTTP Endpoint 정의, Payload 입력 직렬화 검증, 상태 코드 선언만 담당하며, 어떠한 비즈니스 로직도 갖지 않습니다.
-*   **BE-SERVICE (Usecase)**: 서비스는 단 하나의 비즈니스 목적을 처리하는 Usecase 단위 클래스로 분할됩니다. (예: `CreatePostUsecase`, `DeletePostUsecase` 등)
-*   **BE-VO (Value Object)**: 복잡한 입력값의 상호 의존적 유효성 제약조건(예: 시작 시각은 종료 시각 이전이어야 함 등)은 서비스 내부가 아닌 불변 값 객체(VO)의 `__post_init__` 검증 단계로 분할합니다.
+*   **BE-DOMAIN-ROUTER (라우터)**: 오직 HTTP Endpoint 정의, Payload 입력 직렬화 검증, 상태 코드 선언만 담당하며, 어떠한 비즈니스 로직도 갖지 않습니다.
+*   **BE-DOMAIN-SERVICE (Usecase)**: 서비스는 단 하나의 비즈니스 목적을 처리하는 Usecase 단위 클래스로 분할됩니다. (예: `CreatePostUsecase`, `DeletePostUsecase` 등)
+*   **BE-DOMAIN-VO (Value Object)**: 복잡한 입력값의 상호 의존적 유효성 제약조건(예: 시작 시각은 종료 시각 이전이어야 함 등)은 서비스 내부가 아닌 불변 값 객체(VO)의 `__post_init__` 검증 단계로 분할합니다.
 
 ---
 
@@ -63,22 +63,22 @@ BDD-TDD 프로세스 하에서 단위 테스트의 대상이 되는 "유닛(Unit
     - *기준*: URL 라우팅 경로와 매핑되는 진입점 페이지는 **페이지당 1개의 파일**로 작성합니다.
 *   **커스텀 훅 및 공통 컴포넌트 (`FE-FEATURE-HOOK` / `FE-SHARED-HOOK`, `FE-FEATURE-COMP` / `FE-SHARED-COMP`)**:
     - *기준*: 재사용을 전제로 하는 개별 훅과 공통 컴포넌트는 **파일당 1개씩 분리**하여 선언합니다.
-*   **백엔드 Usecase 서비스 (Clean Architecture 적용 시 `BE-SERVICE`)**:
+*   **백엔드 Usecase 서비스 (Clean Architecture 적용 시 `BE-DOMAIN-SERVICE`)**:
     - *기준*: 프로젝트 아키텍처 규모가 크거나 완전한 Clean 아키텍처를 지향하는 경우, `service.py` 하나에 모으지 않고 **Usecase 단위별 파일로 격리**합니다. (예: `usecases/create_post.py`, `usecases/delete_post.py` 등)
-*   **단위 테스트 파일 (`FE-TEST`, `BE-TEST`, `AI-TEST`)**:
+*   **단위 테스트 파일 (`FE-TEST`, `BE-DOMAIN-TEST`, `AI-DOMAIN-TEST`)**:
     - *기준*: 테스트 대상 유닛(SUT) 파일 혹은 특정 엔드포인트별 시나리오 단위로 **1:1 매핑하여 테스트 파일을 분리**합니다.
 
 ### ② 단일 파일 내 그룹화 대상 (Multiple Units in 1 File)
 다음 요소들은 파일 개수의 무분별한 증가를 막고 도메인 응집력을 높이기 위해 **하나의 파일 내에서 여러 연관 객체를 정의**할 수 있습니다.
-*   **도메인별 백엔드 인프라/데이터 모델 (`BE-MODEL`, `BE-SCHEMA`, `BE-DEPENDENCY`)**:
+*   **도메인별 백엔드 인프라/데이터 모델 (`BE-DOMAIN-MODEL` / `BE-SHARED-MODEL`, `BE-DOMAIN-SCHEMA` / `BE-SHARED-SCHEMA`, `BE-DOMAIN-DEPENDENCY` / `BE-SHARED-DEPENDENCY`)**:
     - *기준*: 동일 도메인(Bounded Context) 내에 속하는 테이블 모델(`models.py`), Pydantic DTO 스키마(`schemas.py`), 라우터 Depends 함수(`dependencies.py`)들은 **파일 단위로 그룹화**하여 모아둡니다.
     - *이유*: 하나의 도메인 안에서 데이터베이스 스키마와 DTO는 서로 밀접하게 연동되므로 한눈에 볼 수 있도록 응집시키는 것이 관리에 유리합니다.
-*   **도메인 값 객체 (`BE-VO`, `BE-SERVICE` CRUD 위주)**:
+*   **도메인 값 객체 (`BE-DOMAIN-VO`, `BE-DOMAIN-SERVICE` CRUD 위주)**:
     - *기준*: 도메인 내의 여러 불변 값 객체는 `vo.py` 파일 내에 클래스 단위로 모아서 정의합니다.
     - *기준*: 간단한 CRUD 중심 프로젝트의 경우, 비즈니스 흐름이 단순하므로 Usecase 파일들을 쪼개지 않고 단일 `service.py` 파일 내에 여러 Usecase/Service 클래스를 모아서 정의할 수 있습니다.
 *   **공통 및 피처 유틸리티 모듈 (`FE-FEATURE-UTIL` / `FE-SHARED-UTIL`, `BE-DOMAIN-UTIL` / `BE-SHARED-UTIL`, `AI-DOMAIN-UTIL` / `AI-SHARED-UTIL`)**:
     - *기준*: 기능적 관심사(예: 날짜 처리, 브라우저 스토리지 연동 등)에 따라 파일 하나에 연관된 여러 개의 순수 함수를 모아서 작성합니다. (예: `utils/date.ts` 파일 안에 `formatDate`, `getDifference` 등을 함께 작성)
-*   **도메인 및 피처 전역 타입 정의 (`FE-FEATURE-TYPE` / `FE-SHARED-TYPE`, `AI-TYPE`)**:
+*   **도메인 및 피처 전역 타입 정의 (`FE-FEATURE-TYPE` / `FE-SHARED-TYPE`, `AI-DOMAIN-TYPE` / `AI-SHARED-TYPE`)**:
     - *기준*: 동일 도메인/피처 내부에서 공유되는 여러 TypeScript interface/type 선언이나 AI API 입출력 Pydantic DTO + VO는 `types/index.ts` 혹은 `types/value.py`와 같이 **단일 파일 안에 그룹화**하여 모아둡니다.
 
 ---
@@ -476,16 +476,16 @@ export interface FeatureLocalState {
 
 ## ⚙️ 백엔드 코드 폼 (Backend Code Forms)
 
-이 절에서는 백엔드 코드의 역할을 전역/인프라 영역과 도메인 전용 영역의 2가지 대분류로 분할하여 관리합니다.
+이 절에서는 백엔드 코드의 역할을 전역/인프라 영역, 도메인 전용 영역, 공통 공유 영역의 3가지 대분류로 분할하여 관리합니다.
 
 ---
 
 ### ① Global / Infrastructure (전역 / 인프라) 코드 폼
 
-이 영역의 코드 폼들은 데이터베이스 세션 관리, 공통 예외 핸들러, 공통 설정값 및 외부 클라이언트 래핑 등 인프라스트럭처 수준의 역할을 담당합니다.
+이 영역의 코드 폼들은 데이터베이스 엔진 커넥션, Pydantic Settings 환경 설정 등 시스템의 글로벌 공통 구동 기반에 해당하며, 프로젝트에 통상 단 한 개씩만 존재합니다.
 
 #### 1) [BE-DATABASE] Database Session Manager
-- **목적**: SQLAlchemy 2.0 비동기 데이터베이스 커넥션 엔진과 세션 팩토리를 관리합니다.
+- **목적**: SQLAlchemy 비동기 데이터베이스 커넥션 엔진과 세션 팩토리를 관리합니다.
 - **물리 경로**: `apps/backend/src/database.py`
 - **구조 예시 및 템플릿**:
 ```python
@@ -502,52 +502,7 @@ async def get_db() -> AsyncSession:
         yield session
 ```
 
-#### 2) [BE-CLIENT] External Client (외부 서비스 연동 클라이언트)
-- **목적**: 외부 API 호출을 안전하게 처리하고, 타임아웃 및 재시도 로직을 캡슐화합니다.
-- **물리 경로**: `apps/backend/src/lib/{client_name}_client.py` 또는 `apps/backend/src/lib/clients.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/backend/src/lib/payment_client.py
-import httpx
-from typing import Dict, Any
-
-class ExternalAPIClient:
-    def __init__(self, base_url: str, timeout: float = 5.0):
-        self.base_url = base_url
-        self.timeout = timeout
-
-    async def fetch_data(self, endpoint: str) -> Dict[str, Any]:
-        async with httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout) as client:
-            response = await client.get(endpoint)
-            response.raise_for_status()
-            return response.json()
-```
-
-#### 3) [BE-EXCEPTION] Custom Exception & Handler (예외 및 전역 핸들러)
-- **목적**: 도메인 비즈니스 예외를 전역으로 일관되게 캡슐화하여 API 클라이언트에 표준화된 에러 응답을 반환합니다.
-- **물리 경로**: `apps/backend/src/exceptions.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/backend/src/exceptions.py
-from fastapi import Request, FastAPI
-from fastapi.responses import JSONResponse
-
-class DomainException(Exception):
-    def __init__(self, message: str, status_code: int = 400):
-        self.message = message
-        self.status_code = status_code
-        super().__init__(message)
-
-def register_exception_handlers(app: FastAPI):
-    @app.exception_handler(DomainException)
-    async def domain_exception_handler(request: Request, exc: DomainException):
-        return JSONResponse(
-            status_code=exc.status_code,
-            content={"detail": exc.message}
-        )
-```
-
-#### 4) [BE-CONFIG] Config Settings (설정값 관리)
+#### 2) [BE-CONFIG] Config Settings (전역 설정값 관리)
 - **목적**: Pydantic Settings를 사용하여 환경 변수를 검증하고, 시스템 전역에서 사용할 설정 싱글톤을 로드합니다.
 - **물리 경로**: `apps/backend/src/config.py`
 - **구조 예시 및 템플릿**:
@@ -565,25 +520,13 @@ class Settings(BaseSettings):
 settings = Settings()
 ```
 
-#### 5) [BE-SHARED-UTIL] Shared Utility Module (Backend)
-- **목적**: 날짜 연산, 암호화 헬퍼, 공통 문자열 처리 등 백엔드 전역에서 공통적으로 쓰이는 순수 비즈니스 유틸리티 모듈입니다.
-- **물리 경로**: `apps/backend/src/utils/{name}.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/backend/src/utils/date_helper.py
-from datetime import datetime, timezone
-
-def get_utc_now() -> datetime:
-    return datetime.now(timezone.utc)
-```
-
 ---
 
 ### ② Domain-specific (도메인 전용) 코드 폼
 
-이 영역의 코드 폼들은 특정 비즈니스 도메인 폴더(`src/{domain}/`) 하위에 격리되어 관리됩니다.
+이 영역의 코드 폼들은 특정 비즈니스 도메인 폴더(`src/{domain}/`) 하위에 격리되어, 특정 비즈니스 요구사항을 처리하는 레이어에 매핑됩니다.
 
-#### 1) [BE-ROUTER] API Router (FastAPI APIRouter)
+#### 1) [BE-DOMAIN-ROUTER] API Router (FastAPI APIRouter)
 - **목적**: API 엔드포인트를 정의하고 HTTP 응답 스펙과 Status Code를 정의하는 레이어입니다.
 - **물리 경로**: `apps/backend/src/{domain}/router.py`
 - **구조 예시 및 템플릿**:
@@ -591,9 +534,9 @@ def get_utc_now() -> datetime:
 # Path: apps/backend/src/posts/router.py
 from typing import Annotated
 from fastapi import APIRouter, Depends, status
-from pydantic import UUID4
-from .schemas import PostResponse, PostCreate, ErrorResponse
-from .dependencies import valid_owned_post, valid_active_user
+from .schemas import PostResponse, PostCreate, ErrorResponse # BE-DOMAIN-SCHEMA
+from .dependencies import valid_post_id # BE-DOMAIN-DEPENDENCY
+from src.shared.dependencies import valid_active_user # BE-SHARED-DEPENDENCY
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
@@ -601,40 +544,36 @@ router = APIRouter(prefix="/posts", tags=["posts"])
     "",
     response_model=PostResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="게시글 작성",
-    responses={
-        status.HTTP_400_BAD_REQUEST: {"model": ErrorResponse, "description": "잘못된 요청"},
-        status.HTTP_401_UNAUTHORIZED: {"model": ErrorResponse, "description": "인증 실패"}
-    }
+    summary="게시글 작성"
 )
 async def create_post(
     payload: PostCreate,
     current_user: Annotated[dict, Depends(valid_active_user)]
 ):
-    # 서비스 계층 호출
+    # 서비스 호출
     pass
 ```
 
-#### 2) [BE-SERVICE] Service / Usecase (비즈니스 로직 서비스)
+#### 2) [BE-DOMAIN-SERVICE] Service / Usecase (비즈니스 로직 서비스)
 - **목적**: 단일 책임을 지는 비즈니스 로직 및 Usecase를 수행하는 서비스 클래스입니다.
 - **물리 경로**: `apps/backend/src/{domain}/service.py`
 - **구조 예시 및 템플릿**:
 ```python
 # Path: apps/backend/src/posts/service.py
 from sqlalchemy.ext.asyncio import AsyncSession
-from .schemas import PostCreate # BE-SCHEMA
-from .vo import PostVO # BE-VO
-from .models import PostModel # BE-MODEL
+from .schemas import PostCreate # BE-DOMAIN-SCHEMA
+from .vo import PostVO # BE-DOMAIN-VO
+from .models import PostModel # BE-DOMAIN-MODEL
 
 class CreatePostUsecase:
     def __init__(self, db: AsyncSession):
         self.db = db
 
     async def execute(self, payload: PostCreate, creator_id: str) -> PostModel:
-        # 1. Input DTO를 무결성이 보장되는 불변 값 객체(VO)로 변환
+        # 1. DTO를 VO로 변환하여 무결성 검증
         vo = PostVO(title=payload.title, content=payload.content)
         
-        # 2. 비즈니스 규칙 처리 및 ORM 영속화
+        # 2. ORM 엔티티 모델에 반영
         model = PostModel(
             title=vo.title,
             content=vo.content,
@@ -645,8 +584,8 @@ class CreatePostUsecase:
         return model
 ```
 
-### 3) [BE-VO] Value Object (불변 값 객체 - VO)
-- **목적**: 비즈니스 도메인의 값을 캡슐화하고 데이터의 무결성 제약조건을 강제하기 위한 객체입니다.
+#### 3) [BE-DOMAIN-VO] Value Object (불변 값 객체 - VO)
+- **목적**: 비즈니스 도메인의 값을 캡슐화하고 데이터의 무결성 제약조건을 강제하는 불변 값 객체입니다.
 - **물리 경로**: `apps/backend/src/{domain}/vo.py`
 - **구조 예시 및 템플릿**:
 ```python
@@ -665,26 +604,15 @@ class PostVO:
             raise ValueError("제목은 100자를 초과할 수 없습니다.")
 ```
 
-### 4) [BE-MODEL] Database ORM Model (SQLAlchemy ORM)
-- **목적**: 데이터베이스 테이블 스키마에 매핑되는 선언적 데이터 모델입니다.
+#### 4) [BE-DOMAIN-MODEL] Database ORM Model (SQLAlchemy ORM)
+- **목적**: 특정 도메인의 테이블 스키마에 매핑되는 선언적 데이터 모델입니다.
 - **물리 경로**: `apps/backend/src/{domain}/models.py`
 - **구조 예시 및 템플릿**:
 ```python
 # Path: apps/backend/src/posts/models.py
-from sqlalchemy import MetaData, String, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
-POSTGRES_INDEXES_NAMING_CONVENTION = {
-    "ix": "%(column_0_label)s_idx",
-    "uq": "%(table_name)s_%(column_0_name)s_key",
-    "ck": "%(table_name)s_%(constraint_name)s_check",
-    "fk": "%(table_name)s_%(column_0_name)s_fkey",
-    "pk": "%(table_name)s_pkey",
-}
-metadata = MetaData(naming_convention=POSTGRES_INDEXES_NAMING_CONVENTION)
-
-class Base(DeclarativeBase):
-    metadata = metadata
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
+from src.shared.models import Base # BE-SHARED-MODEL 참조
 
 class PostModel(Base):
     __tablename__ = "post"
@@ -695,8 +623,8 @@ class PostModel(Base):
     creator_id: Mapped[str] = mapped_column(String, nullable=False)
 ```
 
-### 5) [BE-DEPENDENCY] Route Dependency & Validator (FastAPI Dependencies)
-- **목적**: 인가, 데이터 존재 여부 검증, 자원 획득 등 API 엔드포인트 도달 전에 실행되는 공용 검증 함수군입니다.
+#### 5) [BE-DOMAIN-DEPENDENCY] Route Dependency & Validator
+- **목적**: 특정 도메인 내의 리소스 존재 여부 등을 라우터 진입 전에 사전 검증하는 FastAPI Depends 용도 함수입니다.
 - **물리 경로**: `apps/backend/src/{domain}/dependencies.py`
 - **구조 예시 및 템플릿**:
 ```python
@@ -704,8 +632,8 @@ class PostModel(Base):
 from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.database import get_db # BE-DATABASE 절대 경로 참조
-from .models import PostModel # BE-MODEL
+from src.database import get_db # BE-DATABASE
+from .models import PostModel # BE-DOMAIN-MODEL
 
 async def valid_post_id(
     post_id: int,
@@ -720,53 +648,74 @@ async def valid_post_id(
     return post
 ```
 
-### 6) [BE-SCHEMA] Request/Response DTO (Pydantic Schema)
-- **목적**: 입출력 데이터의 유효성 검증과 직렬화를 담당합니다.
+#### 6) [BE-DOMAIN-SCHEMA] Request/Response DTO (Pydantic Schema)
+- **목적**: 특정 도메인 API 통신 시 입출력 데이터 규격을 검증하고 직렬화합니다.
 - **물리 경로**: `apps/backend/src/{domain}/schemas.py`
 - **구조 예시 및 템플릿**:
 ```python
 # Path: apps/backend/src/posts/schemas.py
-from datetime import datetime
-from zoneinfo import ZoneInfo
-from pydantic import BaseModel, Field, field_serializer, ConfigDict
-
-class CustomModel(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    @field_serializer("*", when_used="json", check_fields=False)
-    def _serialize_datetimes(self, value):
-        if isinstance(value, datetime):
-            if value.tzinfo is None:
-                value = value.replace(tzinfo=ZoneInfo("UTC"))
-            return value.strftime("%Y-%m-%dT%H:%M:%S%z")
-        return value
+from pydantic import BaseModel, Field
 
 class PostCreate(BaseModel):
     title: str = Field(min_length=1, max_length=100)
     content: str = Field(min_length=1)
 
-class PostResponse(CustomModel):
+class PostResponse(BaseModel):
     id: int
     title: str
     content: str
     creator_id: str
-
-class ErrorResponse(BaseModel):
-    detail: str
 ```
 
-### 7) [BE-TEST] Async Integration/Unit Test (pytest + httpx)
-- **목적**: 비동기 API 클라이언트를 이용하여 백엔드 비즈니스 흐름 및 에러 처리를 검증합니다.
-- **물리 경로**: `apps/backend/tests/unit/test_create_post.py`
+#### 7) [BE-DOMAIN-CLIENT] Domain External Client
+- **목적**: 특정 도메인에 한정되어 사용되는 서드파티 연동 HTTP 클라이언트나 API 호출기입니다.
+- **물리 경로**: `apps/backend/src/{domain}/client.py`
 - **구조 예시 및 템플릿**:
 ```python
-# Path: apps/backend/tests/unit/test_create_post.py
+# Path: apps/backend/src/posts/client.py
+# 특정 도메인 전용 외부 클라이언트 구현부
+class DomainSpecificClient:
+    def __init__(self, key: str):
+        self.key = key
+```
+
+#### 8) [BE-DOMAIN-EXCEPTION] Domain Exception
+- **목적**: 특정 비즈니스 도메인 규칙을 위반할 때 발생하는 커스텀 도메인 예외군을 정의합니다.
+- **물리 경로**: `apps/backend/src/{domain}/exceptions.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/posts/exceptions.py
+from src.shared.exceptions import DomainException # BE-SHARED-EXCEPTION 상속
+
+class PostNotFoundException(DomainException):
+    def __init__(self, post_id: int):
+        super().__init__(
+            message=f"게시글 {post_id}를 찾을 수 없습니다.",
+            status_code=404
+        )
+```
+
+#### 9) [BE-DOMAIN-UTIL] Domain Utility Module
+- **목적**: 특정 도메인 내부에서만 단독으로 재사용되는 가공/유틸리티 함수입니다.
+- **물리 경로**: `apps/backend/src/{domain}/utils.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/posts/utils.py
+def format_post_title(title: str) -> str:
+    return title.strip().title()
+```
+
+#### 10) [BE-DOMAIN-TEST] Async Integration/Unit Test (pytest + httpx)
+- **목적**: 특정 도메인의 API 통합 시나리오 또는 핵심 비즈니스 로직을 검증하는 테스트 코드입니다.
+- **물리 경로**: `apps/backend/tests/{domain}/test_{name}.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/tests/posts/test_create_post.py
 import pytest
 from httpx import AsyncClient, ASGITransport
-from main import app # 최상위 진입점 임포트
-from src.posts.dependencies import valid_active_user
+from main import app
+from src.shared.dependencies import valid_active_user
 
-# 1. 가짜 인증 유저 의존성 오버라이드
 def fake_active_user():
     return {"user_id": "test_user"}
 
@@ -784,9 +733,136 @@ async def test_create_post_endpoint(client: AsyncClient):
     response = await client.post("/posts", json=payload)
     
     assert response.status_code == 201
-    data = response.json()
-    assert data["title"] == "테스트 제목"
-    assert data["creator_id"] == "test_user"
+```
+
+---
+
+### ③ Shared / Common (공통 공유) 코드 폼
+
+이 영역의 코드 폼들은 여러 도메인 폴더에서 공유되어 재사용되는 인프라 모델, 공통 DTO, 전역 미들웨어성 종속성 주입, 공통 클라이언트 등을 담당합니다.
+
+#### 1) [BE-SHARED-MODEL] Shared Database Model (SQLAlchemy ORM)
+- **목적**: SQLAlchemy DeclarativeBase 매핑 기본 클래스(`Base`) 및 공통 감사 필드(`TimestampMixin`) 등을 정의합니다.
+- **물리 경로**: `apps/backend/src/shared/models.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/shared/models.py
+from datetime import datetime
+from sqlalchemy import MetaData, DateTime
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from src.shared.utils.date_helper import get_utc_now # BE-SHARED-UTIL
+
+POSTGRES_INDEXES_NAMING_CONVENTION = {
+    "ix": "%(column_0_label)s_idx",
+    "uq": "%(table_name)s_%(column_0_name)s_key",
+    "ck": "%(table_name)s_%(constraint_name)s_check",
+    "fk": "%(table_name)s_%(column_0_name)s_fkey",
+    "pk": "%(table_name)s_pkey",
+}
+metadata = MetaData(naming_convention=POSTGRES_INDEXES_NAMING_CONVENTION)
+
+class Base(DeclarativeBase):
+    metadata = metadata
+
+class TimestampMixin:
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), 
+        default=get_utc_now
+    )
+```
+
+#### 2) [BE-SHARED-DEPENDENCY] Shared Dependency
+- **목적**: 사용자 세션 인증 필터링, 데이터베이스 세션 주입 등 전역 및 여러 도메인에서 공용으로 매핑하는 Depends 용도 헬퍼 함수입니다.
+- **물리 경로**: `apps/backend/src/shared/dependencies.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/shared/dependencies.py
+from typing import Annotated
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+async def valid_active_user(token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="인증 정보가 유효하지 않습니다."
+        )
+    return {"user_id": "authenticated_user"}
+```
+
+#### 3) [BE-SHARED-SCHEMA] Shared Schema (Pydantic Common Schema)
+- **목적**: API 응답 봉투(Standard Response Envelope) 구조, 페이지네이션 쿼리 등 전역적으로 공유하는 데이터 구조 규격을 강제합니다.
+- **물리 경로**: `apps/backend/src/shared/schemas.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/shared/schemas.py
+from pydantic import BaseModel, Field
+
+class PaginationQuery(BaseModel):
+    page: int = Field(default=1, ge=1)
+    limit: int = Field(default=10, ge=1, le=100)
+
+class ErrorResponse(BaseModel):
+    detail: str
+```
+
+#### 4) [BE-SHARED-CLIENT] Shared External Client (공통 연동 클라이언트)
+- **목적**: 외부 결제, 알림 API 등 백엔드 모듈 전반에서 필요에 따라 가져다 쓰는 외부 연동 HTTP 클라이언트 엔진을 캡슐화합니다.
+- **물리 경로**: `apps/backend/src/shared/clients/{client_name}_client.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/shared/clients/payment_client.py
+import httpx
+from typing import Dict, Any
+
+class PaymentAPIClient:
+    def __init__(self, base_url: str, timeout: float = 5.0):
+        self.base_url = base_url
+        self.timeout = timeout
+
+    async def charge(self, amount: int) -> Dict[str, Any]:
+        async with httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout) as client:
+            response = await client.post("/charge", json={"amount": amount})
+            response.raise_for_status()
+            return response.json()
+```
+
+#### 5) [BE-SHARED-EXCEPTION] Shared Exception & Handler (공통 예외)
+- **목적**: 커스텀 도메인 비즈니스 예외들의 부모가 되는 기본 예외 계층을 구성하고, FastAPI에 전역 에러 핸들러로 등록하기 위한 모듈 양식입니다.
+- **물리 경로**: `apps/backend/src/shared/exceptions.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/shared/exceptions.py
+from fastapi import Request, FastAPI
+from fastapi.responses import JSONResponse
+
+class DomainException(Exception):
+    def __init__(self, message: str, status_code: int = 400):
+        self.message = message
+        self.status_code = status_code
+        super().__init__(message)
+
+def register_exception_handlers(app: FastAPI):
+    @app.exception_handler(DomainException)
+    async def domain_exception_handler(request: Request, exc: DomainException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.message}
+        )
+```
+
+#### 6) [BE-SHARED-UTIL] Shared Utility Module (백엔드 공통 유틸)
+- **목적**: 암호화 처리, 날짜 연산 등 도메인 제약이 없는 범용적인 Pure 함수 모듈입니다.
+- **물리 경로**: `apps/backend/src/shared/utils/{name}.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/shared/utils/date_helper.py
+from datetime import datetime, timezone
+
+def get_utc_now() -> datetime:
+    return datetime.now(timezone.utc)
 ```
 
 
@@ -794,13 +870,13 @@ async def test_create_post_endpoint(client: AsyncClient):
 
 ## 🤖 AI 모듈 코드 폼 (AI Code Forms)
 
-이 절에서는 AI 모듈 코드의 역할을 전역/인프라 영역과 도메인 전용 영역의 2가지 대분류로 분할하여 관리합니다.
+이 절에서는 AI 모듈 코드의 역할을 전역/인프라 영역, 도메인 전용 영역, 공통 공유 영역의 3가지 대분류로 분할하여 관리합니다.
 
 ---
 
 ### ① Global / Infrastructure (전역 / 인프라) 코드 폼
 
-이 영역의 코드 폼들은 의존성 주입 컨테이너, 프롬프트 템플릿, AI 예외 핸들러 및 모델 스펙 설정값 등 인프라스트럭처 수준의 역할을 담당합니다.
+이 영역의 코드 폼들은 DI 컨테이너 및 생명주기 제어, 모델 하이퍼파라미터 공통 환경 설정 등 AI 서버의 구동 프레임워크 기반을 다룹니다.
 
 #### 1) [AI-BOOTSTRAP] Bootstrap & DI Container (의존성 주입)
 - **목적**: 전역 환경 설정을 로드하고, 게이트웨이 및 Usecase 의존성을 단일 지점에서 조립하여 생성합니다.
@@ -808,13 +884,13 @@ async def test_create_post_endpoint(client: AsyncClient):
 - **구조 예시 및 템플릿**:
 ```python
 # Path: apps/ai/src/bootstrap.py
-from src.outbound.gateway import ModelGateway
-from src.core.processor import FeatureExtractor
-from src.usecases.inference import InferenceUsecase
+from src.fetal_decel.adapter import FetalDecelAdapter # AI-DOMAIN-ADAPTER
+from src.fetal_decel.processor import FeatureExtractor # AI-DOMAIN-CORE
+from src.fetal_decel.inference import InferenceUsecase # AI-DOMAIN-USECASE
 
 class DIContainer:
     def __init__(self):
-        self.model_gateway = ModelGateway(model_path="models/model.onnx")
+        self.model_gateway = FetalDecelAdapter(model_path="models/model.onnx")
         self.extractor = FeatureExtractor()
         
         self.inference_usecase = InferenceUsecase(
@@ -825,53 +901,7 @@ class DIContainer:
 container = DIContainer()
 ```
 
-#### 2) [AI-PROMPT] Prompt Templates (프롬프트 템플릿 모듈)
-- **목적**: LLM 애플리케이션 및 에이전트 구동에 필요한 전용 프롬프트 템플릿을 코드와 분리하여 선언적으로 관리합니다.
-- **물리 경로**: `apps/ai/src/prompts/medical_prompts.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/ai/src/prompts/medical_prompts.py
-from langchain_core.prompts import PromptTemplate
-
-SYSTEM_PROMPT = """당신은 의료 데이터 분석 AI 비서입니다. 
-주어진 신호 데이터를 기반으로 상태를 감지하여 보고하십시오.
-"""
-
-USER_PROMPT_TEMPLATE = PromptTemplate.from_template(
-    "이전 상태 기록: {history}\n현재 신호 데이터: {current_signal}\n위험 상태 여부를 판정해 주세요."
-)
-```
-
-#### 3) [AI-EXCEPTION] AI Custom Exception & Handler (AI 예외 및 응답 핸들러)
-- **목적**: 모델 가중치 로딩 실패, 이상치 감지, LLM API 호출 한도 초과 등 AI 추론 특화 예외를 처리하고 API 규격에 맞춰 에러 응답을 포맷팅합니다.
-- **물리 경로**: `apps/ai/src/exceptions.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/ai/src/exceptions.py
-from fastapi import Request, FastAPI
-from fastapi.responses import JSONResponse
-
-class InferenceEngineException(Exception):
-    def __init__(self, detail: str, model_name: str, status_code: int = 500):
-        self.detail = detail
-        self.model_name = model_name
-        self.status_code = status_code
-        super().__init__(detail)
-
-def register_ai_exception_handlers(app: FastAPI):
-    @app.exception_handler(InferenceEngineException)
-    async def ai_inference_exception_handler(request: Request, exc: InferenceEngineException):
-        return JSONResponse(
-            status_code=exc.status_code,
-            content={
-                "error": "AI Inference Failed",
-                "model": exc.model_name,
-                "message": exc.detail
-            }
-        )
-```
-
-#### 4) [AI-CONFIG] Model Config & Specs (모델/하이퍼파라미터 설정)
+#### 2) [AI-CONFIG] Model Config & Specs (모델/하이퍼파라미터 설정)
 - **목적**: 모델 가중치 파일 경로, 입력/출력 텐서 차원(Dim), 임베딩 크기 등 AI 실행 하이퍼파라미터를 안전하게 로드하고 관리합니다.
 - **물리 경로**: `apps/ai/src/config/model_config.py`
 - **구조 예시 및 템플릿**:
@@ -893,35 +923,21 @@ class ModelSpecs(BaseSettings):
 model_specs = ModelSpecs()
 ```
 
-#### 5) [AI-SHARED-UTIL] Shared Utility Module (AI)
-- **목적**: 텍스트 특수문자 제거(정규화), 텐서 연산 헬퍼, 오프라인 메트릭 계산 등 AI 파이프라인 전반에 사용되는 순수 헬퍼 모듈입니다.
-- **물리 경로**: `apps/ai/src/utils/{name}.py`
-- **구조 예시 및 템플릿**:
-```python
-# Path: apps/ai/src/utils/text_helper.py
-import re
-
-def clean_text(text: str) -> str:
-    cleaned = re.sub(r"[^\w\s]", "", text)
-    return cleaned.strip()
-```
-
 ---
 
 ### ② Domain-specific (도메인 전용) 코드 폼
 
-이 영역의 코드 폼들은 특정 추론/에이전트 비즈니스 도메인 폴더 하위에 격리되어 관리됩니다.
+이 영역의 코드 폼들은 특정 추론/에이전트 비즈니스 도메인 폴더(`src/{domain}/`) 하위에 격리되어, 특정 비즈니스 분석 유스케이스를 처리하는 레이어에 매핑됩니다.
 
-#### 1) [AI-ROUTER] Inbound Router (추론 API 라우터)
+#### 1) [AI-DOMAIN-ROUTER] Inbound Router (추론 API 라우터)
 - **목적**: 외부 요청을 수신하여 AI 추론 Usecase를 호출하고 결과를 반환하는 진입점 레이어입니다.
-- **물리 경로**: `apps/ai/src/inbound/router.py`
+- **물리 경로**: `apps/ai/src/{domain}/router.py`
 - **구조 예시 및 템플릿**:
 ```python
-# Path: apps/ai/src/inbound/router.py
+# Path: apps/ai/src/fetal_decel/router.py
 from fastapi import APIRouter, Depends, status
-from typing import Annotated
 from src.bootstrap import container # AI-BOOTSTRAP 절대 경로 참조
-from src.types.value import PredictionRequest, PredictionResponse # AI-TYPE 참조
+from .types import PredictionRequest, PredictionResponse # AI-DOMAIN-TYPE 참조
 
 router = APIRouter(prefix="/predict", tags=["predict"])
 
@@ -939,18 +955,18 @@ async def predict(
     return result
 ```
 
-#### 2) [AI-USECASE] Inference Usecase (추론 오케스트레이터)
+#### 2) [AI-DOMAIN-USECASE] Inference Usecase (추론 오케스트레이터)
 - **목적**: Core(전/후처리) 및 Outbound(모델 추론 및 외부 API) 레이어를 조율하여 추론 연산을 오케스트레이션합니다.
-- **물리 경로**: `apps/ai/src/usecases/inference.py`
+- **물리 경로**: `apps/ai/src/{domain}/inference.py`
 - **구조 예시 및 템플릿**:
 ```python
-# Path: apps/ai/src/usecases/inference.py
-from src.types.value import PredictionRequest, PredictionResponse # AI-TYPE
-from src.core.processor import FeatureExtractor # AI-CORE
-from src.outbound.gateway import ModelGateway # AI-GATEWAY
+# Path: apps/ai/src/fetal_decel/inference.py
+from .types import PredictionRequest, PredictionResponse # AI-DOMAIN-TYPE
+from .processor import FeatureExtractor # AI-DOMAIN-CORE
+from .adapter import FetalDecelAdapter # AI-DOMAIN-ADAPTER
 
 class InferenceUsecase:
-    def __init__(self, model_gateway: ModelGateway, extractor: FeatureExtractor):
+    def __init__(self, model_gateway: FetalDecelAdapter, extractor: FeatureExtractor):
         self.model_gateway = model_gateway
         self.extractor = extractor
 
@@ -958,7 +974,7 @@ class InferenceUsecase:
         # 1. 입력 데이터를 core 분석용 구조로 전처리
         features = self.extractor.extract_features(request.data)
         
-        # 2. Outbound Gateway를 통해 실제 모델 추론 수행
+        # 2. Outbound Adapter를 통해 실제 모델 추론 수행
         raw_prediction = await self.model_gateway.predict(features)
         
         # 3. 모델 결과 후처리 및 반환
@@ -966,12 +982,12 @@ class InferenceUsecase:
         return PredictionResponse(result=processed_data)
 ```
 
-### 3) [AI-WORKFLOW] Stateful Workflow (상태/에이전트 제어 흐름)
+#### 3) [AI-DOMAIN-WORKFLOW] Stateful Workflow (상태/에이전트 제어 흐름)
 - **목적**: LangGraph 등 상태 기반 제어 흐름 또는 다단계 프롬프트 체인, 인간 검증(HITL) 단계를 갖는 AI 에이전트/워크플로우 오케스트레이션입니다.
-- **물리 경로**: `apps/ai/src/workflow/process.py`
+- **물리 경로**: `apps/ai/src/{domain}/process.py`
 - **구조 예시 및 템플릿**:
 ```python
-# Path: apps/ai/src/workflow/process.py
+# Path: apps/ai/src/fetal_decel/process.py
 from typing import TypedDict, Annotated
 import operator
 
@@ -1000,12 +1016,12 @@ class AgentWorkflow:
         return state
 ```
 
-### 4) [AI-CORE] Core Processor (도메인 코어 프로세서)
+#### 4) [AI-DOMAIN-CORE] Core Processor (도메인 코어 프로세서)
 - **목적**: 원시 특징(Feature) 추출, 텐서 가공, 수학적 수치 분석 및 비즈니스 룰 후처리를 담당하는 Pure Python 비즈니스 도메인 레이어입니다.
-- **물리 경로**: `apps/ai/src/core/processor.py`
+- **물리 경로**: `apps/ai/src/{domain}/processor.py`
 - **구조 예시 및 템플릿**:
 ```python
-# Path: apps/ai/src/core/processor.py
+# Path: apps/ai/src/fetal_decel/processor.py
 import numpy as np
 
 class FeatureExtractor:
@@ -1023,16 +1039,16 @@ class FeatureExtractor:
         return "정상"
 ```
 
-### 5) [AI-GATEWAY] Outbound Gateway (ML/LLM Gateway 어댑터)
-- **목적**: 실제 ONNX/Torch 가중치 엔진을 구동하거나 외부 LLM API(OpenAI/Claude 등) 통신을 독점적으로 수행하는 어댑터 레이어입니다.
-- **물리 경로**: `apps/ai/src/outbound/gateway.py`
+#### 5) [AI-DOMAIN-ADAPTER] Domain Model Adapter
+- **목적**: 특정 도메인의 로컬 모델 가중치 파일(ONNX/PyTorch 등)을 구동하기 위한 전용 어댑터 레이어입니다.
+- **물리 경로**: `apps/ai/src/{domain}/adapter.py`
 - **구조 예시 및 템플릿**:
 ```python
-# Path: apps/ai/src/outbound/gateway.py
+# Path: apps/ai/src/fetal_decel/adapter.py
 import onnxruntime as ort
 import numpy as np
 
-class ModelGateway:
+class FetalDecelAdapter:
     def __init__(self, model_path: str):
         self.session = ort.InferenceSession(model_path)
 
@@ -1041,46 +1057,78 @@ class ModelGateway:
         output_name = self.session.get_outputs()[0].name
         raw_output = self.session.run([output_name], {input_name: input_tensor})
         return raw_output[0]
-
-    async def call_llm(self, prompt: str) -> str:
-        return "LLM 응답 샘플"
 ```
 
-### 6) [AI-TYPE] Domain Types (불변 VO 및 DTO)
-- **목적**: API 경계용 Pydantic DTO와 코어 내부 검증용 frozen dataclass VO를 정의합니다.
-- **물리 경로**: `apps/ai/src/types/value.py`
+#### 6) [AI-DOMAIN-PROMPT] Domain Prompt Templates
+- **목적**: 특정 AI 태스크 및 에이전트 구동에 특화되어 사용되는 전용 프롬프트 템플릿입니다.
+- **물리 경로**: `apps/ai/src/{domain}/prompts.py`
 - **구조 예시 및 템플릿**:
 ```python
-# Path: apps/ai/src/types/value.py
-from pydantic import BaseModel
-from dataclasses import dataclass
+# Path: apps/ai/src/fetal_decel/prompts.py
+from src.shared.prompts import BASE_SYSTEM_PROMPT # AI-SHARED-PROMPT 참조
 
-# 1. API Boundary (Pydantic DTO)
+DECEL_WARNING_PROMPT = """이전 상태 기록: {history}
+현재 신호 입력 시, 발생한 태아 심박수 감속 원인을 임상 지침 양식으로 해석해 주세요.
+"""
+```
+
+#### 7) [AI-DOMAIN-TYPE] Domain Types (불변 VO 및 DTO)
+- **목적**: 특정 도메인 API 통신을 위한 Pydantic DTO나 도메인 전용 frozen dataclass VO를 관리합니다.
+- **물리 경로**: `apps/ai/src/{domain}/types.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/ai/src/fetal_decel/types.py
+from pydantic import BaseModel
+
 class PredictionRequest(BaseModel):
     data: list[float]
 
 class PredictionResponse(BaseModel):
     result: str
-
-# 2. Domain VO (frozen dataclass)
-@dataclass(frozen=True)
-class TensorConfigVO:
-    input_dim: int
-    output_dim: int
 ```
 
-### 7) [AI-TEST] Evals & Integration Test (pytest 기반 추론 검증)
-- **목적**: 모의 어댑터를 이용해 로컬 환경에서 추론 파이프라인 및 에이전트 상태 전이를 검증합니다.
-- **물리 경로**: `apps/ai/tests/unit/test_inference.py`
+#### 8) [AI-DOMAIN-EXCEPTION] Domain Inference Exception
+- **목적**: 특정 모델 추론의 타임아웃, 포맷 불일치 등 해당 도메인에 특화된 비즈니스 예외군입니다.
+- **물리 경로**: `apps/ai/src/{domain}/exceptions.py`
 - **구조 예시 및 템플릿**:
 ```python
-# Path: apps/ai/tests/unit/test_inference.py
+# Path: apps/ai/src/fetal_decel/exceptions.py
+from src.shared.exceptions import InferenceEngineException # AI-SHARED-EXCEPTION 상속
+
+class DecelModelTimeoutException(InferenceEngineException):
+    def __init__(self):
+        super().__init__(
+            detail="감속 판정 모델 로드 및 추론 시간이 초과되었습니다.",
+            model_name="fetal_decel_onnx",
+            status_code=504
+        )
+```
+
+#### 9) [AI-DOMAIN-UTIL] Domain Utility Module
+- **목적**: 특정 AI 추론 연산 내부에서만 제한적으로 활용되는 가공/수학적 연산 헬퍼 모듈입니다.
+- **물리 경로**: `apps/ai/src/{domain}/utils.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/ai/src/fetal_decel/utils.py
+import numpy as np
+
+def interpolate_missing_signals(signals: np.ndarray) -> np.ndarray:
+    # 데이터 유실 구간 보간 로직
+    return signals
+```
+
+#### 10) [AI-DOMAIN-TEST] Evals & Integration Test (pytest 기반 추론 검증)
+- **목적**: 모의 어댑터를 이용해 로컬 환경에서 추론 파이프라인 및 에이전트 상태 전이를 검증하는 테스트 코드입니다.
+- **물리 경로**: `apps/ai/tests/{domain}/test_{name}.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/ai/tests/fetal_decel/test_inference.py
 import pytest
 from unittest.mock import AsyncMock
 import numpy as np
-from src.usecases.inference import InferenceUsecase # AI-USECASE
-from src.core.processor import FeatureExtractor # AI-CORE
-from src.types.value import PredictionRequest # AI-TYPE
+from src.fetal_decel.inference import InferenceUsecase # AI-DOMAIN-USECASE
+from src.fetal_decel.processor import FeatureExtractor # AI-DOMAIN-CORE
+from src.fetal_decel.types import PredictionRequest # AI-DOMAIN-TYPE
 
 @pytest.mark.asyncio
 async def test_inference_usecase_flow():
@@ -1095,6 +1143,96 @@ async def test_inference_usecase_flow():
     
     assert response.result == "위험"
     mock_gateway.predict.assert_called_once()
+```
+
+---
+
+### ③ Shared / Common (공통 공유) 코드 폼
+
+이 영역의 코드 폼들은 여러 도메인 추론기에서 공유하여 참조하는 공통 LLM API 어댑터, 시스템 기본 프롬프트, 공통 타입 설정 및 유틸리티 등을 담당합니다.
+
+#### 1) [AI-SHARED-ADAPTER] Shared API/Model Adapter
+- **목적**: OpenAI, Claude 등 외부 상용 LLM API 호출 인터페이스 및 공통 Rate Limit/Retry 설정을 제공하는 공유 어댑터입니다.
+- **물리 경로**: `apps/ai/src/shared/adapters/{name}_adapter.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/ai/src/shared/adapters/openai_adapter.py
+import httpx
+
+class OpenAIAdapter:
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+
+    async def call_llm(self, prompt: str) -> str:
+        # OpenAI Chat API 호출 및 예외 처리 캡슐화
+        return "LLM Response Sample"
+```
+
+#### 2) [AI-SHARED-PROMPT] Shared Prompt Templates
+- **목적**: 시스템 기본 페르소나 설정 등 여러 태스크 에이전트가 상속/공용하여 빌드하는 프롬프트 템플릿입니다.
+- **물리 경로**: `apps/ai/src/shared/prompts.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/ai/src/shared/prompts.py
+BASE_SYSTEM_PROMPT = """당신은 의료 임상 데이터 분석을 지원하는 전문 의학 AI 비서입니다.
+주어진 물리 생체 신호 데이터 분석 양식에 맞춰 감지 결과를 보고하십시오.
+"""
+```
+
+#### 3) [AI-SHARED-TYPE] Shared Types
+- **목적**: 공통 텐서 쉐이프 설정값 및 다단계 워크플로우에 공유되는 기본 상태 데이터 타입 선언 모듈입니다.
+- **물리 경로**: `apps/ai/src/shared/types.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/ai/src/shared/types.py
+from typing import TypedDict
+
+class CommonTensorShape(TypedDict):
+    batch_size: int
+    channels: int
+    seq_len: int
+```
+
+#### 4) [AI-SHARED-EXCEPTION] Shared AI Exception & Handler (공통 AI 예외)
+- **목적**: 가중치 로딩 실패, API 제한 초과 등 AI 서버 전반의 공통 오류 클래스를 구축하고 처리합니다.
+- **물리 경로**: `apps/ai/src/shared/exceptions.py`
+- **구조 예시 및 템늘릿**:
+```python
+# Path: apps/ai/src/shared/exceptions.py
+from fastapi import Request, FastAPI
+from fastapi.responses import JSONResponse
+
+class InferenceEngineException(Exception):
+    def __init__(self, detail: str, model_name: str, status_code: int = 500):
+        self.detail = detail
+        self.model_name = model_name
+        self.status_code = status_code
+        super().__init__(detail)
+
+def register_ai_exception_handlers(app: FastAPI):
+    @app.exception_handler(InferenceEngineException)
+    async def ai_inference_exception_handler(request: Request, exc: InferenceEngineException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "error": "AI Inference Failed",
+                "model": exc.model_name,
+                "message": exc.detail
+            }
+        )
+```
+
+#### 5) [AI-SHARED-UTIL] Shared Utility Module (AI 공통 유틸)
+- **목적**: 특수문자 제거 정규화, 공용 텐서 배열 포맷 처리 등 도메인 경계가 없는 pure 헬퍼 연산 파일입니다.
+- **물리 경로**: `apps/ai/src/shared/utils/{name}.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/ai/src/shared/utils/text_helper.py
+import re
+
+def clean_text(text: str) -> str:
+    cleaned = re.sub(r"[^\w\s]", "", text)
+    return cleaned.strip()
 ```
 
 

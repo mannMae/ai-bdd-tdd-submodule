@@ -48,6 +48,7 @@
       <td>-</td>
       <td>-</td>
       <td>-</td>
+      <td>-</td>
       <td>• storage.ts</td>
       <td>-</td>
       <td>-</td>
@@ -63,6 +64,7 @@
       <td>• useSimulate.ts</td>
       <td>-</td>
       <td>• store/useMonitorStore.ts</td>
+      <td>-</td>
       <td>-</td>
       <td>-</td>
       <td>-</td>
@@ -86,6 +88,7 @@
       <td>-</td>
       <td>-</td>
       <td>-</td>
+      <td>-</td>
       <td>• storage.ts</td>
       <td>-</td>
       <td>-</td>
@@ -100,15 +103,13 @@
   <thead>
     <tr>
       <th align="left">시나리오</th>
-      <th align="left">BE-ROUTER</th>
-      <th align="left">BE-SERVICE</th>
-      <th align="left">BE-VO</th>
-      <th align="left">BE-MODEL</th>
-      <th align="left">BE-DEPENDENCY</th>
-      <th align="left">BE-SCHEMA</th>
-      <th align="left">BE-DOMAIN-UTIL</th>
-      <th align="left">BE-SHARED-UTIL</th>
-      <th align="left">BE-TEST</th>
+      <th align="left">BE-DOMAIN-ROUTER</th>
+      <th align="left">BE-DOMAIN-SERVICE</th>
+      <th align="left">BE-DOMAIN-VO</th>
+      <th align="left">BE-DOMAIN-MODEL</th>
+      <th align="left">BE-DOMAIN-DEPENDENCY</th>
+      <th align="left">BE-DOMAIN-SCHEMA</th>
+      <th align="left">BE-DOMAIN-TEST</th>
       <th align="left">etc</th>
     </tr>
   </thead>
@@ -121,8 +122,6 @@
       <td>• models.py</td>
       <td>• dependencies.py</td>
       <td>• schemas.py</td>
-      <td>-</td>
-      <td>-</td>
       <td>• test_monitoring.py</td>
       <td>• database.py [BE-DATABASE]</td>
     </tr>
@@ -134,8 +133,6 @@
       <td>• models.py</td>
       <td>• dependencies.py</td>
       <td>• schemas.py</td>
-      <td>-</td>
-      <td>-</td>
       <td>• test_monitoring.py</td>
       <td>• database.py [BE-DATABASE]</td>
     </tr>
@@ -147,8 +144,6 @@
       <td>• models.py</td>
       <td>• dependencies.py</td>
       <td>• schemas.py</td>
-      <td>-</td>
-      <td>-</td>
       <td>• test_monitoring.py</td>
       <td>• database.py [BE-DATABASE]</td>
     </tr>
@@ -161,15 +156,13 @@
   <thead>
     <tr>
       <th align="left">시나리오</th>
-      <th align="left">AI-ROUTER</th>
-      <th align="left">AI-USECASE</th>
-      <th align="left">AI-WORKFLOW</th>
-      <th align="left">AI-CORE</th>
-      <th align="left">AI-ADAPTER</th>
-      <th align="left">AI-TYPE</th>
-      <th align="left">AI-DOMAIN-UTIL</th>
-      <th align="left">AI-SHARED-UTIL</th>
-      <th align="left">AI-TEST</th>
+      <th align="left">AI-DOMAIN-ROUTER</th>
+      <th align="left">AI-DOMAIN-USECASE</th>
+      <th align="left">AI-DOMAIN-WORKFLOW</th>
+      <th align="left">AI-DOMAIN-CORE</th>
+      <th align="left">AI-DOMAIN-ADAPTER</th>
+      <th align="left">AI-DOMAIN-TYPE</th>
+      <th align="left">AI-DOMAIN-TEST</th>
       <th align="left">etc</th>
     </tr>
   </thead>
@@ -180,10 +173,8 @@
       <td>• inference.py</td>
       <td>-</td>
       <td>• processor.py</td>
-      <td>• gateway.py</td>
-      <td>• value.py</td>
-      <td>-</td>
-      <td>-</td>
+      <td>• adapter.py</td>
+      <td>• types.py</td>
       <td>• test_inference.py</td>
       <td>• bootstrap.py [AI-BOOTSTRAP]</td>
     </tr>
@@ -193,10 +184,8 @@
       <td>• inference.py</td>
       <td>• process.py</td>
       <td>• processor.py</td>
-      <td>• gateway.py</td>
-      <td>• value.py</td>
-      <td>-</td>
-      <td>-</td>
+      <td>• adapter.py</td>
+      <td>• types.py</td>
       <td>• test_inference.py</td>
       <td>• bootstrap.py [AI-BOOTSTRAP]</td>
     </tr>
@@ -207,9 +196,8 @@
       <td>-</td>
       <td>-</td>
       <td>-</td>
-      <td>• value.py</td>
+      <td>• types.py</td>
       <td>• test_inference.py</td>
-      <td>-</td>
       <td>• bootstrap.py [AI-BOOTSTRAP]</td>
     </tr>
   </tbody>
@@ -279,84 +267,100 @@
 
 ### 2) 백엔드 (Backend - 코드폼 명칭 단위 매핑)
 
-백엔드 파일들은 해당하는 **코드폼 명칭(BE-ROUTER ~ BE-SHARED-UTIL)** 및 **etc** 컬럼에 매핑하여 기술하며, 코드 작성 시 [백엔드 개발 가이드레일(07-backend-rules.md)](file:///templates/07-backend-rules.sample.md)을 준수해야 합니다.
+백엔드 파일들은 해당하는 **코드폼 명칭(BE-DOMAIN-ROUTER ~ BE-SHARED-UTIL)** 및 **etc** 컬럼에 매핑하여 기술하며, 코드 작성 시 [백엔드 개발 가이드레일(07-backend-rules.md)](file:///templates/07-backend-rules.sample.md)을 준수해야 합니다.
 
-#### ① BE-ROUTER (routers)
+#### ① BE-DOMAIN-ROUTER (routers)
 *   **정의**: API 엔드포인트를 정의하고 응답 스펙과 Status Code를 매핑하는 FastAPI APIRouter 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-ROUTER]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-DOMAIN-ROUTER]` 스펙을 준수해야 합니다.
 
-#### ② BE-SERVICE (services)
+#### ② BE-DOMAIN-SERVICE (services)
 *   **정의**: 단일 비즈니스 규칙 및 Usecase를 조율하는 Stateless 서비스 클래스 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-SERVICE]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-DOMAIN-SERVICE]` 스펙을 준수해야 합니다.
 
-#### ③ BE-VO (Value Object)
+#### ③ BE-DOMAIN-VO (Value Object)
 *   **정의**: 비즈니스 도메인의 무결성 제약조건을 강제하는 불변 값 객체(VO) 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-VO]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-DOMAIN-VO]` 스펙을 준수해야 합니다.
 
-#### ④ BE-MODEL (models)
-*   **정의**: SQLAlchemy 기반 DB ORM 테이블 선언적 모델 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-MODEL]` 스펙을 준수해야 합니다.
+#### ④ BE-DOMAIN-MODEL / BE-SHARED-MODEL (models)
+*   **정의**: SQLAlchemy 기반 DB ORM 테이블 선언적 모델 파일의 **순수 파일명**을 기재합니다 (도메인별 격리 모델 혹은 공유/추상 모델 분리).
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-DOMAIN-MODEL]` 및 `[BE-SHARED-MODEL]` 스펙을 준수해야 합니다.
 
-#### ⑤ BE-DEPENDENCY (dependencies)
-*   **정의**: FastAPI Depends에 바인딩할 의존성 주입 및 공용 검증 함수 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-DEPENDENCY]` 스펙을 준수해야 합니다.
+#### ⑤ BE-DOMAIN-DEPENDENCY / BE-SHARED-DEPENDENCY (dependencies)
+*   **정의**: FastAPI Depends에 바인딩할 의존성 주입 및 도메인 검증 함수 파일의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-DOMAIN-DEPENDENCY]` 및 `[BE-SHARED-DEPENDENCY]` 스펙을 준수해야 합니다.
 
-#### ⑥ BE-SCHEMA (schemas)
-*   **정의**: 입출력 데이터의 유효성 검증과 직렬화를 담당하는 Pydantic 스키마 DTO 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-SCHEMA]` 스펙을 준수해야 합니다.
+#### ⑥ BE-DOMAIN-SCHEMA / BE-SHARED-SCHEMA (schemas)
+*   **정의**: 입출력 데이터의 유효성 검증과 직렬화를 담당하는 Pydantic DTO 스키마 파일의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-DOMAIN-SCHEMA]` 및 `[BE-SHARED-SCHEMA]` 스펙을 준수해야 합니다.
 
-#### ⑦ BE-DOMAIN-UTIL / BE-SHARED-UTIL (utils)
+#### ⑦ BE-DOMAIN-CLIENT / BE-SHARED-CLIENT (clients)
+*   **정의**: 서드파티 연동을 위한 전용 클라이언트 또는 공통 연동 클라이언트 파일의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-DOMAIN-CLIENT]` 및 `[BE-SHARED-CLIENT]` 스펙을 준수해야 합니다.
+
+#### ⑧ BE-DOMAIN-EXCEPTION / BE-SHARED-EXCEPTION (exceptions)
+*   **정의**: 커스텀 도메인 예외 정의 또는 전역 예외 처리기 파일의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-DOMAIN-EXCEPTION]` 및 `[BE-SHARED-EXCEPTION]` 스펙을 준수해야 합니다.
+
+#### ⑨ BE-DOMAIN-UTIL / BE-SHARED-UTIL (utils)
 *   **정의**: 도메인 내부 혹은 백엔드 전반에서 사용되는 유틸리티 파일의 **순수 파일명**.
 *   **표준 코드 양식**: 코드 폼 사전의 `[BE-DOMAIN-UTIL]` 및 `[BE-SHARED-UTIL]` 스펙을 준수해야 합니다.
 
-#### ⑧ BE-TEST (tests)
+#### ⑩ BE-DOMAIN-TEST (tests)
 *   **정의**: httpx.AsyncClient를 이용하여 백엔드 비즈니스 흐름을 비동기 검증하는 pytest 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-TEST]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-DOMAIN-TEST]` 스펙을 준수해야 합니다.
 
-#### ⑨ etc
-*   **정의**: 위 필수 컬럼 이외의 파일(예: `[BE-DATABASE] Database Session`, `[BE-CLIENT] External Client`, `[BE-EXCEPTION] Exceptions`, `[BE-CONFIG] Config` 등, 명칭 표기 필수)을 기재합니다.
+#### ⑪ etc
+*   **정의**: 위 필수 컬럼 이외의 파일(예: `[BE-DATABASE] Database Session`, `[BE-CONFIG] Config` 등, 명칭 표기 필수)을 기재합니다.
 *   **표준 코드 양식**: 코드 폼 사전에 정의된 각 코드 유형의 표준 코드 양식을 준수하여 작성해야 합니다.
 
 ---
 
 ### 3) AI 모듈 (AI Module - 코드폼 명칭 단위 매핑)
 
-AI 모듈 파일들은 해당하는 **코드폼 명칭(AI-ROUTER ~ AI-SHARED-UTIL)** 및 **etc** 컬럼에 매핑하여 기술하며, 코드 작성 시 [로컬 ML 추론 서버 개발 가이드레일(08-ai-module-rules.md)](file:///templates/08-ai-module-rules.sample.md)을 준수해야 합니다.
+AI 모듈 파일들은 해당하는 **코드폼 명칭(AI-DOMAIN-ROUTER ~ AI-SHARED-UTIL)** 및 **etc** 컬럼에 매핑하여 기술하며, 코드 작성 시 [로컬 ML 추론 서버 개발 가이드레일(08-ai-module-rules.md)](file:///templates/08-ai-module-rules.sample.md)을 준수해야 합니다.
 
-#### ① AI-ROUTER (inbound)
+#### ① AI-DOMAIN-ROUTER (inbound)
 *   **정의**: 외부 추론 요청을 수신하는 APIRouter 진입점 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-ROUTER]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-DOMAIN-ROUTER]` 스펙을 준수해야 합니다.
 
-#### ② AI-USECASE (usecases)
+#### ② AI-DOMAIN-USECASE (usecases)
 *   **정의**: 추론 전/후처리 및 모델 호출 게이트웨이를 조율하는 오케스트레이터 클래스 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-USECASE]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-DOMAIN-USECASE]` 스펙을 준수해야 합니다.
 
-#### ③ AI-WORKFLOW (workflow)
+#### ③ AI-DOMAIN-WORKFLOW (workflow)
 *   **정의**: LangGraph 기반 다단계 추론 체인 및 에이전트 상태 제어 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-WORKFLOW]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-DOMAIN-WORKFLOW]` 스펙을 준수해야 합니다.
 
-#### ④ AI-CORE (core)
+#### ④ AI-DOMAIN-CORE (core)
 *   **정의**: 특징(Feature) 추출, 텐서 가공, 수학적 연산 및 비즈니스 룰 후처리를 수행하는 Pure Python 모듈 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-CORE]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-DOMAIN-CORE]` 스펙을 준수해야 합니다.
 
-#### ⑤ AI-ADAPTER (outbound)
+#### ⑤ AI-DOMAIN-ADAPTER / AI-SHARED-ADAPTER (outbound)
 *   **정의**: 실제 모델 가중치(ONNX/Torch) 구동 또는 외부 LLM API 통신을 수행하는 Gateway/Adapter 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-ADAPTER]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-DOMAIN-ADAPTER]` 및 `[AI-SHARED-ADAPTER]` 스펙을 준수해야 합니다.
 
-#### ⑥ AI-TYPE (types)
+#### ⑥ AI-DOMAIN-PROMPT / AI-SHARED-PROMPT (prompts)
+*   **정의**: 특정 태스크 전용 프롬프트 및 시스템 공유 프롬프트 파일의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-DOMAIN-PROMPT]` 및 `[AI-SHARED-PROMPT]` 스펙을 준수해야 합니다.
+
+#### ⑦ AI-DOMAIN-TYPE / AI-SHARED-TYPE (types)
 *   **정의**: API 입출력 Pydantic DTO 및 내부 도메인 값 VO 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-TYPE]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-DOMAIN-TYPE]` 및 `[AI-SHARED-TYPE]` 스펙을 준수해야 합니다.
 
-#### ⑦ AI-DOMAIN-UTIL / AI-SHARED-UTIL (utils)
+#### ⑧ AI-DOMAIN-EXCEPTION / AI-SHARED-EXCEPTION (exceptions)
+*   **정의**: 도메인 전용 추론 에러 또는 공통 AI 예외 처리 파일의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-DOMAIN-EXCEPTION]` 및 `[AI-SHARED-EXCEPTION]` 스펙을 준수해야 합니다.
+
+#### ⑨ AI-DOMAIN-UTIL / AI-SHARED-UTIL (utils)
 *   **정의**: 도메인 내부 혹은 AI 모듈 전반에서 사용되는 유틸리티 파일의 **순수 파일명**.
 *   **표준 코드 양식**: 코드 폼 사전의 `[AI-DOMAIN-UTIL]` 및 `[AI-SHARED-UTIL]` 스펙을 준수해야 합니다.
 
-#### ⑧ AI-TEST (tests)
+#### ⑩ AI-DOMAIN-TEST (tests)
 *   **정의**: pytest 기반 모의 어댑터 및 추론 파이프라인 단언 검증 테스트 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-TEST]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-DOMAIN-TEST]` 스펙을 준수해야 합니다.
 
-#### ⑨ etc
-*   **정의**: 위 필수 컬럼 이외의 파일(예: `[AI-BOOTSTRAP] Bootstrap DI`, `[AI-PROMPT] Prompt Templates`, `[AI-EXCEPTION] AI Exceptions`, `[AI-CONFIG] Model Config` 등, 명칭 표기 필수)을 기재합니다.
+#### ⑪ etc
+*   **정의**: 위 필수 컬럼 이외의 파일(예: `[AI-BOOTSTRAP] Bootstrap DI`, `[AI-CONFIG] Model Config` 등, 명칭 표기 필수)을 기재합니다.
 *   **표준 코드 양식**: 코드 폼 사전에 정의된 각 코드 유형의 표준 코드 양식을 준수하여 작성해야 합니다.
 
 ---
