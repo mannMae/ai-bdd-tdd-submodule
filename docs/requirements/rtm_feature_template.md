@@ -16,8 +16,8 @@
     <tr>
       <th align="left">시나리오</th>
       <th align="left">FE-PAGE</th>
-      <th align="left">FE-FEATURE</th>
-      <th align="left">FE-INPUT</th>
+      <th align="left">FE-FEATURE-COMP</th>
+      <th align="left">FE-SHARED-COMP</th>
       <th align="left">FE-QUERY</th>
       <th align="left">FE-MUTATION</th>
       <th align="left">FE-STORE</th>
@@ -31,7 +31,7 @@
       <td><b>S01. {시나리오명}</b><br><i>({시나리오 트리거 조건})</i></td>
       <td>• {전용페이지파일명}.tsx</td>
       <td>• {전용피처컴포넌트파일명}.tsx</td>
-      <td>• {공통입력컴포넌트파일명}.tsx</td>
+      <td>• {공통공유컴포넌트파일명}.tsx</td>
       <td>• {전용API조회파일명}.ts</td>
       <td>• {전용API통신코드파일명}.ts</td>
       <td>• {전용스토어파일명}.ts</td>
@@ -43,7 +43,7 @@
       <td><b>S02. {시나리오명}</b><br><i>({시나리오 트리거 조건})</i></td>
       <td>• {전용페이지파일명}.tsx</td>
       <td>• {전용피처컴포넌트파일명}.tsx</td>
-      <td>• {공통입력컴포넌트파일명}.tsx</td>
+      <td>• {공통공유컴포넌트파일명}.tsx</td>
       <td>• {전용API조회파일명}.ts</td>
       <td>• {전용API통신코드파일명}.ts</td>
       <td>• {전용스토어파일명}.ts</td>
@@ -168,13 +168,13 @@
 *   **정의**: 화면의 최상위 진입점으로서 URL 파라미터 파싱 및 하위 피처 컴포넌트를 조립하는 페이지 컴포넌트의 **순수 파일명**을 기재합니다.
 *   **표준 코드 양식**: 코드 폼 사전의 `[FE-PAGE]` 스펙을 준수해야 합니다.
 
-#### ② FE-FEATURE (Feature UI Component)
-*   **정의**: 폼 컨텍스트, API Hook, UI 컴포넌트들을 조립하여 비즈니스 가치를 완수하는 피처 UI 컴포넌트의 **순수 파일명**을 기재합니다.
-*   **표준 코드 양식**: 코드 폼 사전의 `[FE-FEATURE]` 표준 코드 양식을 준수해야 합니다.
+#### ② FE-FEATURE-COMP (Feature Component)
+*   **정의**: 폼 컨텍스트, API Hook, UI 컴포넌트들을 조립하여 비즈니스 가치를 완수하는 피처 컴포넌트의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[FE-FEATURE-COMP]` 표준 코드 양식을 준수해야 합니다.
 
-#### ③ FE-INPUT (Controlled Input)
-*   **정의**: react-hook-form 및 Zod와 연동되는 공통 Controlled Form Input 컴포넌트의 **순수 파일명**을 기재합니다.
-*   **표준 코드 양식**: 코드 폼 사전의 `[FE-INPUT]` 표준 코드 양식을 준수하여 작성해야 합니다.
+#### ③ FE-SHARED-COMP (Shared Component)
+*   **정의**: 특정 피처 도메인에 종속되지 않고, 애플리케이션 전역에서 범용적으로 재사용되는 공통 공유 컴포넌트의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[FE-SHARED-COMP]` 표준 코드 양식을 준수하여 작성해야 합니다.
 
 #### ④ FE-QUERY (API Query Hook)
 *   **정의**: 서버 데이터를 조회/캐싱하기 위한 TanStack Query용 Custom Query Hook 파일의 **순수 파일명**을 기재합니다.

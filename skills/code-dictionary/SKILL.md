@@ -8,26 +8,27 @@ version: 1.0.0
 
 개발 중 새로운 코드 파일(SUT)을 생성하거나 기존 코드를 리팩토링하여 분할할 때, 아래의 명확한 아키텍처적/테스트적 기준을 준수해야 합니다. 임의의 기준으로 파일을 쪼개거나 무분별하게 병합하는 것은 엄격히 금지됩니다.
 
+
 ---
 
 ## 1. 🖥️ 프론트엔드 컴포넌트 분할 기준
 
-프론트엔드 UI 컴포넌트는 역할과 의존성 범위에 따라 `FE-PAGE`, `FE-FEATURE`, `FE-INPUT/Shared UI` 계층으로 엄격히 분할하여 관리합니다.
+프론트엔드 UI 컴포넌트는 역할과 의존성 범위에 따라 `FE-PAGE` (페이지), `FE-FEATURE-COMP` (피처 컴포넌트), `FE-SHARED-COMP` (공통 공유 컴포넌트) 계층으로 엄격히 분할하여 관리합니다.
 
-### ① FE-PAGE (페이지 진입점) vs FE-FEATURE (도메인 피처)
-*   **분할 기준**: 라우터와 직접 매핑되어 화면 전체를 그리는 레이아웃 파일은 `FE-PAGE`로 선언합니다. 페이지 내부의 독립적이고 응집력 있는 비즈니스 기능(예: 회원 정보 수정 폼, 상품 상세 패널 등)은 모두 `FE-FEATURE`로 분할하여 `FE-PAGE`에 조립합니다.
-*   **핵심 원칙**: `FE-PAGE`는 상태(Zustand, React Query 등)를 직접 참조하거나 API를 호출해서는 안 됩니다. 오직 URL 파라미터 수집과 레이아웃 제공, 그리고 하위 `FE-FEATURE`들을 선언적으로 배치하고 필요한 인자만 props로 위임하는 역할만 수행합니다.
+### ① FE-PAGE (페이지 진입점) vs FE-FEATURE-COMP (피처 컴포넌트)
+*   **분할 기준**: 라우터와 직접 매핑되어 화면 전체를 그리는 레이아웃 파일은 `FE-PAGE`로 선언합니다. 페이지 내부의 독립적이고 응집력 있는 비즈니스 기능(예: 회원 정보 수정 폼, 상품 상세 패널 등)은 모두 `FE-FEATURE-COMP`로 분할하여 `FE-PAGE`에 조립합니다.
+*   **핵심 원칙**: `FE-PAGE`는 상태(Zustand, React Query 등)를 직접 참조하거나 API를 호출해서는 안 됩니다. 오직 URL 파라미터 수집과 레이아웃 제공, 그리고 하위 `FE-FEATURE-COMP`들을 선언적으로 배치하고 필요한 인자만 props로 위임하는 역할만 수행합니다.
 
-### ② FE-FEATURE 내의 Outer(Container) vs Inner(Renderer) 분할
-*   **분할 기준**: 복잡한 사용자 입력 폼이나 데이터 수집 흐름이 들어가는 피처는 반드시 Outer와 Inner 컴포넌트로 2중 분할합니다.
+### ② FE-FEATURE-COMP 내의 Outer(Container) vs Inner(Renderer) 분할
+*   **분할 기준**: 복잡한 사용자 입력 폼이나 데이터 수집 흐름이 들어가는 피처 컴포넌트는 반드시 Outer와 Inner 컴포넌트로 2중 분할합니다.
 *   **역할 분담**:
     *   **Outer Component (`{Feature}.tsx`)**: 비즈니스 상태 컨텍스트(react-hook-form Provider, Query Mutation, Zod 스키마 주입 등)를 제공하고, 외부 및 부모로 전달할 API 액션 핸들러(`onSubmitRef` 등)를 주입하는 컨테이너 역할만 수행합니다.
     *   **Inner Component (`{Feature}Inner.tsx` 또는 내부 분리)**: 실제 UI를 렌더링하고, 인풋 필드를 배치하며 사용자 액션을 수집하는 렌더러 역할만 수행합니다.
 *   **효과**: 폼 입력값 변화에 따른 불필요한 전체 리렌더링을 방지하고 비즈니스 설정값 주입과 UI 표현을 분리하여 유지보수성을 극대화합니다.
 
-### ③ 공통 UI 컴포넌트 (Shared UI / FE-INPUT) 분할
-*   **분할 기준**: 특정 비즈니스 도메인(예: 결제, 주문 등)에 종속되지 않고, 여러 피처에서 재사용되는 범용적인 UI 요소(Button, Modal, InputField, Card 등)는 비즈니스 로직을 완전히 배제하고 `src/components/ui/` 하위로 분할합니다.
-*   **핵심 원칙**: 공통 UI 컴포넌트는 `FE-QUERY`, `FE-MUTATION`, `FE-STORE` 등 비즈니스 상태를 임포트할 수 없으며, 모든 제어는 외부 props를 통해서만 수행해야 합니다.
+### ③ 공통 공유 컴포넌트 (FE-SHARED-COMP) 분할
+*   **분할 기준**: 특정 비즈니스 도메인(예: 결제, 주문 등)에 종속되지 않고, 여러 피처에서 범용적으로 재사용되는 UI 요소(Button, Modal, InputField, Card, Toast 등)는 비즈니스 로직을 완전히 배제하고 `src/components/ui/` 하위로 분할합니다.
+*   **핵심 원칙**: 공통 공유 컴포넌트는 `FE-QUERY`, `FE-MUTATION`, `FE-STORE` 등 비즈니스 상태를 임포트할 수 없으며, 모든 제어는 외부 props를 통해서만 수행해야 합니다.
 
 ---
 
@@ -68,8 +69,8 @@ BDD-TDD 프로세스 하에서 단위 테스트의 대상이 되는 "유닛(Unit
 import React from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
-import { UserProfileFeature } from '@/features/users/components/UserProfileFeature'; // FE-FEATURE
-import { ScoreListFeature } from '@/features/scores/components/ScoreListFeature'; // FE-FEATURE
+import { UserProfileFeature } from '@/features/users/components/UserProfileFeature'; // FE-FEATURE-COMP
+import { ScoreListFeature } from '@/features/scores/components/ScoreListFeature'; // FE-FEATURE-COMP
 
 export const DashboardPage: React.FC = () => {
   // 1. 라우트 및 URL 상태 수집 (라우터 의존성 독점)
@@ -94,9 +95,9 @@ export const DashboardPage: React.FC = () => {
 };
 ```
 - **준수 사항 (Do's & Don'ts)**:
-  - 직접적인 API 호출(React Query), Zustand 스토어 구독, react-hook-form을 통한 복잡한 폼 벨리데이션 로직을 작성하지 마십시오. (해당 로직은 모두 하위의 `FE-FEATURE` 컴포넌트로 이관되어야 합니다.)
+  - 직접적인 API 호출(React Query), Zustand 스토어 구독, react-hook-form을 통한 복잡한 폼 벨리데이션 로직을 작성하지 마십시오. (해당 로직은 모두 하위의 `FE-FEATURE-COMP` 컴포넌트로 이관되어야 합니다.)
 
-### 2) [FE-FEATURE] Feature UI Component (피처 컴포넌트)
+### 2) [FE-FEATURE-COMP] Feature-specific Component (피처 컴포넌트)
 - **목적**: 폼 컨텍스트, API Fetch/Mutation 모듈, UI 인풋 요소들을 모아 비즈니스 가치를 완수하는 단위 도메인 피처 조립 컴포넌트입니다.
 - **물리 경로**: `apps/frontend/src/features/{feature}/components/{name}.tsx`
 - **구조 예시 및 템플릿**:
@@ -104,7 +105,7 @@ export const DashboardPage: React.FC = () => {
 // Path: apps/frontend/src/features/auth/components/LoginForm.tsx
 import React, { useRef, useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import Form, { InputField } from '@/components/ui/form'; // FE-FORM-WRAP 및 FE-INPUT 사용
+import Form, { InputField } from '@/components/ui/form'; // FE-FORM-WRAP 및 FE-SHARED-COMP 사용
 
 interface FeatureProps {
   onSuccess: () => void;
@@ -165,9 +166,9 @@ export const FeatureComponent: React.FC<FeatureProps> = ({ onSuccess }) => {
   - 폼 리렌더링 최적화를 위해 Context를 주입하는 **Outer(컨테이너) 컴포넌트**와 요소를 렌더링하는 **Inner(렌더러) 컴포넌트**를 명확하게 분리하여 작성해야 합니다.
   - 가상 키보드나 외부 트리거를 처리하기 위해 `onSubmitRef` 와 같은 ref 바인딩 형식을 준수해야 합니다.
 
-### 3) [FE-INPUT] Common Controlled Form Input Component (공통 입력 컴포넌트)
-- **목적**: React Hook Form과 Zod를 결합하여 입력 유효성 검사 및 에러 상태를 표시하는 공통 입력 컴포넌트입니다.
-- **물리 경로**: `apps/frontend/src/components/ui/form/{name}.tsx`
+### 3) [FE-SHARED-COMP] Shared Reusable Component (공통 공유 컴포넌트)
+- **목적**: 특정 피처 도메인에 종속되지 않고, 애플리케이션 전역에서 범용적으로 재사용되는 공통 공유 컴포넌트(Button, Dialog/Modal, Card, InputField 등)입니다.
+- **물리 경로**: `apps/frontend/src/components/ui/{name}.tsx` 또는 `apps/frontend/src/components/ui/form/{name}.tsx`
 - **구조 예시 및 템플릿**:
 ```typescript
 // Path: apps/frontend/src/components/ui/form/InputField.tsx
