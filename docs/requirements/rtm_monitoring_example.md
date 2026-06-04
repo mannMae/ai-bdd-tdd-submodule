@@ -15,48 +15,52 @@
   <thead>
     <tr>
       <th align="left">시나리오</th>
-      <th align="left">FE-01</th>
-      <th align="left">FE-02</th>
-      <th align="left">FE-03</th>
-      <th align="left">FE-04</th>
-      <th align="left">FE-05</th>
-      <th align="left">FE-06</th>
-      <th align="left">FE-07</th>
+      <th align="left">FE-PAGE</th>
+      <th align="left">FE-FEATURE</th>
+      <th align="left">FE-INPUT</th>
+      <th align="left">FE-QUERY</th>
+      <th align="left">FE-MUTATION</th>
+      <th align="left">FE-STORE</th>
+      <th align="left">FE-HOOK</th>
+      <th align="left">FE-UTIL</th>
       <th align="left">etc</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td><b>S01. 모니터링 시작</b><br><i>(넘버패드 입력 후 시작)</i></td>
+      <td>• monitoring.tsx</td>
+      <td>• MonitoringSetting.tsx<br>• NumpadModal.tsx<br>• Monitoring.tsx</td>
+      <td>• Numpad.tsx</td>
       <td>-</td>
       <td>• useStartMonitoring.ts</td>
       <td>• store/useMonitorStore.ts</td>
-      <td>• Numpad.tsx</td>
-      <td>• MonitoringSetting.tsx<br>• NumpadModal.tsx<br>• Monitoring.tsx</td>
+      <td>-</td>
       <td>• apiClient.ts<br>• storage.ts</td>
-      <td>-</td>
-      <td>-</td>
+      <td>• provider.tsx [FE-PROVIDER]</td>
     </tr>
     <tr>
       <td><b>S02. 시뮬레이션 모드</b><br><i>(시뮬레이션 데이터 구동)</i></td>
+      <td>• monitoring.tsx</td>
+      <td>• Monitoring.tsx<br>• SimulationPanel.tsx</td>
+      <td>• Card.tsx</td>
       <td>-</td>
       <td>• useSimulate.ts</td>
       <td>• store/useMonitorStore.ts</td>
-      <td>• Card.tsx</td>
-      <td>• Monitoring.tsx<br>• SimulationPanel.tsx</td>
-      <td>• apiClient.ts<br>• timeFormatter.ts</td>
       <td>-</td>
+      <td>• apiClient.ts<br>• timeFormatter.ts</td>
       <td>-</td>
     </tr>
     <tr>
       <td><b>S03. 모니터링 종료</b><br><i>(사용자 강제 종료)</i></td>
+      <td>• monitoring.tsx</td>
+      <td>• Monitoring.tsx</td>
+      <td>• feedback/ConfirmModal.tsx</td>
       <td>-</td>
       <td>• useStopMonitoring.ts</td>
       <td>• store/useMonitorStore.ts</td>
-      <td>• feedback/ConfirmModal.tsx</td>
-      <td>• Monitoring.tsx</td>
-      <td>• apiClient.ts<br>• storage.ts</td>
       <td>-</td>
+      <td>• apiClient.ts<br>• storage.ts</td>
       <td>-</td>
     </tr>
   </tbody>
@@ -68,14 +72,14 @@
   <thead>
     <tr>
       <th align="left">시나리오</th>
-      <th align="left">BE-01</th>
-      <th align="left">BE-02</th>
-      <th align="left">BE-03</th>
-      <th align="left">BE-04</th>
-      <th align="left">BE-05</th>
-      <th align="left">BE-06</th>
-      <th align="left">BE-07</th>
-      <th align="left">BE-08</th>
+      <th align="left">BE-ROUTER</th>
+      <th align="left">BE-SERVICE</th>
+      <th align="left">BE-VO</th>
+      <th align="left">BE-MODEL</th>
+      <th align="left">BE-DEPENDENCY</th>
+      <th align="left">BE-SCHEMA</th>
+      <th align="left">BE-TEST</th>
+      <th align="left">BE-UTIL</th>
       <th align="left">etc</th>
     </tr>
   </thead>
@@ -90,7 +94,7 @@
       <td>• schemas.py</td>
       <td>• test_monitoring.py</td>
       <td>-</td>
-      <td>• database.py [BE-09]</td>
+      <td>• database.py [BE-DATABASE]</td>
     </tr>
     <tr>
       <td><b>S02. 시뮬레이션 모드</b><br><i>(시뮬레이션 데이터 구동)</i></td>
@@ -102,7 +106,7 @@
       <td>• schemas.py</td>
       <td>• test_monitoring.py</td>
       <td>-</td>
-      <td>• database.py [BE-09]</td>
+      <td>• database.py [BE-DATABASE]</td>
     </tr>
     <tr>
       <td><b>S03. 모니터링 종료</b><br><i>(사용자 강제 종료)</i></td>
@@ -114,7 +118,7 @@
       <td>• schemas.py</td>
       <td>• test_monitoring.py</td>
       <td>-</td>
-      <td>• database.py [BE-09]</td>
+      <td>• database.py [BE-DATABASE]</td>
     </tr>
   </tbody>
 </table>
@@ -125,14 +129,14 @@
   <thead>
     <tr>
       <th align="left">시나리오</th>
-      <th align="left">AI-01</th>
-      <th align="left">AI-02</th>
-      <th align="left">AI-03</th>
-      <th align="left">AI-04</th>
-      <th align="left">AI-05</th>
-      <th align="left">AI-06</th>
-      <th align="left">AI-07</th>
-      <th align="left">AI-08</th>
+      <th align="left">AI-ROUTER</th>
+      <th align="left">AI-USECASE</th>
+      <th align="left">AI-WORKFLOW</th>
+      <th align="left">AI-CORE</th>
+      <th align="left">AI-GATEWAY</th>
+      <th align="left">AI-TYPE</th>
+      <th align="left">AI-TEST</th>
+      <th align="left">AI-UTIL</th>
       <th align="left">etc</th>
     </tr>
   </thead>
@@ -147,7 +151,7 @@
       <td>• value.py</td>
       <td>• test_inference.py</td>
       <td>-</td>
-      <td>• bootstrap.py [AI-09]</td>
+      <td>• bootstrap.py [AI-BOOTSTRAP]</td>
     </tr>
     <tr>
       <td><b>S02. 시뮬레이션 모드</b><br><i>(시뮬레이션 데이터 구동)</i></td>
@@ -159,7 +163,7 @@
       <td>• value.py</td>
       <td>• test_inference.py</td>
       <td>-</td>
-      <td>• bootstrap.py [AI-09]</td>
+      <td>• bootstrap.py [AI-BOOTSTRAP]</td>
     </tr>
     <tr>
       <td><b>S03. 모니터링 종료</b><br><i>(사용자 강제 종료)</i></td>
@@ -171,7 +175,7 @@
       <td>• value.py</td>
       <td>• test_inference.py</td>
       <td>-</td>
-      <td>• bootstrap.py [AI-09]</td>
+      <td>• bootstrap.py [AI-BOOTSTRAP]</td>
     </tr>
   </tbody>
 </table>
@@ -183,7 +187,7 @@
 > [!IMPORTANT]
 > **🚨 AI 에이전트 개발 가이드라인 (RTM 개발 계약)**
 > 1. **정답표 및 준수 여부 심사**: 이 RTM(기술 매핑 문서)은 구현 완료 후 사용자가 코드가 잘 작성되었는지 채점하기 위한 정답표이자 규칙 검증 계약서입니다.
-> 2. **엄격한 규칙 준수**: 각 컬럼에 정의된 코드유형 ID, 구조적 역할, 그리고 표준 코드 양식을 정확히 준수하여 소스 코드가 작성되어야 합니다.
+> 2. **엄격한 규칙 준수**: 각 컬럼에 정의된 코드폼 명칭, 구조적 역할, 그리고 표준 코드 양식을 정확히 준수하여 소스 코드가 작성되어야 합니다.
 > 3. **반려 기준**: 다음 사항에 하나라도 해당할 경우, 구현 결과물은 예외 없이 **반려(Reject)** 처리됩니다.
 >    - 지정된 기본 디렉토리 경로가 아닌 임의의 위치에 파일을 작성한 경우.
 >    - 표준 코드 양식(예: Usecase의 단일 책임 클래스 구조, 불변 VO의 dataclass 선언 등)을 따르지 않고 임의의 아키텍처 및 보일러플레이트로 구현한 경우.
@@ -192,124 +196,128 @@
 
 ---
 
-### 1) 프론트엔드 (Frontend - 코드유형 ID 단위 매핑)
+### 1) 프론트엔드 (Frontend - 코드폼 명칭 단위 매핑)
 
-프론트엔드 파일들은 해당하는 **코드유형 ID(FE-01 ~ FE-07)** 및 **etc** 컬럼에 매핑하여 기술하며, 코드 작성 시 [프론트엔드 개발 가이드레일(06-frontend-rules.md)](file:///rules/templates/06-frontend-rules.sample.md)을 준수해야 합니다.
+프론트엔드 파일들은 해당하는 **코드폼 명칭(FE-PAGE ~ FE-UTIL)** 및 **etc** 컬럼에 매핑하여 기술하며, 코드 작성 시 [프론트엔드 개발 가이드레일(06-frontend-rules.md)](file:///templates/06-frontend-rules.sample.md)을 준수해야 합니다.
 
-#### ① FE-01 (API Query Hook)
-*   **정의**: 서버 데이터를 조회/캐싱하기 위한 TanStack Query용 Custom Query Hook 파일의 **순수 파일명**을 기재합니다.
-*   **표준 코드 양식**: [Frontend Rules - api 표준 코드 양식](file:///rules/templates/06-frontend-rules.sample.md#1-api-react-query-mutation) 및 코드 폼 사전의 `[FE-01]` 스펙을 준수해야 합니다.
+#### ① FE-PAGE (Page Component)
+*   **정의**: 화면의 최상위 진입점으로서 URL 파라미터 파싱 및 하위 피처 컴포넌트를 조립하는 페이지 컴포넌트의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[FE-PAGE]` 스펙을 준수해야 합니다.
 
-#### ② FE-02 (API Fetch/Mutation)
-*   **정의**: POST, PUT, DELETE 등 서버 상태를 변경하는 API Fetch/Mutation 모듈 파일의 **순수 파일명**을 기재합니다.
-*   **표준 코드 양식**: 코드 폼 사전의 `[FE-02]` 표준 코드 양식을 준수해야 합니다.
-
-#### ③ FE-03 (Feature Store)
-*   **정의**: Zustand 기반 전역 상태 또는 로컬 피처 상태 저장소 파일의 **순수 파일명**을 기재합니다.
-*   **표준 코드 양식**: 코드 폼 사전의 `[FE-03]` 표준 코드 양식을 준수해야 합니다.
-
-#### ④ FE-04 (Controlled Input)
-*   **정의**: react-hook-form 및 Zod와 연동되는 공통 Controlled Form Input 컴포넌트의 **순수 파일명**을 기재합니다.
-*   **표준 코드 양식**: 코드 폼 사전의 `[FE-04]` 표준 코드 양식을 준수하여 작성해야 합니다.
-
-#### ⑤ FE-05 (Feature UI Component)
+#### ② FE-FEATURE (Feature UI Component)
 *   **정의**: 폼 컨텍스트, API Hook, UI 컴포넌트들을 조립하여 비즈니스 가치를 완수하는 피처 UI 컴포넌트의 **순수 파일명**을 기재합니다.
-*   **표준 코드 양식**: 코드 폼 사전의 `[FE-05]` 표준 코드 양식을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[FE-FEATURE]` 표준 코드 양식을 준수해야 합니다.
 
-#### ⑥ FE-06 (Utility Module)
-*   **정의**: 브라우저 저장소 관리 및 비즈니스 공통 연산 등 부수 효과가 없는 순수 함수/객체 헬퍼 파일의 **순수 파일명**을 기재합니다.
-*   **표준 코드 양식**: 코드 폼 사전의 `[FE-06]` 표준 코드 양식을 준수해야 합니다.
+#### ③ FE-INPUT (Controlled Input)
+*   **정의**: react-hook-form 및 Zod와 연동되는 공통 Controlled Form Input 컴포넌트의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[FE-INPUT]` 표준 코드 양식을 준수하여 작성해야 합니다.
 
-#### ⑦ FE-07 (Custom Hook)
+#### ④ FE-QUERY (API Query Hook)
+*   **정의**: 서버 데이터를 조회/캐싱하기 위한 TanStack Query용 Custom Query Hook 파일의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: [Frontend Rules - api 표준 코드 양식](file:///templates/06-frontend-rules.sample.md#1-api-react-query-mutation) 및 코드 폼 사전의 `[FE-QUERY]` 스펙을 준수해야 합니다.
+
+#### ⑤ FE-MUTATION (API Fetch/Mutation)
+*   **정의**: POST, PUT, DELETE 등 서버 상태를 변경하는 API Fetch/Mutation 모듈 파일의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[FE-MUTATION]` 표준 코드 양식을 준수해야 합니다.
+
+#### ⑥ FE-STORE (Feature Store)
+*   **정의**: Zustand 기반 전역 상태 또는 로컬 피처 상태 저장소 파일의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[FE-STORE]` 표준 코드 양식을 준수해야 합니다.
+
+#### ⑦ FE-HOOK (Custom Hook)
 *   **정의**: 컴포넌트 생명주기와 연동되거나, UI 동작 상태 및 이벤트를 처리하기 위한 범용 커스텀 훅 파일의 **순수 파일명**을 기재합니다.
-*   **표준 코드 양식**: 코드 폼 사전의 `[FE-07]` 표준 코드 양식을 준수하여 작성해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[FE-HOOK]` 표준 코드 양식을 준수하여 작성해야 합니다.
 
-#### ⑧ etc (기타 파일 및 추가 코드유형)
-*   **정의**: 위 1~7번 유형에 속하지 않는 글로벌/공통 파일(`[FE-08] Form Container Wrapper`, `[FE-09] App Provider`, `[FE-10] App Router`, `[FE-11] Domain Types`, `[FE-12] External Library Wrapper` 등), 공통 로직 등의 파일들을 대괄호 접미사와 함께 기재합니다. (단, App Provider와 App Router와 같은 프로젝트 전역 설정 파일은 모든 기능에서 공통으로 당연히 사용되므로 굳이 매번 RTM에 기재하지 않는 것을 권장합니다.)
+#### ⑧ FE-UTIL (Utility Module)
+*   **정의**: 브라우저 저장소 관리 및 비즈니스 공통 연산 등 부수 효과가 없는 순수 함수/객체 헬퍼 파일의 **순수 파일명**을 기재합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[FE-UTIL]` 표준 코드 양식을 준수해야 합니다.
+
+#### ⑨ etc (기타 파일 및 추가 코드유형)
+*   **정의**: 위 필수 컬럼 외의 글로벌/공통 파일(`[FE-ROUTER] App Router`, `[FE-PROVIDER] App Provider`, `[FE-FORM-WRAP] Form Wrapper`, `[FE-TYPE] Domain Types`, `[FE-LIB] Lib Wrapper` 등)들을 대괄호 접미사와 함께 기재합니다.
 *   **표준 코드 양식**: 코드 폼 사전에 정의된 각 코드 유형의 표준 코드 양식을 준수하여 작성해야 합니다.
 
 ---
 
-### 2) 백엔드 (Backend - 코드유형 ID 단위 매핑)
+### 2) 백엔드 (Backend - 코드폼 명칭 단위 매핑)
 
-백엔드 파일들은 해당하는 **코드유형 ID(BE-01 ~ BE-08)** 및 **etc** 컬럼에 매핑하여 기술하며, 코드 작성 시 [백엔드 개발 가이드레일(07-backend-rules.md)](file:///rules/templates/07-backend-rules.sample.md)을 준수해야 합니다.
+백엔드 파일들은 해당하는 **코드폼 명칭(BE-ROUTER ~ BE-UTIL)** 및 **etc** 컬럼에 매핑하여 기술하며, 코드 작성 시 [백엔드 개발 가이드레일(07-backend-rules.md)](file:///templates/07-backend-rules.sample.md)을 준수해야 합니다.
 
-#### ① BE-01 (routers)
+#### ① BE-ROUTER (routers)
 *   **정의**: API 엔드포인트를 정의하고 응답 스펙과 Status Code를 매핑하는 FastAPI APIRouter 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-01]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-ROUTER]` 스펙을 준수해야 합니다.
 
-#### ② BE-02 (services)
+#### ② BE-SERVICE (services)
 *   **정의**: 단일 비즈니스 규칙 및 Usecase를 조율하는 Stateless 서비스 클래스 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-02]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-SERVICE]` 스펙을 준수해야 합니다.
 
-#### ③ BE-03 (post_vo)
+#### ③ BE-VO (Value Object)
 *   **정의**: 비즈니스 도메인의 무결성 제약조건을 강제하는 불변 값 객체(VO) 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-03]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-VO]` 스펙을 준수해야 합니다.
 
-#### ④ BE-04 (models)
+#### ④ BE-MODEL (models)
 *   **정의**: SQLAlchemy 기반 DB ORM 테이블 선언적 모델 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-04]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-MODEL]` 스펙을 준수해야 합니다.
 
-#### ⑤ BE-05 (dependencies)
+#### ⑤ BE-DEPENDENCY (dependencies)
 *   **정의**: FastAPI Depends에 바인딩할 의존성 주입 및 공용 검증 함수 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-05]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-DEPENDENCY]` 스펙을 준수해야 합니다.
 
-#### ⑥ BE-06 (schemas)
+#### ⑥ BE-SCHEMA (schemas)
 *   **정의**: 입출력 데이터의 유효성 검증과 직렬화를 담당하는 Pydantic 스키마 DTO 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-06]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-SCHEMA]` 스펙을 준수해야 합니다.
 
-#### ⑦ BE-07 (tests)
+#### ⑦ BE-TEST (tests)
 *   **정의**: httpx.AsyncClient를 이용하여 백엔드 비즈니스 흐름을 비동기 검증하는 pytest 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-07]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-TEST]` 스펙을 준수해야 합니다.
 
-#### ⑧ BE-08 (utils)
+#### ⑧ BE-UTIL (utils)
 *   **정의**: 날짜 연산, 암호화 헬퍼 등 백엔드 전반에서 공통으로 쓰이는 유틸리티 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[BE-08]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[BE-UTIL]` 스펙을 준수해야 합니다.
 
 #### ⑨ etc
-*   **정의**: 1~8번 유형 이외의 파일(예: `[BE-09] Database Session Manager`, `[BE-10] External Client`, `[BE-11] Custom Exception`, `[BE-12] Config Settings` 등, 유형 번호 표기 필수)을 기재합니다.
+*   **정의**: 위 필수 컬럼 이외의 파일(예: `[BE-DATABASE] Database Session`, `[BE-CLIENT] External Client`, `[BE-EXCEPTION] Exceptions`, `[BE-CONFIG] Config` 등, 명칭 표기 필수)을 기재합니다.
 *   **표준 코드 양식**: 코드 폼 사전에 정의된 각 코드 유형의 표준 코드 양식을 준수하여 작성해야 합니다.
 
 ---
 
-### 3) AI 모듈 (AI Module - 코드유형 ID 단위 매핑)
+### 3) AI 모듈 (AI Module - 코드폼 명칭 단위 매핑)
 
-AI 모듈 파일들은 해당하는 **코드유형 ID(AI-01 ~ AI-08)** 및 **etc** 컬럼에 매핑하여 기술하며, 코드 작성 시 [로컬 ML 추론 서버 개발 가이드레일(08-ai-module-rules.md)](file:///rules/templates/08-ai-module-rules.sample.md)을 준수해야 합니다.
+AI 모듈 파일들은 해당하는 **코드폼 명칭(AI-ROUTER ~ AI-UTIL)** 및 **etc** 컬럼에 매핑하여 기술하며, 코드 작성 시 [로컬 ML 추론 서버 개발 가이드레일(08-ai-module-rules.md)](file:///templates/08-ai-module-rules.sample.md)을 준수해야 합니다.
 
-#### ① AI-01 (inbound)
+#### ① AI-ROUTER (inbound)
 *   **정의**: 외부 추론 요청을 수신하는 APIRouter 진입점 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-01]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-ROUTER]` 스펙을 준수해야 합니다.
 
-#### ② AI-02 (usecases)
+#### ② AI-USECASE (usecases)
 *   **정의**: 추론 전/후처리 및 모델 호출 게이트웨이를 조율하는 오케스트레이터 클래스 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-02]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-USECASE]` 스펙을 준수해야 합니다.
 
-#### ③ AI-03 (workflow)
+#### ③ AI-WORKFLOW (workflow)
 *   **정의**: LangGraph 기반 다단계 추론 체인 및 에이전트 상태 제어 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-03]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-WORKFLOW]` 스펙을 준수해야 합니다.
 
-#### ④ AI-04 (core)
+#### ④ AI-CORE (core)
 *   **정의**: 특징(Feature) 추출, 텐서 가공, 수학적 연산 및 비즈니스 룰 후처리를 수행하는 Pure Python 모듈 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-04]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-CORE]` 스펙을 준수해야 합니다.
 
-#### ⑤ AI-05 (outbound)
+#### ⑤ AI-GATEWAY (outbound)
 *   **정의**: 실제 모델 가중치(ONNX/Torch) 구동 또는 외부 LLM API 통신을 수행하는 Gateway/Adapter 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-05]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-GATEWAY]` 스펙을 준수해야 합니다.
 
-#### ⑥ AI-06 (types)
+#### ⑥ AI-TYPE (types)
 *   **정의**: API 입출력 Pydantic DTO 및 내부 도메인 값 VO 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-06]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-TYPE]` 스펙을 준수해야 합니다.
 
-#### ⑦ AI-07 (tests)
+#### ⑦ AI-TEST (tests)
 *   **정의**: pytest 기반 모의 어댑터 및 추론 파이프라인 단언 검증 테스트 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-07]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-TEST]` 스펙을 준수해야 합니다.
 
-#### ⑧ AI-08 (utils)
+#### ⑧ AI-UTIL (utils)
 *   **정의**: 텍스트 정규화, 텐서 연산 등 AI 파이프라인 전반에서 공통으로 쓰이는 유틸리티 파일의 **순수 파일명**.
-*   **표준 코드 양식**: 코드 폼 사전의 `[AI-08]` 스펙을 준수해야 합니다.
+*   **표준 코드 양식**: 코드 폼 사전의 `[AI-UTIL]` 스펙을 준수해야 합니다.
 
 #### ⑨ etc
-*   **정의**: 1~8번 유형 이외의 파일(예: `[AI-09] Bootstrap & DI Container`, `[AI-10] Prompt Templates`, `[AI-11] AI Custom Exception`, `[AI-12] Model Config & Specs` 등, 유형 번호 표기 필수)을 기재합니다.
+*   **정의**: 위 필수 컬럼 이외의 파일(예: `[AI-BOOTSTRAP] Bootstrap DI`, `[AI-PROMPT] Prompt Templates`, `[AI-EXCEPTION] AI Exceptions`, `[AI-CONFIG] Model Config` 등, 명칭 표기 필수)을 기재합니다.
 *   **표준 코드 양식**: 코드 폼 사전에 정의된 각 코드 유형의 표준 코드 양식을 준수하여 작성해야 합니다.
 
 ---
@@ -348,6 +356,7 @@ AI 모듈 파일들은 해당하는 **코드유형 ID(AI-01 ~ AI-08)** 및 **etc
 *   **유저플로우 다이어그램**: [monitoring_flow.md](file:///docs/user-flow/monitoring_flow.md)
 
 ### ② 프론트엔드 변경 파일 (Frontend)
+*   **페이지 컴포넌트**: [monitoring.tsx](file:///apps/frontend/src/app/routes/monitoring.tsx)
 *   **컴포넌트**: [Numpad.tsx](file:///apps/frontend/src/features/monitoring/components/Numpad.tsx)
 *   **통합 테스트**: [Numpad.test.tsx](file:///apps/frontend/src/features/monitoring/tests/Numpad.test.tsx)
 
