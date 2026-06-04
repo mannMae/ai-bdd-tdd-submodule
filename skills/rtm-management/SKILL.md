@@ -1,7 +1,9 @@
 ---
 name: rtm-management
-description: 기술 요구사항 및 파일 매핑 정보가 기록된 RTM(Requirements Traceability Matrix) 명세서를 작성, 업데이트, 혹은 점수 채점(Self-Grading)할 때 사용합니다.
+description: Governs Technical Requirements Traceability Matrix (RTM) specification tables, column ordering rules, self-grading checklist, and validation gates.
 version: 1.0.0
+globs: "docs/requirements/rtm_*.md"
+alwaysApply: false
 ---
 
 # Technical RTM & Self-Grading Guidelines

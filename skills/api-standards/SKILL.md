@@ -1,8 +1,9 @@
 ---
 name: api-standards
-description: REST API URL 명명 규칙, HTTP 상태 코드 매핑, 표준 응답 봉투(Response Envelope) 및 에러 구조를 정의하여 일관된 API 스펙을 보장합니다.
+description: REST API URL naming conventions, HTTP status code mappings, and standardized JSON response wrappers/error envelope formats.
 version: 1.0.0
-globs: apps/backend/src/**/router.py, apps/ai/src/**/router.py, apps/frontend/src/**/api/**/*.ts
+globs: "apps/backend/src/**/router.py, apps/ai/src/**/router.py, apps/frontend/src/**/api/**/*.ts"
+alwaysApply: false
 ---
 
 # 🌐 REST API Design & Response Standardization Guidelines

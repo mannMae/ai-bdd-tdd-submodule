@@ -1,7 +1,9 @@
 ---
 name: tdd-development
-description: TDD(Test Driven Development) 방법론에 맞춰 백엔드/프론트엔드 테스트 코드 작성, Red-Green-Refactor 주기 수행, 프로덕션 코드 구현 시 사용합니다.
+description: Enforces Test-Driven Development (TDD) guidelines, Red-Green-Refactor cycles, test file templates, and SUT annotations.
 version: 1.0.0
+globs: "*/*.test.ts, */*.test.tsx, **/test_*.py"
+alwaysApply: false
 ---
 
 # TDD Development & Test Coding Guidelines

@@ -1,8 +1,9 @@
 ---
 name: ai-inference-guardrails
-description: AI 모듈 구현 시 Pydantic을 이용한 구조화된 출력(Structured Output) 추출, 싱글톤 모델 로더 강제, 프롬프트 주입(Prompt Injection) 방어 규칙을 다룹니다.
+description: AI model inference and prompt security, enforcing Pydantic structured output validation, singleton model adapter DI loading, and prompt injection defense.
 version: 1.0.0
-globs: apps/ai/src/**/inference.py, apps/ai/src/**/adapter.py, apps/ai/src/**/prompts.py
+globs: "apps/ai/src/**/inference.py, apps/ai/src/**/adapter.py, apps/ai/src/**/prompts.py"
+alwaysApply: false
 ---
 
 # 🤖 AI Inference & Prompt Security Guardrails

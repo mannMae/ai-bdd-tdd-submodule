@@ -1,7 +1,9 @@
 ---
 name: bdd-workflow
-description: BDD(Behavior Driven Development) 방법론에 맞춰 요구사항(User Story) 분석, 유저플로우(User Flow) 설계, 거킨 시나리오(.feature) 작성을 수행할 때 사용합니다.
+description: Enforces Behavior-Driven Development (BDD) workflows, including User Story analysis, User Flow diagrams, and Gherkin scenario (.feature) files creation.
 version: 1.0.0
+globs: "*/*.feature, docs/user-flow/*.md, features/*.feature"
+alwaysApply: false
 ---
 
 # BDD Workflow & Design Guidelines

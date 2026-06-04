@@ -1,8 +1,9 @@
 ---
 name: ai-evaluation-evals
-description: ML/AI 모델 추론의 재현성을 확보하기 위한 시드 고정 규칙과 모델 평가 테스트 메트릭 및 속도 성능 검증 기준을 정의합니다.
+description: Deterministic random seed pinning, inference latency testing guards, and model evaluation accuracy metric regression checks.
 version: 1.0.0
-globs: apps/ai/tests/**/test_*.py, apps/ai/src/**/processor.py
+globs: "apps/ai/tests/**/test_*.py, apps/ai/src/**/processor.py"
+alwaysApply: false
 ---
 
 # 📊 AI Model Evaluation Metrics & Reproducibility Guidelines

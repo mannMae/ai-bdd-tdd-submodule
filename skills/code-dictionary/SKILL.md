@@ -1,7 +1,9 @@
 ---
 name: code-dictionary
-description: 프로젝트 코드에서 변수명, 클래스명, API 경로, DB 필드명 등을 작성할 때 공통 용어 사전 및 약어 사전을 참고하여 일관성을 맞추기 위해 사용합니다.
+description: Component & Unit Division guidelines, file modularization rules, and standardized Code Form boilerplates for Frontend, Backend, and AI modules.
 version: 1.0.0
+globs: "*"
+alwaysApply: true
 ---
 
 # 📐 아키텍처 컴포넌트 및 테스트 유닛 분할 기준 (Component & Unit Division Criteria)

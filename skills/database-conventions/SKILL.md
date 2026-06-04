@@ -1,8 +1,9 @@
 ---
 name: database-conventions
-description: SQLAlchemy 2.0 비동기 세션 생명주기 관리, 트랜잭션 경계 규칙, N+1 쿼리 최적화 가이드라인을 정의합니다.
+description: SQLAlchemy async session lifecycles, N+1 query prevention (eager loading), soft delete policies, and transaction boundaries (no external HTTP calls inside transactions).
 version: 1.0.0
-globs: apps/backend/src/**/models.py, apps/backend/src/**/service.py, apps/backend/src/database.py
+globs: "apps/backend/src/**/models.py, apps/backend/src/**/service.py, apps/backend/src/database.py"
+alwaysApply: false
 ---
 
 # 🗄️ Database Conventions & Transaction Boundary Guidelines
