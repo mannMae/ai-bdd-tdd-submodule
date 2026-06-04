@@ -51,6 +51,39 @@ BDD-TDD 프로세스 하에서 단위 테스트의 대상이 되는 "유닛(Unit
 
 ---
 
+## 3. 📂 파일 단위 모듈화 및 분리 기준 (File-level Modularization & Separation Criteria)
+
+코드를 구성할 때 파일을 **단일 파일로 분리할 것인가** 또는 **하나의 파일로 그룹화할 것인가**에 대한 명확한 기준입니다.
+
+### ① 단일 파일 분리 대상 (1 File per Unit)
+다음 요소들은 관심사 분리와 변경 영향 최소화를 위해 **반드시 1개 파일당 1개의 단위(클래스/함수)만 정의**하도록 단일 파일로 격리합니다.
+*   **프론트엔드 API 요청 (`FE-QUERY` / `FE-MUTATION`)**: 
+    - *기준*: 단일 API 엔드포인트 호출 모듈(zod schema + fetcher + react-query hook)마다 **개별 파일로 분리**합니다. (예: `get-user.ts`, `update-profile.ts` 등)
+    - *이유*: 특정 API 호출부의 스키마 변경이 다른 API 코드에 영향을 주지 않도록 하고, 트리 셰이킹 최적화를 극대화합니다.
+*   **프론트엔드 라우트 페이지 (`FE-PAGE`)**:
+    - *기준*: URL 라우팅 경로와 매핑되는 진입점 페이지는 **페이지당 1개의 파일**로 작성합니다.
+*   **커스텀 훅 및 공통 컴포넌트 (`FE-HOOK`, `FE-SHARED-COMP`)**:
+    - *기준*: 재사용을 전제로 하는 개별 훅과 공통 컴포넌트는 **파일당 1개씩 분리**하여 선언합니다.
+*   **백엔드 Usecase 서비스 (Clean Architecture 적용 시 `BE-SERVICE`)**:
+    - *기준*: 프로젝트 아키텍처 규모가 크거나 완전한 Clean 아키텍처를 지향하는 경우, `service.py` 하나에 모으지 않고 **Usecase 단위별 파일로 격리**합니다. (예: `usecases/create_post.py`, `usecases/delete_post.py` 등)
+*   **단위 테스트 파일 (`FE-TEST`, `BE-TEST`, `AI-TEST`)**:
+    - *기준*: 테스트 대상 유닛(SUT) 파일 혹은 특정 엔드포인트별 시나리오 단위로 **1:1 매핑하여 테스트 파일을 분리**합니다.
+
+### ② 단일 파일 내 그룹화 대상 (Multiple Units in 1 File)
+다음 요소들은 파일 개수의 무분별한 증가를 막고 도메인 응집력을 높이기 위해 **하나의 파일 내에서 여러 연관 객체를 정의**할 수 있습니다.
+*   **도메인별 백엔드 인프라/데이터 모델 (`BE-MODEL`, `BE-SCHEMA`, `BE-DEPENDENCY`)**:
+    - *기준*: 동일 도메인(Bounded Context) 내에 속하는 테이블 모델(`models.py`), Pydantic DTO 스키마(`schemas.py`), 라우터 Depends 함수(`dependencies.py`)들은 **파일 단위로 그룹화**하여 모아둡니다.
+    - *이유*: 하나의 도메인 안에서 데이터베이스 스키마와 DTO는 서로 밀접하게 연동되므로 한눈에 볼 수 있도록 응집시키는 것이 관리에 유리합니다.
+*   **도메인 값 객체 (`BE-VO`, `BE-SERVICE` CRUD 위주)**:
+    - *기준*: 도메인 내의 여러 불변 값 객체는 `vo.py` 파일 내에 클래스 단위로 모아서 정의합니다.
+    - *기준*: 간단한 CRUD 중심 프로젝트의 경우, 비즈니스 흐름이 단순하므로 Usecase 파일들을 쪼개지 않고 단일 `service.py` 파일 내에 여러 Usecase/Service 클래스를 모아서 정의할 수 있습니다.
+*   **공통 유틸리티 모듈 (`FE-UTIL`, `BE-UTIL`, `AI-UTIL`)**:
+    - *기준*: 기능적 관심사(예: 날짜 처리, 브라우저 스토리지 연동 등)에 따라 파일 하나에 연관된 여러 개의 순수 함수를 모아서 작성합니다. (예: `utils/date.ts` 파일 안에 `formatDate`, `getDifference` 등을 함께 작성)
+*   **도메인 전역 타입 정의 (`FE-TYPE`, `AI-TYPE`)**:
+    - *기준*: 동일 도메인 내부에서 공유되는 여러 TypeScript interface/type 선언이나 AI API 입출력 Pydantic DTO + VO는 `types/index.ts` 혹은 `types/value.py`와 같이 **단일 파일 안에 그룹화**하여 모아둡니다.
+
+---
+
 # 📖 프론트엔드 코드 폼 사전 (Frontend Code Form Dictionary)
 
 이 문서는 프론트엔드 프로젝트에서 허용되는 표준 아키텍처 및 공통 보일러플레이트 구조를 관리하는 사전입니다. 
