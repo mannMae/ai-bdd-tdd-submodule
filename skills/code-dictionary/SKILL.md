@@ -49,6 +49,7 @@ BDD-TDD 프로세스 하에서 단위 테스트의 대상이 되는 "유닛(Unit
 *   **BE-DOMAIN-ROUTER (라우터)**: 오직 HTTP Endpoint 정의, Payload 입력 직렬화 검증, 상태 코드 선언만 담당하며, 어떠한 비즈니스 로직도 갖지 않습니다.
 *   **BE-DOMAIN-SERVICE (Usecase)**: 서비스는 단 하나의 비즈니스 목적을 처리하는 Usecase 단위 클래스로 분할됩니다. (예: `CreatePostUsecase`, `DeletePostUsecase` 등)
 *   **BE-DOMAIN-VO (Value Object)**: 복잡한 입력값의 상호 의존적 유효성 제약조건(예: 시작 시각은 종료 시각 이전이어야 함 등)은 서비스 내부가 아닌 불변 값 객체(VO)의 `__post_init__` 검증 단계로 분할합니다.
+*   **BE-DOMAIN-REPOSITORY (저장소)**: 영속성 프레임워크(SQLAlchemy 등)와의 직접적인 연동을 격리하는 추상 인터페이스(Port) 및 이를 실제로 구현한 어댑터(Adapter)를 정의합니다.
 
 ---
 
@@ -72,9 +73,9 @@ BDD-TDD 프로세스 하에서 단위 테스트의 대상이 되는 "유닛(Unit
 
 ### ② 단일 파일 내 그룹화 대상 (Multiple Units in 1 File)
 다음 요소들은 파일 개수의 무분별한 증가를 막고 도메인 응집력을 높이기 위해 **하나의 파일 내에서 여러 연관 객체를 정의**할 수 있습니다.
-*   **도메인별 백엔드 인프라/데이터 모델 (`BE-DOMAIN-MODEL` / `BE-SHARED-MODEL`, `BE-DOMAIN-SCHEMA` / `BE-SHARED-SCHEMA`, `BE-DOMAIN-DEPENDENCY` / `BE-SHARED-DEPENDENCY`)**:
-    - *기준*: 동일 도메인(Bounded Context) 내에 속하는 테이블 모델(`models.py`), Pydantic DTO 스키마(`schemas.py`), 라우터 Depends 함수(`dependencies.py`)들은 **파일 단위로 그룹화**하여 모아둡니다.
-    - *이유*: 하나의 도메인 안에서 데이터베이스 스키마와 DTO는 서로 밀접하게 연동되므로 한눈에 볼 수 있도록 응집시키는 것이 관리에 유리합니다.
+*   **도메인별 백엔드 인프라/데이터 모델 (`BE-DOMAIN-MODEL` / `BE-SHARED-MODEL`, `BE-DOMAIN-SCHEMA` / `BE-SHARED-SCHEMA`, `BE-DOMAIN-DEPENDENCY` / `BE-SHARED-DEPENDENCY`, `BE-DOMAIN-REPOSITORY` / `BE-SHARED-REPOSITORY`)**:
+    - *기준*: 동일 도메인(Bounded Context) 내에 속하는 테이블 모델(`models.py`), Pydantic DTO 스키마(`schemas.py`), 라우터 Depends 함수(`dependencies.py`), 저장소 포트 및 어댑터(`repository.py`)들은 **파일 단위로 그룹화**하여 모아둡니다.
+    - *이유*: 하나의 도메인 안에서 데이터베이스 스키마와 DTO, 그리고 데이터 접근 계층은 서로 밀접하게 연동되므로 한눈에 볼 수 있도록 응집시키는 것이 관리에 유리합니다.
 *   **도메인 값 객체 (`BE-DOMAIN-VO`, `BE-DOMAIN-SERVICE` CRUD 위주)**:
     - *기준*: 도메인 내의 여러 불변 값 객체는 `vo.py` 파일 내에 클래스 단위로 모아서 정의합니다.
     - *기준*: 간단한 CRUD 중심 프로젝트의 경우, 비즈니스 흐름이 단순하므로 Usecase 파일들을 쪼개지 않고 단일 `service.py` 파일 내에 여러 Usecase/Service 클래스를 모아서 정의할 수 있습니다.
@@ -529,7 +530,7 @@ settings = Settings()
 이 영역의 코드 폼들은 특정 비즈니스 도메인 폴더(`src/{domain}/`) 하위에 격리되어, 특정 비즈니스 요구사항을 처리하는 레이어에 매핑됩니다.
 
 #### 1) [BE-DOMAIN-ROUTER] API Router (FastAPI APIRouter)
-- **목적**: API 엔드포인트를 정의하고 HTTP 응답 스펙과 Status Code를 정의하는 레이어입니다.
+- **목적**: API 엔드포인트를 정의하고 HTTP 응답 스펙과 Status Code를 정의하는 프레젠테이션 레이어입니다.
 - **물리 경로**: `apps/backend/src/{domain}/router.py`
 - **구조 예시 및 템플릿**:
 ```python
@@ -537,8 +538,10 @@ settings = Settings()
 from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from .schemas import PostResponse, PostCreate, ErrorResponse # BE-DOMAIN-SCHEMA
-from .dependencies import valid_post_id # BE-DOMAIN-DEPENDENCY
+from .dependencies import get_create_post_usecase, valid_post_id # BE-DOMAIN-DEPENDENCY
 from src.shared.dependencies import valid_active_user # BE-SHARED-DEPENDENCY
+from .service import CreatePostUsecase # BE-DOMAIN-SERVICE
+from .vo import PostVO # BE-DOMAIN-VO
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
@@ -550,40 +553,45 @@ router = APIRouter(prefix="/posts", tags=["posts"])
 )
 async def create_post(
     payload: PostCreate,
-    current_user: Annotated[dict, Depends(valid_active_user)]
+    current_user: Annotated[dict, Depends(valid_active_user)],
+    usecase: Annotated[CreatePostUsecase, Depends(get_create_post_usecase)]
 ):
-    # 서비스 호출
-    pass
+    # 1. DTO -> VO 매핑 (데이터 무결성 자가 검증)
+    vo = PostVO(title=payload.title, content=payload.content)
+    
+    # 2. Usecase 실행
+    saved_vo = await usecase.execute(vo, current_user["user_id"])
+    
+    # 3. VO -> DTO 매핑하여 반환
+    return PostResponse(
+        id=saved_vo.id,
+        title=saved_vo.title,
+        content=saved_vo.content,
+        creator_id=saved_vo.creator_id
+    )
 ```
 
 #### 2) [BE-DOMAIN-SERVICE] Service / Usecase (비즈니스 로직 서비스)
-- **목적**: 단일 책임을 지는 비즈니스 로직 및 Usecase를 수행하는 서비스 클래스입니다.
+- **목적**: 영속성 프레임워크나 전송 프로토콜에 의존하지 않는 pure Python 비즈니스 로직 Usecase 클래스입니다.
 - **물리 경로**: `apps/backend/src/{domain}/service.py`
 - **구조 예시 및 템플릿**:
 ```python
 # Path: apps/backend/src/posts/service.py
-from sqlalchemy.ext.asyncio import AsyncSession
-from .schemas import PostCreate # BE-DOMAIN-SCHEMA
 from .vo import PostVO # BE-DOMAIN-VO
-from .models import PostModel # BE-DOMAIN-MODEL
+from .repository import PostRepository # BE-DOMAIN-REPOSITORY
 
 class CreatePostUsecase:
-    def __init__(self, db: AsyncSession):
-        self.db = db
+    def __init__(self, repository: PostRepository):
+        # 영속성 구현 클래스(SQLAlchemy 등)가 아닌 Port 추상 인터페이스를 주입받음
+        self.repository = repository
 
-    async def execute(self, payload: PostCreate, creator_id: str) -> PostModel:
-        # 1. DTO를 VO로 변환하여 무결성 검증
-        vo = PostVO(title=payload.title, content=payload.content)
+    async def execute(self, vo: PostVO, creator_id: str) -> PostVO:
+        # 비즈니스 로직 검증 및 처리 수행
+        # 예: 작성자 권한 체크, 데이터 가공 등
         
-        # 2. ORM 엔티티 모델에 반영
-        model = PostModel(
-            title=vo.title,
-            content=vo.content,
-            creator_id=creator_id
-        )
-        self.db.add(model)
-        await self.db.flush()
-        return model
+        # 저장소 포트를 호출하여 영속성 처리
+        saved_vo = await self.repository.create(vo, creator_id)
+        return saved_vo
 ```
 
 #### 3) [BE-DOMAIN-VO] Value Object (불변 값 객체 - VO)
@@ -598,6 +606,8 @@ from dataclasses import dataclass
 class PostVO:
     title: str
     content: str
+    id: int | None = None
+    creator_id: str | None = None
 
     def __post_init__(self):
         if not self.title or len(self.title.strip()) == 0:
@@ -606,7 +616,60 @@ class PostVO:
             raise ValueError("제목은 100자를 초과할 수 없습니다.")
 ```
 
-#### 4) [BE-DOMAIN-MODEL] Database ORM Model (SQLAlchemy ORM)
+#### 4) [BE-DOMAIN-REPOSITORY] Repository Port & Adapter (데이터 저장소)
+- **목적**: 비즈니스 로직(Usecase)과 외부 데이터베이스(SQLAlchemy 등) 간의 인터페이스 포트(ABC) 및 concrete 어댑터를 구현합니다.
+- **물리 경로**: `apps/backend/src/{domain}/repository.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/src/posts/repository.py
+from abc import ABC, abstractmethod
+from sqlalchemy.ext.asyncio import AsyncSession
+from .vo import PostVO # BE-DOMAIN-VO
+from .models import PostModel # BE-DOMAIN-MODEL
+
+# [Port] 추상 인터페이스 (비즈니스 로직이 의존하는 영역)
+class PostRepository(ABC):
+    @abstractmethod
+    async def create(self, vo: PostVO, creator_id: str) -> PostVO:
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, post_id: int) -> PostVO | None:
+        pass
+
+# [Adapter] SQLAlchemy 구현체 (데이터베이스 인프라에 의존하는 영역)
+class SQLAlchemyPostRepository(PostRepository):
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def create(self, vo: PostVO, creator_id: str) -> PostVO:
+        model = PostModel(
+            title=vo.title,
+            content=vo.content,
+            creator_id=creator_id
+        )
+        self.db.add(model)
+        await self.db.flush()
+        return PostVO(
+            id=model.id,
+            title=model.title,
+            content=model.content,
+            creator_id=model.creator_id
+        )
+
+    async def get_by_id(self, post_id: int) -> PostVO | None:
+        model = await self.db.get(PostModel, post_id)
+        if not model:
+            return None
+        return PostVO(
+            id=model.id,
+            title=model.title,
+            content=model.content,
+            creator_id=model.creator_id
+        )
+```
+
+#### 5) [BE-DOMAIN-MODEL] Database ORM Model (SQLAlchemy ORM)
 - **목적**: 특정 도메인의 테이블 스키마에 매핑되는 선언적 데이터 모델입니다.
 - **물리 경로**: `apps/backend/src/{domain}/models.py`
 - **구조 예시 및 템플릿**:
@@ -625,8 +688,8 @@ class PostModel(Base):
     creator_id: Mapped[str] = mapped_column(String, nullable=False)
 ```
 
-#### 5) [BE-DOMAIN-DEPENDENCY] Route Dependency & Validator
-- **목적**: 특정 도메인 내의 리소스 존재 여부 등을 라우터 진입 전에 사전 검증하는 FastAPI Depends 용도 함수입니다.
+#### 6) [BE-DOMAIN-DEPENDENCY] Route Dependency & DI Factory
+- **목적**: 의존성 주입을 위한 Usecase 및 Repository 팩토리 메서드와 API 매개변수 사전 검증용 Depends 함수입니다.
 - **물리 경로**: `apps/backend/src/{domain}/dependencies.py`
 - **구조 예시 및 템플릿**:
 ```python
@@ -635,13 +698,28 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db # BE-DATABASE
-from .models import PostModel # BE-DOMAIN-MODEL
+from .repository import PostRepository, SQLAlchemyPostRepository # BE-DOMAIN-REPOSITORY
+from .service import CreatePostUsecase # BE-DOMAIN-SERVICE
+from .vo import PostVO # BE-DOMAIN-VO
 
+# 1. DB 세션 주입을 통한 Repository 구현체(Adapter) 구성 및 추상 포트 타입으로 제공
+def get_post_repository(
+    db: Annotated[AsyncSession, Depends(get_db)]
+) -> PostRepository:
+    return SQLAlchemyPostRepository(db)
+
+# 2. Usecase 서비스에 Repository 주입
+def get_create_post_usecase(
+    repository: Annotated[PostRepository, Depends(get_post_repository)]
+) -> CreatePostUsecase:
+    return CreatePostUsecase(repository)
+
+# 3. 요청 사전 존재 여부 유효성 검증용 Depends
 async def valid_post_id(
     post_id: int,
-    db: Annotated[AsyncSession, Depends(get_db)]
-) -> PostModel:
-    post = await db.get(PostModel, post_id)
+    repository: Annotated[PostRepository, Depends(get_post_repository)]
+) -> PostVO:
+    post = await repository.get_by_id(post_id)
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -669,7 +747,7 @@ class PostResponse(BaseModel):
     creator_id: str
 ```
 
-#### 7) [BE-DOMAIN-CLIENT] Domain External Client
+#### 8) [BE-DOMAIN-CLIENT] Domain External Client
 - **목적**: 특정 도메인에 한정되어 사용되는 서드파티 연동 HTTP 클라이언트나 API 호출기입니다.
 - **물리 경로**: `apps/backend/src/{domain}/client.py`
 - **구조 예시 및 템플릿**:
@@ -681,7 +759,7 @@ class DomainSpecificClient:
         self.key = key
 ```
 
-#### 8) [BE-DOMAIN-EXCEPTION] Domain Exception
+#### 9) [BE-DOMAIN-EXCEPTION] Domain Exception
 - **목적**: 특정 비즈니스 도메인 규칙을 위반할 때 발생하는 커스텀 도메인 예외군을 정의합니다.
 - **물리 경로**: `apps/backend/src/{domain}/exceptions.py`
 - **구조 예시 및 템플릿**:
@@ -697,7 +775,7 @@ class PostNotFoundException(DomainException):
         )
 ```
 
-#### 9) [BE-DOMAIN-UTIL] Domain Utility Module
+#### 10) [BE-DOMAIN-UTIL] Domain Utility Module
 - **목적**: 특정 도메인 내부에서만 단독으로 재사용되는 가공/유틸리티 함수입니다.
 - **물리 경로**: `apps/backend/src/{domain}/utils.py`
 - **구조 예시 및 템플릿**:
@@ -707,7 +785,7 @@ def format_post_title(title: str) -> str:
     return title.strip().title()
 ```
 
-#### 10) [BE-DOMAIN-TEST] Async Integration/Unit Test (pytest + httpx)
+#### 11) [BE-DOMAIN-TEST] Async Integration/Unit Test (pytest + httpx)
 - **목적**: 특정 도메인의 API 통합 시나리오 또는 핵심 비즈니스 로직을 검증하는 테스트 코드입니다.
 - **물리 경로**: `apps/backend/tests/{domain}/test_{name}.py`
 - **구조 예시 및 템플릿**:
@@ -1042,15 +1120,23 @@ class FeatureExtractor:
 ```
 
 #### 5) [AI-DOMAIN-ADAPTER] Domain Model Adapter
-- **목적**: 특정 도메인의 로컬 모델 가중치 파일(ONNX/PyTorch 등)을 구동하기 위한 전용 어댑터 레이어입니다.
+- **목적**: 특정 도메인의 로컬 모델 가중치 파일(ONNX/PyTorch 등)을 구동하기 위한 전용 어댑터 레이어와 추상 Port 인터페이스를 함께 정의합니다.
 - **물리 경로**: `apps/ai/src/{domain}/adapter.py`
 - **구조 예시 및 템플릿**:
 ```python
 # Path: apps/ai/src/fetal_decel/adapter.py
+from abc import ABC, abstractmethod
 import onnxruntime as ort
 import numpy as np
 
-class FetalDecelAdapter:
+# [Port] 추상 인터페이스 (비즈니스 로직 Usecase가 의존함)
+class ModelGateway(ABC):
+    @abstractmethod
+    async def predict(self, input_tensor: np.ndarray) -> np.ndarray:
+        pass
+
+# [Adapter] ONNX 런타임 구현체
+class FetalDecelAdapter(ModelGateway):
     def __init__(self, model_path: str):
         self.session = ort.InferenceSession(model_path)
 
