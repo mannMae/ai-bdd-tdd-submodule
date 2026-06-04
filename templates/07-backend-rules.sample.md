@@ -10,7 +10,7 @@ glob: "apps/backend/**/*"
 
 ## 1. 도메인(Bounded Context) 중심 디렉토리 구조 (Project Structure)
 *   **Feature-First 구조**: 파일 타입별(MVC) 전역 격리가 아닌, 비즈니스 영역에 따라 도메인별로 코드를 응집력 있게 구성합니다.
-*   **디렉토리 표준**: `src/{domain}/` 하위에 `router.py` (API), `schemas.py` (DTO), `models.py` (ORM), `repository.py` (DB 저장소 포트/어댑터), `service.py` / `usecases/` (비즈니스 로직)을 모아둡니다.
+*   **디렉토리 표준**: `src/{domain}/` 하위에 `router.py` (API), `schemas.py` (DTO), `models.py` (ORM), `service.py` / `usecases/` (비즈니스 로직)을 모아둡니다.
 *   **상세 구조 및 규칙**: 세부 디렉토리 구조와 Bounded Context 간 상호 참조 임포트 규칙은 프로젝트의 기본 골격을 유지하며, 하단의 **10. RTM 대응 표준 코드 양식**의 [services] 및 [models/deps] 양식을 준수합니다.
 
 ---
@@ -120,35 +120,22 @@ async def start_monitoring(
 
 <div id="services"></div>
 
-### ② services & repositories (비즈니스 Usecase & 저장소 인터페이스)
-비즈니스 로직은 외부 라이브러리/프레임워크에 의존하지 않는 Usecase 클래스에 격리하며, DB 접근은 추상 포트 인터페이스(ABC)를 통해 처리합니다.
+### ② services (단일 책임 Usecase & 불변 값 객체 VO)
+비즈니스 로직은 단일 책임의 Usecase 클래스에 격리하며, 입력 DTO를 도메인의 무결성이 보장되는 불변 값 객체(VO)로 변환하여 처리합니다.
 ```python
-# Path: apps/backend/src/monitoring/service.py
-from .vo import FetalDataVO # VO 임포트
-from .repository import MonitorRepository # 저장소 포트 임포트
+# DTO (Pydantic Schema) 및 VO (Value Object) 임포트 가정
+from sqlalchemy.ext.asyncio import AsyncSession
 
 class StartMonitoringUsecase:
-    def __init__(self, repository: MonitorRepository):
-        # 영속성 구현체가 아닌 추상 포트에 의존 (DI)
-        self.repository = repository
+    def __init__(self, db: AsyncSession):
+        self.db = db
 
-    async def execute(self, vo: FetalDataVO) -> FetalDataVO:
-        # 1. 비즈니스 룰 검증 및 데이터 처리 진행
-        # 2. 저장소 포트 인터페이스를 호출하여 영속성 위임
-        saved_vo = await self.repository.save_signal(vo)
-        return saved_vo
-```
-
-```python
-# Path: apps/backend/src/monitoring/repository.py
-from abc import ABC, abstractmethod
-from .vo import FetalDataVO
-
-# [Port] 영속성 영역의 추상 포트 인터페이스
-class MonitorRepository(ABC):
-    @abstractmethod
-    async def save_signal(self, vo: FetalDataVO) -> FetalDataVO:
-        pass
+    async def execute(self, request_dto: StartRequest) -> StartResponse:
+        # 1. DTO를 도메인 불변 객체(VO)로 즉시 변환하여 무결성 보장
+        input_vo = FetalDataVO(heart_rate=request_dto.heart_rate)
+        
+        # 2. 비즈니스 로직 연산 후 반환 DTO 구조 리턴
+        return StartResponse(status="success")
 ```
 
 <div id="modelsdeps"></div>
@@ -156,13 +143,11 @@ class MonitorRepository(ABC):
 ### ③ models/deps (불변 값 객체 VO)
 비즈니스 도메인의 값을 캡슐화하고 데이터 무결성을 보장하기 위해 파이썬 `dataclass`를 frozen 상태로 선언합니다.
 ```python
-# Path: apps/backend/src/monitoring/vo.py
 from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class FetalDataVO:
     heart_rate: int
-    id: int | None = None
 ```
 
 <div id="dependencies"></div>

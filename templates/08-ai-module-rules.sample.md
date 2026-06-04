@@ -107,34 +107,28 @@ ML 추론 및 데이터 전처리(결측치 보간, Resampling, Outlier filterin
 
 <div id="base"></div>
 
-### ① base & adapters (추론 모델 어댑터 및 포트 인터페이스)
-AI 모델 추론을 관리하는 코어 영역은 추상 포트 인터페이스(ABC)와 온프레미스 프레임워크(ONNX 등)를 캡슐화한 concrete 어댑터로 분리 구현합니다.
+### ① base (ML Model Predictor Wrapper & Preprocessor)
+AI 모델 추론을 수행하는 코어 클래스는 전처리 파이프라인과 ONNX 런타임 세션을 안전하게 캡슐화하여 구현해야 합니다.
 ```python
-from abc import ABC, abstractmethod
 import onnxruntime
-import numpy as np
 
-# [Port] 비즈니스 로직(Usecase)이 호출하는 추상 인터페이스
-class ModelGateway(ABC):
-    @abstractmethod
-    async def predict(self, raw_signals: list[float]) -> float:
-        pass
-
-# [Adapter] ONNX 런타임 기반의 구체적 구현체
-class FetalDecelAdapter(ModelGateway):
+class FetalDecelModel:
     def __init__(self, model_path: str):
-        self.session = onnxruntime.InferenceSession(model_path)
+        self.model = self.load_model(model_path)
 
-    def preprocess(self, raw_signals: list[float]) -> np.ndarray:
-        # 1. 데이터 노멀라이제이션 및 전처리
+    def load_model(self, path: str):
+        # ONNX Runtime 가중치 파일 로드
+        return onnxruntime.InferenceSession(path)
+
+    def preprocess(self, raw_signals: list[float]) -> list[float]:
+        # 1. 데이터 노멀라이제이션 및 슬라이딩 윈도우 피처 추출
         normalized = [s / 100.0 for s in raw_signals]
-        return np.array(normalized, dtype=np.float32).reshape(1, -1)
+        return normalized
 
-    async def predict(self, raw_signals: list[float]) -> float:
+    def predict(self, raw_signals: list[float]) -> float:
         features = self.preprocess(raw_signals)
-        input_name = self.session.get_inputs()[0].name
-        output_name = self.session.get_outputs()[0].name
-        outputs = self.session.run([output_name], {input_name: features})
+        inputs = {self.model.get_inputs()[0].name: [features]}
+        outputs = self.model.run(None, inputs)
         return float(outputs[0][0])
 ```
 
