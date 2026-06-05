@@ -1,0 +1,28 @@
+repos:
+  # Python Linter & Formatter (Ruff)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      - id: ruff
+        args: [ --fix ]
+      - id: ruff-format
+
+  # General Formatter (Prettier)
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        types_or: [javascript, jsx, ts, tsx, json, css, scss, markdown, yaml]
+        additional_dependencies:
+          - prettier@3.2.5
+          - prettier-plugin-tailwindcss@0.5.12
+
+  # TypeScript/Frontend Linter (ESLint) - Runs locally to reuse local node_modules
+  - repo: local
+    hooks:
+      - id: eslint
+        name: ESLint
+        entry: npm run lint
+        language: system
+        files: \.(js|jsx|ts|tsx)$
+        pass_filenames: false

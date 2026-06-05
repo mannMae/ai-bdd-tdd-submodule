@@ -11,9 +11,8 @@
 # 1. 서브모듈 추가 (반드시 .agents 폴더 이름으로 지정)
 git submodule add https://github.com/mannMae/ai-bdd-tdd-template.git .agents
 
-# 2. AI 진입점 파일 및 프로젝트 구조 맵 파일 복사
-cp .agents/AGENTS.sample.md ./AGENTS.md
-cp .agents/PROJECT_MAP.sample.md ./PROJECT_MAP.md
+# 2. 공통 설정 파일, AI 진입점 및 Git pre-commit 훅 자동 연동 실행
+.agents/scripts/install-rules.sh
 ```
 
 ## 2. 기존 프로젝트에서 전환하기 (Migration)
@@ -30,9 +29,8 @@ git commit -m "Remove old .agents directory for submodule migration"
 # 3. 서브모듈로 새롭게 추가
 git submodule add https://github.com/mannMae/ai-bdd-tdd-template.git .agents
 
-# 4. 진입점 및 구조 맵 업데이트
-cp .agents/AGENTS.sample.md ./AGENTS.md
-cp .agents/PROJECT_MAP.sample.md ./PROJECT_MAP.md
+# 4. 공통 설정 파일, AI 진입점 및 Git pre-commit 훅 자동 연동 실행
+.agents/scripts/install-rules.sh
 
 # 5. 백업 확인 후 삭제
 rm -rf .agents_backup
