@@ -3,7 +3,7 @@ import os
 import sys
 import re
 
-IGNORE_DIRS = {'.git', 'node_modules', 'venv', '.agents', '.agents-local', 'dist', '__pycache__'}
+IGNORE_DIRS = {'.git', 'node_modules', 'venv', '.venv', '.agents', '.agents-local', 'dist', '__pycache__', '.pytest_cache'}
 
 def scan_backend_apis(root_dir):
     """Scans python backend code for FastAPI router endpoints."""

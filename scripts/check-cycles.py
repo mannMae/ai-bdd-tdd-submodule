@@ -3,7 +3,7 @@ import os
 import sys
 import re
 
-IGNORE_DIRS = {'.git', 'node_modules', 'venv', '.agents', '.agents-local', 'dist', '__pycache__', '.pytest_cache'}
+IGNORE_DIRS = {'.git', 'node_modules', 'venv', '.venv', '.agents', '.agents-local', 'dist', '__pycache__', '.pytest_cache'}
 
 def get_imports_python(filepath, project_root):
     """Parses python import statements and resolves them to file paths."""
