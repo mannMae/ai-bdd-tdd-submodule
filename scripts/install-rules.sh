@@ -58,6 +58,12 @@ if [ -d ".agents/configs" ]; then
     if [ -f ".agents/configs/.pre-commit-config.template.yaml" ]; then
         link_config ".agents/configs/.pre-commit-config.template.yaml" ".pre-commit-config.yaml"
     fi
+
+    # CI 워크플로우 템플릿 연결
+    if [ -f ".agents/configs/reusable-ci.template.yml" ]; then
+        mkdir -p .github/workflows
+        link_config ".agents/configs/reusable-ci.template.yml" ".github/workflows/reusable-ci.yml"
+    fi
 else
     echo "에러: .agents/configs 폴더를 찾을 수 없습니다. 서브모듈 경로를 확인해 주세요."
     exit 1
@@ -67,11 +73,12 @@ fi
 if command -v pre-commit >/dev/null 2>&1; then
     echo "Git pre-commit 훅을 설치 중..."
     pre-commit install
-    echo "pre-commit 훅이 정상적으로 등록되었습니다."
+    pre-commit install --hook-type commit-msg
+    echo "pre-commit 훅 및 commit-msg 훅이 정상적으로 등록되었습니다."
 else
     echo "경고: 'pre-commit' 명령어를 찾을 수 없습니다."
     echo "     파이썬 환경에서 'pip install pre-commit' 또는 macOS 환경에서 'brew install pre-commit'을 통해"
-    echo "     설치한 뒤, 프로젝트 루트에서 'pre-commit install'을 직접 실행해 주세요."
+    echo "     설치한 뒤, 프로젝트 루트에서 'pre-commit install && pre-commit install --hook-type commit-msg'를 직접 실행해 주세요."
 fi
 
 # 4. AGENTS.md 및 PROJECT_MAP.md 기본 복사 (존재하지 않을 경우에만)

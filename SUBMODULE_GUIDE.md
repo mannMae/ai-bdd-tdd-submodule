@@ -74,7 +74,42 @@ git push
 
 ---
 
-## 4. 핵심 원칙 (Core Principles)
+## 4. 고도화 자동화 기능 가이드 (Advanced Automation Features)
+
+본 서브모듈은 린트/포맷터 연동 외에 AI 에이전트와 개발 생산성을 향상시키는 5대 고도화 도구를 제공합니다.
+
+### 1) PROJECT_MAP.md 자동 갱신
+프로젝트 폴더 트리가 변경될 때 지도를 자동으로 최신화합니다.
+```bash
+python3 .agents/scripts/update-map.py
+```
+
+### 2) 커밋 메시지 컨벤션 검사 (Commit Message Linter)
+Conventional Commits 규칙을 만족하는 커밋 메시지만 허용하도록 Git Hook 수준에서 차단합니다.
+*   연동이 완료된 경우 `git commit` 수행 시 `.agents/scripts/commit-msg-linter.py`가 자동 실행됩니다.
+*   **허용 형식**: `feat: ...`, `fix: ...`, `docs: ...`, `test: ...`, `chore: ...` 등.
+
+### 3) AI 에이전트 루프 감지기 (Loop Detector)
+테스트 실패 루프에 빠져 무한히 비용을 낭비하는 문제를 방지하기 위해 테스트 명령어를 감싸 수행합니다.
+```bash
+python3 .agents/scripts/test-runner-guard.py [실제 테스트 명령어]
+# 예: python3 .agents/scripts/test-runner-guard.py pytest
+# 예: python3 .agents/scripts/test-runner-guard.py npm test
+```
+*   동일 명령어가 연속 5회 실패하면 즉시 AI 에이전트를 강제 중단(Stop)시키고 피드백을 요구합니다.
+
+### 4) 재사용 가능한 GitHub Actions CI 워크플로우
+부모 프로젝트의 `.github/workflows/reusable-ci.yml` 심링크를 통해 공통 린트/테스트 CI 환경을 즉시 상속받습니다.
+
+### 5) RTM 자가 채점표 자동 검증기
+구현된 코드와 `docs/requirements/rtm_*.md` 파일의 채점 표기를 자동 매핑하고 성공 여부를 검증합니다.
+```bash
+python3 .agents/scripts/rtm-evaluator.py
+```
+
+---
+
+## 5. 핵심 원칙 (Core Principles)
 
 1.  **독립된 이정표**: 부모 프로젝트를 푸시한다고 해서 서브모듈의 내용이 자동으로 중앙에 푸시되지 않습니다. 중앙 규칙을 바꾸려면 반드시 `.agents` 폴더 안에서 별도로 푸시해야 합니다.
 2.  **버전 고정**: 각 프로젝트는 자신이 마지막으로 `update`한 특정 시점의 규칙 버전에 고정(Pinning)됩니다. 따라서 중앙 규칙이 바뀌어도 명시적으로 업데이트하지 않는 한 기존 프로젝트의 AI 환경은 변하지 않아 안전합니다.

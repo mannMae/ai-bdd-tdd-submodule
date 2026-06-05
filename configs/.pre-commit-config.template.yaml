@@ -26,3 +26,9 @@ repos:
         language: system
         files: \.(js|jsx|ts|tsx)$
         pass_filenames: false
+
+      - id: commit-msg-linter
+        name: Commit Message Linter
+        entry: python3 .agents/scripts/commit-msg-linter.py
+        language: system
+        stages: [commit-msg]
