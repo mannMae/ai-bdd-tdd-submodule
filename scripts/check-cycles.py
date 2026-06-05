@@ -138,7 +138,14 @@ def main():
     
     # 1. Build import graph
     for root, dirs, files in os.walk(project_root):
-        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        # Prune standard ignored directories and any dir ending in env/venv
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS and not d.endswith("env") and not d.endswith("venv")]
+        
+        # Skip if it is a python virtualenv or library path
+        if "pyvenv.cfg" in files or "site-packages" in root or "node_modules" in root:
+            dirs[:] = []  # Don't descend further
+            continue
+            
         for file in files:
             filepath = os.path.join(root, file)
             abs_filepath = os.path.abspath(filepath)

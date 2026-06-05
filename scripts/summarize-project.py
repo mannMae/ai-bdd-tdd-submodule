@@ -10,7 +10,10 @@ def scan_backend_apis(root_dir):
     endpoints = []
     
     for root, dirs, files in os.walk(root_dir):
-        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS and not d.endswith("env") and not d.endswith("venv")]
+        if "pyvenv.cfg" in files or "site-packages" in root or "node_modules" in root:
+            dirs[:] = []
+            continue
         for file in files:
             if file.endswith(".py"):
                 path = os.path.join(root, file)
@@ -48,7 +51,10 @@ def scan_frontend_components(root_dir):
     components = []
     
     for root, dirs, files in os.walk(root_dir):
-        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS and not d.endswith("env") and not d.endswith("venv")]
+        if "pyvenv.cfg" in files or "site-packages" in root or "node_modules" in root:
+            dirs[:] = []
+            continue
         for file in files:
             if file.endswith((".tsx", ".ts", ".jsx", ".js")):
                 path = os.path.join(root, file)
