@@ -7,7 +7,11 @@ on:
         type: boolean
         required: false
         default: false
-      run_frontend_tests:
+      run_frontend_component_tests:
+        type: boolean
+        required: false
+        default: false
+      run_frontend_e2e_tests:
         type: boolean
         required: false
         default: false
@@ -15,10 +19,14 @@ on:
         type: string
         required: false
         default: "pytest"
-      frontend_test_cmd:
+      frontend_component_test_cmd:
         type: string
         required: false
-        default: "npm test"
+        default: "npm run test:unit"
+      frontend_e2e_test_cmd:
+        type: string
+        required: false
+        default: "npx playwright test"
 
 jobs:
   lint-and-format:
@@ -73,10 +81,10 @@ jobs:
       - name: Run Python Tests
         run: ${{ inputs.python_test_cmd }}
 
-  frontend-tests:
-    name: Frontend Test Suite
+  frontend-component-tests:
+    name: Frontend Component Tests
     needs: lint-and-format
-    if: ${{ inputs.run_frontend_tests }}
+    if: ${{ inputs.run_frontend_component_tests }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -93,5 +101,31 @@ jobs:
         run: |
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
-      - name: Run Frontend Tests
-        run: ${{ inputs.frontend_test_cmd }}
+      - name: Run Component Tests
+        run: ${{ inputs.frontend_component_test_cmd }}
+
+  frontend-e2e-tests:
+    name: Frontend E2E Tests
+    needs: lint-and-format
+    if: ${{ inputs.run_frontend_e2e_tests }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node.js dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run E2E Tests
+        run: ${{ inputs.frontend_e2e_test_cmd }}

@@ -69,6 +69,23 @@ def generate_frontend_stub(feature_name, scenarios):
     code += "});\n"
     return code
 
+def generate_e2e_stub(feature_name, scenarios):
+    """Generates Playwright E2E browser testing stub code."""
+    code = "import { test, expect } from '@playwright/test';\n\n"
+    code += f"test.describe('{feature_name}', () => {{\n"
+    
+    for sc in scenarios:
+        sc_name = sc["name"].replace("'", "\\'")
+        code += f"  test('{sc_name}', async ({{ page }}) => {{\n"
+        code += "    // TODO: Navigate and interact with elements\n"
+        for step_type, step_text in sc["steps"]:
+            code += f"    // {step_type} {step_text}\n"
+        code += "    await expect(page).toHaveTitle(/Monitoring/i); // Placeholder assertion\n"
+        code += "  });\n\n"
+        
+    code += "});\n"
+    return code
+
 def generate_backend_stub(feature_name, scenarios):
     """Generates pytest-bdd style backend python test stub code."""
     code = "import pytest\n"
@@ -117,21 +134,29 @@ def main():
     
     os.makedirs(output_dir, exist_ok=True)
     
-    # 1. Generate Frontend Vitest Stub
+    # 1. Generate Frontend Vitest Component Test Stub
     fe_code = generate_frontend_stub(feature_name, scenarios)
     fe_filename = f"stub_{base_name}.test.tsx"
     fe_path = os.path.join(output_dir, fe_filename)
     with open(fe_path, 'w', encoding='utf-8') as f:
         f.write(fe_code)
-    print(f"Generated Frontend Vitest Stub: {fe_path}")
+    print(f"Generated Frontend Vitest Component Stub: {fe_path}")
     
-    # 2. Generate Backend pytest-bdd Stub
+    # 2. Generate Frontend Playwright E2E Test Stub
+    e2e_code = generate_e2e_stub(feature_name, scenarios)
+    e2e_filename = f"stub_{base_name}.spec.ts"
+    e2e_path = os.path.join(output_dir, e2e_filename)
+    with open(e2e_path, 'w', encoding='utf-8') as f:
+        f.write(e2e_code)
+    print(f"Generated Frontend Playwright E2E Stub:   {e2e_path}")
+    
+    # 3. Generate Backend pytest-bdd Test Stub
     be_code = generate_backend_stub(feature_name, scenarios)
     be_filename = f"stub_{base_name}_test.py"
     be_path = os.path.join(output_dir, be_filename)
     with open(be_path, 'w', encoding='utf-8') as f:
         f.write(be_code)
-    print(f"Generated Backend pytest-bdd Stub: {be_path}")
+    print(f"Generated Backend pytest-bdd Stub:        {be_path}")
 
 if __name__ == "__main__":
     main()

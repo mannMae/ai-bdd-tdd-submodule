@@ -107,12 +107,19 @@ python3 .agents/scripts/test-runner-guard.py [실제 테스트 명령어]
 python3 .agents/scripts/rtm-evaluator.py
 ```
 
-### 6) BDD 시나리오 기반 테스트 뼈대 자동 생성기
-`.feature` 파일을 파싱하여 프론트엔드(`*.test.tsx`) 및 백엔드(`test_*.py`) 스텝 정의 함수의 Boilerplate 코드를 자동 생성합니다.
+### 6) BDD 시나리오 기반 테스트 뼈대 자동 생성기 (테스트 분리 구성 지원)
+`.feature` 파일을 파싱하여 프론트엔드 컴포넌트/단위 테스트(`*.test.tsx`), 프론트엔드 E2E 테스트(`*.spec.ts`), 백엔드 테스트(`*_test.py`) 스텝 정의 함수의 Boilerplate 코드를 자동으로 생성합니다.
+
+*   **생성되는 테스트 유형 및 목적**:
+    *   `stub_[name].test.tsx`: Vitest / React Testing Library 컴포넌트 단위 테스트 (DOM 렌더링 및 UI 단위 로직 검증용, `src/` 디렉토리에 위치 권장)
+    *   `stub_[name].spec.ts`: Playwright E2E 브라우저 테스트 (전체 사용자 시나리오 및 페이지 통합 검증용, `e2e/` 또는 `apps/frontend/e2e/` 디렉토리에 위치 권장)
+    *   `stub_[name]_test.py`: pytest-bdd 백엔드 API/서비스 테스트
+*   **실행 방법**:
 ```bash
 python3 .agents/scripts/generate-test-stubs.py [feature 파일 경로] [출력 폴더 경로]
 # 예: python3 .agents/scripts/generate-test-stubs.py docs/user-flow/monitoring.feature src/features/monitoring/tests
 ```
+
 
 ### 7) AI 컨텍스트 요약 도구 (Context Optimizer)
 백엔드 API 엔드포인트 및 DTO 스키마, 프론트엔드 컴포넌트 목록을 한눈에 볼 수 있는 가벼운 요약 문서(`PROJECT_CONTEXT.md`)를 루트에 빌드합니다. AI의 프로젝트 파악 시 토큰 비용을 최소화합니다.
