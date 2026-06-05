@@ -76,7 +76,7 @@ git push
 
 ## 4. 고도화 자동화 기능 가이드 (Advanced Automation Features)
 
-본 서브모듈은 린트/포맷터 연동 외에 AI 에이전트와 개발 생산성을 향상시키는 5대 고도화 도구를 제공합니다.
+본 서브모듈은 린트/포맷터 연동 외에 AI 에이전트와 개발 생산성을 향상시키는 10대 고도화 도구를 제공합니다.
 
 ### 1) PROJECT_MAP.md 자동 갱신
 프로젝트 폴더 트리가 변경될 때 지도를 자동으로 최신화합니다.
@@ -105,6 +105,37 @@ python3 .agents/scripts/test-runner-guard.py [실제 테스트 명령어]
 구현된 코드와 `docs/requirements/rtm_*.md` 파일의 채점 표기를 자동 매핑하고 성공 여부를 검증합니다.
 ```bash
 python3 .agents/scripts/rtm-evaluator.py
+```
+
+### 6) BDD 시나리오 기반 테스트 뼈대 자동 생성기
+`.feature` 파일을 파싱하여 프론트엔드(`*.test.tsx`) 및 백엔드(`test_*.py`) 스텝 정의 함수의 Boilerplate 코드를 자동 생성합니다.
+```bash
+python3 .agents/scripts/generate-test-stubs.py [feature 파일 경로] [출력 폴더 경로]
+# 예: python3 .agents/scripts/generate-test-stubs.py docs/user-flow/monitoring.feature src/features/monitoring/tests
+```
+
+### 7) AI 컨텍스트 요약 도구 (Context Optimizer)
+백엔드 API 엔드포인트 및 DTO 스키마, 프론트엔드 컴포넌트 목록을 한눈에 볼 수 있는 가벼운 요약 문서(`PROJECT_CONTEXT.md`)를 루트에 빌드합니다. AI의 프로젝트 파악 시 토큰 비용을 최소화합니다.
+```bash
+python3 .agents/scripts/summarize-project.py
+```
+
+### 8) 순환 참조 및 아키텍처 불변성 검사기 (Cycle Checker)
+프로젝트 내 소스 파일들(Python 및 JS/TS)의 import 의존성을 분석하여 구조를 꼬이게 만드는 순환 의존성(Circular Dependency)을 감지하고 에러로 반환합니다.
+```bash
+python3 .agents/scripts/check-cycles.py
+```
+
+### 9) AI 전용 커밋 및 PR 본문 자동 작성기
+현재 `git diff`의 변경된 물리 파일 목록과 RTM 채점 현황을 분석하여 권장 Conventional Commit 메시지 및 PR 본문 템플릿 마크다운 파일(`PR_DESCRIPTION.md`)을 생성합니다.
+```bash
+python3 .agents/scripts/prepare-commit.py
+```
+
+### 10) AI 에이전트 자가 치유 CLI (Self-Healer)
+린트/포맷 룰 위반 시 `eslint --fix` 및 `ruff check --fix`를 돌려 자동 자가 수정을 수행하고, 남은 에러는 AI가 이해하기 좋은 요약 포맷으로 모아 `SELF_HEAL_REPORT.md` 문서로 생성합니다.
+```bash
+python3 .agents/scripts/self-heal.py
 ```
 
 ---
