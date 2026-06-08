@@ -622,6 +622,54 @@ describe('FE-FEATURE-QUERY-TEST: useUser', () => {
 
 ---
 
+### ③ Shared / Common (공통 공유) 코드 폼
+
+이 절에서는 여러 피처나 서비스에서 공용으로 활용할 수 있도록 상태와 도메인 지식이 제거된 UI 컴포넌트 양식을 관리합니다.
+
+#### 1) [FE-SHARED-COMP] Shared Common UI Component
+- **목적**: 2개 이상의 독립된 피처에서 공유되고, 외부 의존성(Zustand, React Query 등)이 완전히 제거된 범용 프레젠테이셔널 UI 컴포넌트입니다.
+- **물리 경로**: `apps/frontend/src/components/ui/{name}.tsx` 또는 `apps/frontend/src/components/shared/{name}.tsx`
+- **구조 예시 및 템플릿**:
+```typescript
+// Path: apps/frontend/src/components/ui/Button.tsx
+import React from 'react';
+import './Button.css';
+
+export interface ButtonProps {
+  label: string;
+  variant?: 'primary' | 'secondary' | 'danger';
+  size?: 'small' | 'medium' | 'large';
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  disabled?: boolean;
+}
+
+export const Button: React.FC<ButtonProps> = ({
+  label,
+  variant = 'primary',
+  size = 'medium',
+  onClick,
+  disabled = false,
+}) => {
+  const className = `btn btn--${variant} btn--${size}`;
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {label}
+    </button>
+  );
+};
+```
+- **준수 사항 (Do's & Don't's)**:
+  - 🛑 **외부 의존성 결합 금지**: Zustand 스토어, React Query API 훅, 또는 라우터 훅(`useParams`, `useNavigate` 등)을 컴포넌트 내부에서 직접 import하여 참조하는 행위를 절대 금지합니다. 모든 데이터와 액션 제어는 반드시 Props를 통해서 외부에서 주입받아야 합니다.
+  - 🛑 **도메인 모델 결합 금지**: 특정 API가 반환하는 도메인 데이터 타입(DTO)을 Props 타입으로 직접 사용하지 마세요. 오직 화면 제어에 필요한 원시 타입이나 최소한의 UI 전용 인터페이스만 선언해야 합니다.
+
+---
+
+
 ## ⚙️ 백엔드 코드 폼 (Backend Code Forms)
 
 이 절에서는 백엔드 코드의 역할을 전역/인프라 영역, 도메인 전용 영역, 공통 공유 영역의 3가지 대분류로 분할하여 관리합니다.
