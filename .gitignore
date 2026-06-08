@@ -25,3 +25,7 @@ venv/
 .venv/
 .pytest_cache/
 coverage/
+
+# PR / Commit Descriptions
+PR_DESCRIPTION.md
+

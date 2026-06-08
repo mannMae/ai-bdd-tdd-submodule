@@ -474,6 +474,152 @@ export interface FeatureLocalState {
   - 이 파일에는 런타임 로직(클래스, 함수 등)을 포함할 수 없으며 오직 타입 선언만 위치해야 합니다.
   - 피처 외부로 유출되어 전역적인 의존성을 갖지 않도록 캡슐화 수준을 유지해야 합니다.
 
+#### 8) [FE-FEATURE-COMP-TEST] Feature-specific Component Test
+- **목적**: 피처 컴포넌트([FE-FEATURE-COMP])의 UI 렌더링, 사용자 입력/클릭 동작 및 화면 상태 변화를 격리 검증하는 테스트 양식입니다.
+- **물리 경로**: `apps/frontend/src/features/{feature}/tests/{name}.test.tsx`
+- **구조 예시 및 템플릿**:
+```typescript
+// Path: apps/frontend/src/features/auth/tests/LoginForm.test.tsx
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { LoginForm } from '../components/LoginForm';
+
+describe('FE-FEATURE-COMP-TEST: LoginForm', () => {
+  it('입력 필드가 입력되지 않은 상태에서 제출 클릭 시 검증 에러가 나야 한다', () => {
+    // 1. Setup - Mock handlers & render SUT
+    const handleSuccess = vi.fn();
+    render(<LoginForm onSuccess={handleSuccess} />);
+
+    // 2. Action - Click submit button
+    const submitButton = screen.getByRole('button', { name: /Submit/i });
+    fireEvent.click(submitButton);
+
+    // 3. Assertion - Check validation error and handler not called
+    expect(screen.getByText(/fieldName/i)).toBeInTheDocument();
+    expect(handleSuccess).not.toHaveBeenCalled();
+  });
+
+  it('올바른 값을 입력한 후 시작 버튼을 클릭하면 핸들러가 호출된다', () => {
+    // 1. Setup
+    const handleSuccess = vi.fn();
+    render(<LoginForm onSuccess={handleSuccess} />);
+
+    // 2. Action - Input value and click submit
+    const input = screen.getByLabelText(/fieldName/i);
+    fireEvent.change(input, { target: { value: 'testValue' } });
+    
+    const submitButton = screen.getByRole('button', { name: /Submit/i });
+    fireEvent.click(submitButton);
+
+    // 3. Assertion - Verifying behavioral outcome
+    expect(handleSuccess).toHaveBeenCalled();
+  });
+});
+```
+- **준수 사항 (Do's & Don't's)**:
+  - 🛑 외부 API를 컴포넌트 내에서 직접 mock/spyOn 하지 마십시오. 컴포넌트가 의존하는 API 통신은 `[FE-FEATURE-QUERY-TEST]` 영역에서 모킹되어야 합니다.
+  - 🛑 `jest.spyOn()` 또는 `vi.spyOn()`을 이용해 컴포넌트 내부의 로컬 렌더링 도우미 함수나 inner 요소를 모킹하지 마십시오. 오직 props 콜백이나 외부 API 인터페이스만 모킹을 허용합니다.
+
+#### 9) [FE-FEATURE-HOOK-TEST] Feature-specific Custom Hook Test
+- **목적**: React 커스텀 훅([FE-FEATURE-HOOK])의 라이프사이클 및 상태 변경 비즈니스 로직을 UI와 격리하여 단위 검증하는 테스트 양식입니다.
+- **물리 경로**: `apps/frontend/src/features/{feature}/tests/{name}.test.ts`
+- **구조 예시 및 템플릿**:
+```typescript
+// Path: apps/frontend/src/features/{feature}/tests/useFeatureTimer.test.ts
+import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { useFeatureTimer } from '../hooks/useFeatureTimer';
+
+describe('FE-FEATURE-HOOK-TEST: useFeatureTimer', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('초기 타이머 값 설정이 올바르게 로드되고 매초 1씩 감소한다', () => {
+    // 1. Setup - Render hook
+    const { result } = renderHook(() => useFeatureTimer(10));
+    expect(result.current).toBe(10);
+
+    // 2. Action - Advance timer by 1 second
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    // 3. Assertion - State change verification
+    expect(result.current).toBe(9);
+  });
+});
+```
+- **준수 사항 (Do's & Don't's)**:
+  - 훅 내부 상태(state) 변경 시점은 반드시 `@testing-library/react` 패키지의 `act()` 블록으로 래핑하여 리렌더링 사이클이 동기적으로 완료되도록 해야 합니다.
+
+#### 10) [FE-FEATURE-QUERY-TEST] Feature-specific API Query Hook Test
+- **목적**: TanStack Query 기반의 API 요청 훅([FE-FEATURE-QUERY] / [FE-FEATURE-MUTATION])의 캐싱 및 에러 발생 분기 동작을 MSW(Mock Service Worker)와 결합하여 검증하는 테스트 양식입니다.
+- **물리 경로**: `apps/frontend/src/features/{feature}/tests/{name}.test.ts`
+- **구조 예시 및 템플릿**:
+```typescript
+// Path: apps/frontend/src/features/{feature}/tests/useUser.test.ts
+import { renderHook, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { describe, it, expect } from 'vitest';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { useUser } from '../api/get-user';
+
+// MSW Server Setup
+const server = setupServer(
+  http.get('/api/users/1', () => {
+    return HttpResponse.json({ id: '1', name: '홍길동' });
+  })
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+};
+
+describe('FE-FEATURE-QUERY-TEST: useUser', () => {
+  it('성공 시 사용자 데이터를 정상적으로 패치하고 캐시한다', async () => {
+    const { result } = renderHook(() => useUser({ userId: '1' }), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toEqual({ id: '1', name: '홍길동' });
+  });
+
+  it('네트워크 오류(500) 발생 시 에러 플래그와 함께 적절한 예외 객체를 반환한다', async () => {
+    server.use(
+      http.get('/api/users/1', () => {
+        return new HttpResponse(null, { status: 500 });
+      })
+    );
+
+    const { result } = renderHook(() => useUser({ userId: '1' }), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error).toBeDefined();
+  });
+});
+```
+- **준수 사항 (Do's & Don't's)**:
+  - 🛑 Mocking을 위해 전역 API fetcher 함수 자체를 `vi.fn()`으로 덮어쓰는 행위(Mocking client method)를 금지합니다. 반드시 실제 HTTP 계층을 시뮬레이트하는 MSW(Mock Service Worker)를 구성하여 통신 레이어의 원본 규격을 검증해야 합니다.
+
 ---
 
 ## ⚙️ 백엔드 코드 폼 (Backend Code Forms)
@@ -707,35 +853,90 @@ def format_post_title(title: str) -> str:
     return title.strip().title()
 ```
 
-#### 10) [BE-DOMAIN-TEST] Async Integration/Unit Test (pytest + httpx)
-- **목적**: 특정 도메인의 API 통합 시나리오 또는 핵심 비즈니스 로직을 검증하는 테스트 코드입니다.
-- **물리 경로**: `apps/backend/tests/{domain}/test_{name}.py`
+#### 10) [BE-DOMAIN-ROUTER-TEST] API Router Integration Test
+- **목적**: 백엔드 API 라우터([BE-DOMAIN-ROUTER])의 엔드포인트 요청/응답 규격, HTTP 상태 코드 및 인증 의존성 필터를 통합 검증하는 테스트 양식입니다.
+- **물리 경로**: `apps/backend/tests/integration/test_{name}.py`
 - **구조 예시 및 템플릿**:
 ```python
-# Path: apps/backend/tests/posts/test_create_post.py
+# Path: apps/backend/tests/integration/test_posts.py
 import pytest
 from httpx import AsyncClient, ASGITransport
 from main import app
 from src.shared.dependencies import valid_active_user
 
-def fake_active_user():
-    return {"user_id": "test_user"}
-
+# 1. Dependency Override Fixture
 @pytest.fixture
 async def client():
-    app.dependency_overrides[valid_active_user] = fake_active_user
+    # Mock authentication to isolate API endpoint logic
+    app.dependency_overrides[valid_active_user] = lambda: {"user_id": "test_user"}
+    
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
+        
     app.dependency_overrides.clear()
 
 @pytest.mark.asyncio
-async def test_create_post_endpoint(client: AsyncClient):
+async def test_create_post_endpoint_success(client: AsyncClient):
+    # [Given] Valid request payload
     payload = {"title": "테스트 제목", "content": "테스트 내용"}
+    
+    # [When] Post request to endpoint
     response = await client.post("/posts", json=payload)
     
+    # [Then] Verify status code and exact schema envelope
     assert response.status_code == 201
+    res_data = response.json()
+    assert "id" in res_data
+    assert res_data["title"] == "테스트 제목"
+
+@pytest.mark.asyncio
+async def test_create_post_endpoint_validation_error(client: AsyncClient):
+    # [Given] Invalid empty title
+    payload = {"title": "", "content": "테스트 내용"}
+    
+    # [When] Post request
+    response = await client.post("/posts", json=payload)
+    
+    # [Then] Verify 422 Unprocessable Entity
+    assert response.status_code == 422
 ```
+- **준수 사항 (Do's & Don't's)**:
+  -  인증 및 인가 Depends 함수(`valid_active_user` 등)는 반드시 `app.dependency_overrides`를 활용하여 모킹해 우회하십시오. 테스트가 인증 처리 모듈 자체의 결함으로 블록되는 것을 방지합니다.
+
+#### 11) [BE-DOMAIN-SERVICE-TEST] Service/Usecase Unit Test
+- **목적**: 단일 책임을 지는 비즈니스 서비스([BE-DOMAIN-SERVICE])의 도메인 로직 및 데이터 정합성을 데이터베이스 트랜잭션 롤백과 연동하여 격리 단위 검증하는 테스트 양식입니다.
+- **물리 경로**: `apps/backend/tests/unit/services/test_{name}.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/backend/tests/unit/services/test_posts.py
+import pytest
+from unittest.mock import AsyncMock
+from sqlalchemy.ext.asyncio import AsyncSession
+from src.posts.service import CreatePostUsecase
+from src.posts.schemas import PostCreate
+
+@pytest.mark.asyncio
+async def test_create_post_saves_to_db():
+    # 1. Setup - Mock Database AsyncSession
+    mock_db = AsyncMock(spec=AsyncSession)
+    usecase = CreatePostUsecase(db=mock_db)
+    payload = PostCreate(title="테스트 제목", content="테스트 내용")
+    
+    # 2. Action - Execute usecase
+    result = await usecase.execute(payload, creator_id="test_user")
+    
+    # 3. Assertion - Verify business rules and database side effects
+    assert result.title == "테스트 제목"
+    assert result.content == "테스트 내용"
+    
+    # Ensure entity was added to session and flush was called
+    mock_db.add.assert_called_once()
+    mock_db.flush.assert_called_once()
+```
+- **준수 사항 (Do's & Don't's)**:
+  - 🛑 서비스 내에서 호출하는 다른 서비스 레이어나 유틸 클래스를 무분별하게 모킹하지 마십시오. 단위 테스트 범위 내에서 데이터베이스 입출력(`AsyncSession`) 외의 순수 연산은 실제 객체를 주입해야 정상적인 로직 오류를 잡아낼 수 있습니다.
+
 
 ---
 
@@ -1119,33 +1320,73 @@ def interpolate_missing_signals(signals: np.ndarray) -> np.ndarray:
     return signals
 ```
 
-#### 10) [AI-DOMAIN-TEST] Evals & Integration Test (pytest 기반 추론 검증)
-- **목적**: 모의 어댑터를 이용해 로컬 환경에서 추론 파이프라인 및 에이전트 상태 전이를 검증하는 테스트 코드입니다.
-- **물리 경로**: `apps/ai/tests/{domain}/test_{name}.py`
+#### 10) [AI-DOMAIN-ROUTER-TEST] Inbound Router Integration Test
+- **목적**: 추론 서버의 진입점 API 라우터([AI-DOMAIN-ROUTER])의 데이터 형식 수신 규격 및 분류 결과를 통합 검증하는 테스트 양식입니다.
+- **물리 경로**: `apps/ai/tests/integration/test_router.py`
 - **구조 예시 및 템플릿**:
 ```python
-# Path: apps/ai/tests/fetal_decel/test_inference.py
+# Path: apps/ai/tests/integration/test_router.py
 import pytest
-from unittest.mock import AsyncMock
-import numpy as np
-from src.fetal_decel.inference import InferenceUsecase # AI-DOMAIN-USECASE
-from src.fetal_decel.processor import FeatureExtractor # AI-DOMAIN-CORE
-from src.fetal_decel.types import PredictionRequest # AI-DOMAIN-TYPE
+from httpx import AsyncClient, ASGITransport
+from main import app
+
+@pytest.fixture
+async def client():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        yield ac
 
 @pytest.mark.asyncio
-async def test_inference_usecase_flow():
-    mock_gateway = AsyncMock()
-    mock_gateway.predict.return_value = np.array([[0.85]], dtype=np.float32)
+async def test_predict_endpoint_success(client: AsyncClient):
+    # [Given] Generic input payload matching PredictionRequest schema
+    payload = {
+        "data": [0.1, 0.2, 0.3]
+    }
     
-    extractor = FeatureExtractor()
-    usecase = InferenceUsecase(model_gateway=mock_gateway, extractor=extractor)
+    # [When] Post inference request
+    response = await client.post("/predict", json=payload)
     
-    request = PredictionRequest(data=[0.1, 0.2, 0.3])
-    response = await usecase.execute(request)
-    
-    assert response.result == "위험"
-    mock_gateway.predict.assert_called_once()
+    # [Then] Verify status code and classification result
+    assert response.status_code == 200
+    res_data = response.json()
+    assert "result" in res_data
 ```
+- **준수 사항 (Do's & Don't's)**:
+  -  엔드포인트 연동 테스트 시에는 가벼운 가상 입력 패킷(Synthetic dataset)을 모킹하거나 더미 데이터를 사용하여 모델 로드 오버헤드를 줄이십시오.
+
+#### 11) [AI-DOMAIN-CORE-TEST] Core Processor Unit Test
+- **목적**: 데이터 전/후처리를 관장하는 코어 프로세서([AI-DOMAIN-CORE])의 신호 처리 알고리즘, 특징 추출(Feature Engineering) 수치 연산을 모킹 없이 격리 검증하는 순수 단위 테스트 양식입니다.
+- **물리 경로**: `apps/ai/tests/unit/test_{name}.py`
+- **구조 예시 및 템플릿**:
+```python
+# Path: apps/ai/tests/unit/test_feature_engineering.py
+import pytest
+import numpy as np
+from src.fetal_decel.processor import FeatureExtractor
+
+def test_feature_extraction_correct_dimensions():
+    # 1. Setup - Instantiate pure processor
+    extractor = FeatureExtractor()
+    raw_data = [0.1, 0.2, 0.3]
+    
+    # 2. Action - Extract features
+    features = extractor.extract_features(raw_data)
+    
+    # 3. Assertion - Validate shape and exact mathematical outcome
+    assert isinstance(features, np.ndarray)
+    assert features.shape == (1, 3)
+    assert np.allclose(features, np.array([[0.1, 0.2, 0.3]], dtype=np.float32))
+
+def test_feature_extraction_empty_input_raises_value_error():
+    extractor = FeatureExtractor()
+    
+    # Assert negative/exception paths
+    with pytest.raises(ValueError, match="원시 데이터는 필수입니다."):
+        extractor.extract_features([])
+```
+- **준수 사항 (Do's & Don't's)**:
+  - 🛑 코어 프로세서는 입력에 따른 수학적 결과만 내보내는 순수 함수/클래스로 구성되므로, **테스트 내에서 어떠한 Mock 객체 사용도 엄격히 금지**합니다. 실제 Numpy Array를 가공하여 단언(Assert)해야 합니다.
+
 
 ---
 
