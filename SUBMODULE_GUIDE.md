@@ -145,6 +145,14 @@ python3 .agents/scripts/prepare-commit.py
 python3 .agents/scripts/self-heal.py
 ```
 
+### 11) BDD & TDD 개발 진행 현황판 (Progress Dashboard)
+프로젝트의 현재 활성 태스크(`task.md`), RTM 자가 채점 및 검증 파일 완성률, 그리고 Git 환경 상태를 실시간으로 모아 단일 대시보드 화면으로 보여줍니다.
+```bash
+python3 .agents/scripts/bdd-dashboard.py
+```
+*   **터미널 대시보드 출력**: 콘솔 터미널에 컬러 ASCII 형태로 진척 상황을 즉시 출력합니다.
+*   **IDE 실시간 마크다운 뷰어 지원**: 실행 시 부모 프로젝트의 `docs/BDD_DASHBOARD.md` 파일을 자동 생성 및 갱신하므로, 개발자분이 개발 도중 Split Preview로 띄워두고 진행도를 투명하게 실시간 트래킹할 수 있습니다.
+
 ---
 
 ## 5. 핵심 원칙 (Core Principles)

@@ -29,6 +29,7 @@
    - **테스트 감시**: 무한 실패 루프 및 비용 낭비를 예방하기 위해 테스트 구동 시 반드시 `.agents/scripts/test-runner-guard.py [명령어]` 형식(혹은 Makefile 타겟인 `make test`)을 통해서만 테스트를 실행하십시오.
 5. **자가 채점 및 커밋**: 완료 후 기술 매핑 문서의 자가 채점 진행 및 Status를 업데이트하고 변경 사항을 논리적 단위로 커밋합니다.
    - **자가 복구 & 채점**: 커밋 전 반드시 `.agents/scripts/self-heal.py`를 실행하여 린트 오류를 자동 치유하고, `.agents/scripts/rtm-evaluator.py`를 돌려 RTM 문서를 완료 상태로 최신화하십시오.
+   - **진행 대시보드 갱신**: 개발 진행 중이거나 마칠 때 언제든 `.agents/scripts/bdd-dashboard.py`를 실행하여 현재 진행도와 미완료 파일 링크들을 시각적으로 점검하십시오. (IDE에서 `docs/BDD_DASHBOARD.md` 화면 분할 미리보기 기능을 함께 띄워두면 편리합니다.)
    - **PR 생성 및 커밋**: 최종 커밋 전 `.agents/scripts/prepare-commit.py`를 돌려 권장 Conventional Commit 메시지와 PR 본문을 생성한 뒤 커밋을 제출하십시오.
 
 상세한 개발 지침과 코딩 컨벤션은 `.agents/skills/` 폴더 내의 Antigravity Skills로 정의되어 있습니다. 에이전트는 해당 태스크를 진행할 때 연관된 스킬을 자동으로 감지하고 로드하여 준수해야 합니다.
