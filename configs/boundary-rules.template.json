@@ -1,0 +1,28 @@
+{
+  "rules": [
+    {
+      "source": "apps/frontend/**",
+      "forbidden_imports": [
+        "apps/backend/**",
+        "database/**",
+        "server/**"
+      ],
+      "description": "Frontend components and pages must not import backend, database, or server code directly."
+    },
+    {
+      "source": "apps/backend/**",
+      "forbidden_imports": [
+        "apps/frontend/**"
+      ],
+      "description": "Backend code must not import frontend components or pages."
+    },
+    {
+      "source": "src/domain/**",
+      "forbidden_imports": [
+        "src/infrastructure/**",
+        "src/presentation/**"
+      ],
+      "description": "Domain layer must not depend on infrastructure or presentation details."
+    }
+  ]
+}

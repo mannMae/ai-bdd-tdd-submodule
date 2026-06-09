@@ -81,7 +81,7 @@ else
     echo "     설치한 뒤, 프로젝트 루트에서 'pre-commit install && pre-commit install --hook-type commit-msg'를 직접 실행해 주세요."
 fi
 
-# 4. AGENTS.md 및 PROJECT_MAP.md 기본 복사 (존재하지 않을 경우에만)
+# 4. AGENTS.md, PROJECT_MAP.md 및 boundary-rules.json 기본 복사 (존재하지 않을 경우에만)
 if [ ! -f "AGENTS.md" ]; then
     echo "초기 AGENTS.md 생성..."
     cp ".agents/AGENTS.sample.md" "AGENTS.md"
@@ -90,6 +90,11 @@ fi
 if [ ! -f "PROJECT_MAP.md" ]; then
     echo "초기 PROJECT_MAP.md 생성..."
     cp ".agents/PROJECT_MAP.sample.md" "PROJECT_MAP.md"
+fi
+
+if [ ! -f "boundary-rules.json" ]; then
+    echo "초기 boundary-rules.json 생성..."
+    cp ".agents/configs/boundary-rules.template.json" "boundary-rules.json"
 fi
 
 echo "--------------------------------------------------------"

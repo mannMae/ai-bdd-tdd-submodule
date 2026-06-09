@@ -40,6 +40,13 @@ repos:
         files: \.(py|ts|tsx|js|jsx)$
         pass_filenames: false
 
+      - id: check-boundaries
+        name: Architecture Boundary Guard
+        entry: python3 .agents/scripts/check-boundaries.py
+        language: system
+        files: \.(py|ts|tsx|js|jsx)$
+        pass_filenames: false
+
       - id: rtm-evaluator
         name: RTM Evaluator Check
         entry: python3 .agents/scripts/rtm-evaluator.py

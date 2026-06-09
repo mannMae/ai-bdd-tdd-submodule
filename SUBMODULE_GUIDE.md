@@ -153,6 +153,28 @@ python3 .agents/scripts/bdd-dashboard.py
 *   **터미널 대시보드 출력**: 콘솔 터미널에 컬러 ASCII 형태로 진척 상황을 즉시 출력합니다.
 *   **IDE 실시간 마크다운 뷰어 지원**: 실행 시 부모 프로젝트의 `docs/BDD_DASHBOARD.md` 파일을 자동 생성 및 갱신하므로, 개발자분이 개발 도중 Split Preview로 띄워두고 진행도를 투명하게 실시간 트래킹할 수 있습니다.
 
+### 12) 아키텍처 경계 검증기 (Architecture Boundary Guard)
+프로젝트 내 모듈 간 올바르지 않은 참조(예: 프론트엔드가 백엔드 모듈을 직접 import 하거나, 도메인 레이어가 인프라스트럭처 레이어를 import 하는 경우)를 감지하고 위반 사항을 에러로 차단합니다.
+```bash
+python3 .agents/scripts/check-boundaries.py
+```
+*   **설정 파일 (`boundary-rules.json`)**: 프로젝트 루트에 복사된 규칙 설정 파일을 수정하여 각 프로젝트에 특화된 아키텍처 경계를 자유롭게 정의할 수 있습니다.
+
+### 13) Model Context Protocol (MCP) 서버
+서브모듈의 모든 자동화 도구(대시보드 출력, 자가 치유, 경계 검사 등)를 AI 에이전트가 직접 호출 및 실행할 수 있도록 표준 도구(Tools)로 노출해 주는 Stdio 기반 초경량 MCP 서버입니다.
+```bash
+python3 .agents/scripts/mcp-server.py
+```
+*   **에이전트 IDE 환경(Claude Desktop 등) 연동 설정 예시**:
+    ```json
+    "mcpServers": {
+      "ai-bdd-tdd-tools": {
+        "command": "python3",
+        "args": [".agents/scripts/mcp-server.py"]
+      }
+    }
+    ```
+
 ---
 
 ## 5. 핵심 원칙 (Core Principles)
