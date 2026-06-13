@@ -38,7 +38,7 @@ def parse_rtm_files(project_root):
     if not os.path.exists(requirements_dir):
         return []
     
-    rtm_files = [f for f in os.listdir(requirements_dir) if f.startswith("rtm_") and f.endswith(".md")]
+    rtm_files = [f for f in os.listdir(requirements_dir) if (f.startswith("rtm_") or f.startswith("technical_rtm_")) and f.endswith(".md")]
     rtms = []
     
     for f_name in rtm_files:
@@ -52,7 +52,7 @@ def parse_rtm_files(project_root):
         
         # Parse Checklist Progress
         # Matches: [x] or [ ]
-        checkboxes = re.findall(r"-\s+\[([ xX/])\]", content)
+        checkboxes = re.findall(r"(?:-|\*)\s+\[([ xX/])\]", content)
         total_checks = len(checkboxes)
         completed_checks = sum(1 for c in checkboxes if c.lower() == 'x')
         in_progress_checks = sum(1 for c in checkboxes if c == '/')

@@ -2,44 +2,44 @@
 name: rtm-management
 description: Governs Technical Requirements Traceability Matrix (RTM) specification tables, column ordering rules, self-grading checklist, and validation gates.
 version: 1.0.0
-globs: "docs/requirements/rtm_*.md"
+globs: "docs/requirements/technical_rtm_*.md"
 alwaysApply: false
 ---
 
 # Technical RTM & Self-Grading Guidelines
 
-모든 프로젝트의 세부 기능 구현 정보와 규칙 준수 현황은 기능별 기술 매핑 문서(`rtm_{기능명}.md`)에서 관리하며, 다음의 원칙을 따릅니다. RTM 매핑 테이블은 단순한 기록서가 아니라 AI 에이전트의 **동작 구조와 품질을 제어하는 강력한 실행 계약서(Contract)**입니다.
+모든 프로젝트의 세부 기능 구현 정보와 규칙 준수 현황은 기능별 기술 RTM 문서(`technical_rtm_{기능명}.md`)에서 관리하며, 다음의 원칙을 따릅니다. RTM 매핑 테이블은 단순한 기록서가 아니라 AI 에이전트의 **동작 구조와 품질을 제어하는 강력한 실행 계약서(Contract)**입니다.
 
-## 1. 🛑 RTM 행-열 상호작용 계약 (Row-Column Contract)
-RTM 매핑 테이블은 **행(Row)의 시나리오**와 **열(Column)의 코드유형(Code Type ID)**의 엄격한 상호작용으로 구현을 제어합니다.
-1. **행 (Row): 시나리오 (Scenario) ➔ 구현 대상 콘텐츠 (Content)**
-   - 구현해야 하는 핵심 사용자 비즈니스 스펙을 나타냅니다.
-   - 각 시나리오는 통합 테스트와 단위 테스트로 검증될 기능적 범위(Scope)를 한정합니다.
-2. **열 (Column): 코드유형 (Code Type) ➔ 구현 양식 레퍼런스 (Reference)**
-   - 해당 파일이 준수해야 하는 **표준 코드 양식(Code Form/Boilerplate) 및 물리 경로**를 지정합니다.
-   - AI 에이전트는 셀 내에 지정된 파일을 구현할 때, 해당 컬럼 헤더가 가리키는 **코드 가이드라인 문서의 표준 코드 양식을 100% 복제(상속)하여 작성**해야 하며, 임의의 구조 편차를 적용하는 것을 엄격히 금지합니다.
+## 1. 🗺️ 설계 및 작성 원칙
+1. **아키텍처별 매핑 테이블 분리 및 디렉토리 단위 컬럼 매핑**: 시나리오별 기술 매핑은 프론트엔드(FE), 백엔드(BE), AI 모듈의 아키텍처별로 테이블을 분리하여 기재합니다. 각 테이블의 컬럼은 실제 프로젝트의 소스 코드가 저장되는 물리 디렉토리 단위를 그대로 반영하여 정의합니다.
+    - **테이블 내 파일 표기 규칙 (HTML Table 사용)**: 테이블의 가로/세로 부피를 최적화하고 공통 요소와 피처 전용 요소를 명확히 분리하기 위해, **HTML `<table border="1" style="border-collapse: collapse;">` 형식을 활용하여 모든 셀/헤더 간 구분선을 표시하고, 상단 헤더 행에서 공통(Common) 그룹과 피처(Feature) 그룹을 병합(`colspan`)하며, 컬럼별 기본 디렉토리 경로를 헤더 내부의 컬럼명 아래에 `<sub>경로</sub>` 형태로 선언**합니다. 테이블 셀 내의 모든 소스 코드 파일 경로는 마크다운 링크 형식을 사용하지 않고 텍스트로 표기하며, 해당 기본 경로 하위의 **순수 파일명**만 목록 형태로 기재합니다. 만약 기본 경로를 벗어나는 예외적인 소속 파일은 셀 내부에서 경로를 포함하여 기재하고, 파일의 구체적 동작에 대한 설명이나 괄호 안의 비고 문구 등은 일절 포함하지 않고 오직 **순수한 파일명 및 경로만 표기**하여 파일명 자체로 역할이 완전히 설명되도록 합니다.
+    - **프론트엔드(Frontend) 매핑 테이블 컬럼**:
+      - **공통 (Common) 그룹**:
+        - `components` (기본 경로: `src/components`): 공통 UI 컴포넌트 목록.
+        - `api/utils` (기본 경로: `src/common` 및 `src/utils`): 공통 API 클라이언트 및 공용 헬퍼 함수 목록.
+      - **피처 ({기능명}) 그룹**:
+        - `components` (기본 경로: `src/features/{기능명}/components`): 이 피처에서 쓰이는 전용 UI 컴포넌트 목록.
+        - `api` (기본 경로: `src/features/{기능명}/api`): 이 피처 전용 API 요청용 hook/client 목록.
+        - `store/utils` (기본 경로: `src/features/{기능명}`): 이 피처 전용 스토어 및 유틸리티 목록. (파일 표기 시 `store/useMonitorStore.ts`, `utils/storage.ts`와 같이 내부 디렉토리명을 포함하여 명시)
+    - **백엔드(Backend) 매핑 테이블 컬럼**:
+      - **공통 (Common) 그룹**:
+        - `middleware/db` (기본 경로: `src/common`): 공통 인증 미들웨어, 데이터베이스 커넥션 세션 관리 등의 공용 파일 목록.
+      - **피처 ({기능명}) 그룹**:
+        - `routers` (기본 경로: `src/{기능명}`): 백엔드 API 라우터/인터페이스 파일 목록.
+        - `services` (기본 경로: `src/{기능명}`): 비즈니스 로직 Usecase/Service 파일 목록.
+        - `models/deps` (기본 경로: `src/{기능명}`): 데이터 모델(models) 및 의존성 주입(dependencies) 관련 파일 목록.
+    - **AI 모듈(AI Module) 매핑 테이블 컬럼**:
+      - **공통 (Common) 그룹**:
+        - `base` (기본 경로: `src/common`): 공통 추론 base 클래스 및 유틸 목록.
+      - **피처 (Prediction) 그룹**:
+        - `routers` (기본 경로: `src/prediction`): AI 추론 엔드포인트 라우터 파일 목록.
+        - `models` (기본 경로: `models`): ML/DL 모델 가중치 파일 목록.
+        - `config` (기본 경로: `src/prediction`): 추론용 슬라이딩 윈도우 파라미터 및 필터 세팅 파일 목록.
+2. **표준 코드 양식의 단일 원천화 (Single Source of Truth)**: RTM 매핑 테이블 내 각 기술 요소(API, Store, Usecase 등)를 작성할 때 반드시 준수해야 하는 표준 코드 양식(Boilerplate)은 RTM 파일 내부가 아닌, 각 아키텍처별 개발 가이드레일 규칙 문서(`07-frontend-rules.md`, `08-backend-rules.md`, `09-ai-module-rules.md`의 [기술 RTM 대응 표준 코드 양식] 섹션) 또는 코드 폼 사전 문서(`skills/code-dictionary/SKILL.md`)에 선언하여 단일 원천으로 일관되게 관리합니다. RTM 가이드 영역에서는 해당 규칙의 표준 양식 섹션으로 직접 링크를 제공하여 AI 에이전트가 코딩 작업 시 자동으로 규칙을 로드하여 준수할 수 있게 설계합니다.
+3. **구체적 증거 기반 자가 채점**: 구현 완료 후, 코드가 개발 가이드레일 규칙을 준수했는지 스스로 채점(Pass/Fail)해야 하며, 대충 통과 표시를 하지 말고 증거가 되는 구체적인 코드 파일 경로 및 라인 링크를 반드시 제시해야 합니다. (자가 채점표 영역에서는 에디터에서 바로 열 수 있도록 실제 코드 파일 경로 및 라인 링크를 활용할 수 있습니다.)
+4. **검증 경로 일원화**: 문서 하단에 해당 시나리오를 검증하기 위한 거킨 파일, 테스트 파일, 구현 소스 코드 파일의 실제 경로 링크를 등록하여 검증 경로를 한눈에 볼 수 있게 일원화합니다.
 
----
-
-## 2. 설계 및 작성 원칙
-1. **아키텍처별 매핑 테이블 분리 및 동적 컬럼 최적화**: 시나리오별 기술 매핑은 프론트엔드(FE), 백엔드(BE), AI 모듈의 아키텍처별로 테이블을 분리하여 기재합니다. 이때 테이블 가로폭을 최적화하고 가독성을 높이기 위해 **모든 시나리오에서 단 하나의 파일(유닛)도 매핑되지 않은 빈 코드폼 컬럼은 테이블에서 완전히 제외(숨김)**합니다. 즉, 실제로 해당 기능 구현에 유닛이 존재하는 코드폼 컬럼들만 노출시킵니다.
-    - **컬럼 순서 규칙 (Order of Columns)**: 여러 개의 컬럼이 표시되는 경우, 임의로 나열하지 않고 **아래 정의된 기본 순서(스킬에 표기된 순서)**를 엄격히 준수하여 정렬합니다.
-    - **테이블 내 파일 표기 규칙 (HTML Table 사용)**: 테이블의 가로/세로 부피를 최적화하기 위해, **HTML `<table border="1" style="border-collapse: collapse;">` 형식을 활용하여 모든 셀/헤더 간 구분선을 표시하고, 헤더 행은 병합(Common/Feature)이나 경로 표시 없이 오직 코드폼 명칭만 선언**합니다.
-    - **코드폼 명칭(Code Form Name) 매핑**: 테이블 셀 내의 소스 코드 파일 경로는 마크다운 링크 형식을 사용하지 않고 텍스트(파일명)로 표기하며, **해당 파일이 어떤 코드폼 유형에 속하는지에 따라 알맞은 코드폼 컬럼(예: FE-PAGE, BE-DOMAIN-ROUTER)**에 배치합니다. 이때, 필수 컬럼에 들어가는 파일명 뒤에는 대괄호 유형 접미사(예: `[FE-SHARED-COMP]`, `[BE-DOMAIN-ROUTER]` 등)를 붙이지 않고 오직 순수 파일명만 기입합니다.
-    - **etc 컬럼 활용 및 유형 명칭 표기**: 필수 기입 컬럼에 명시적으로 정의되지 않은 파일은 **etc 컬럼**에 배치하며, 이 경우 파일명 뒤에 대괄호 형태로 코드폼 명칭을 반드시 접미사로 기재합니다 (예: `• provider.tsx [FE-PROVIDER]`, `• database.py [BE-DATABASE]`, `• config.py [BE-CONFIG]`, `• bootstrap.py [AI-BOOTSTRAP]`, `• prompts.py [AI-DOMAIN-PROMPT]`).
-    - **프론트엔드(Frontend) 매핑 테이블 기본 컬럼 순서**:
-      - `FE-PAGE` ➔ `FE-FEATURE-COMP` ➔ `FE-SHARED-COMP` ➔ `FE-FEATURE-QUERY` ➔ `FE-SHARED-QUERY` ➔ `FE-FEATURE-MUTATION` ➔ `FE-SHARED-MUTATION` ➔ `FE-FEATURE-STORE` ➔ `FE-SHARED-STORE` ➔ `FE-FEATURE-HOOK` ➔ `FE-SHARED-HOOK` ➔ `FE-FEATURE-UTIL` ➔ `FE-SHARED-UTIL` ➔ `FE-FEATURE-TYPE` ➔ `FE-SHARED-TYPE` ➔ `etc` 순으로 정렬합니다. (App Provider, App Router, Form Container Wrapper 등 프로젝트 전역/공통 컴포넌트는 매핑 테이블 컬럼에서 제외합니다.)
-    - **백엔드(Backend) 매핑 테이블 기본 컬럼 순서**:
-      - `BE-DOMAIN-ROUTER` ➔ `BE-DOMAIN-SERVICE` ➔ `BE-DOMAIN-VO` ➔ `BE-DOMAIN-MODEL` ➔ `BE-SHARED-MODEL` ➔ `BE-DOMAIN-DEPENDENCY` ➔ `BE-SHARED-DEPENDENCY` ➔ `BE-DOMAIN-SCHEMA` ➔ `BE-SHARED-SCHEMA` ➔ `BE-DOMAIN-CLIENT` ➔ `BE-SHARED-CLIENT` ➔ `BE-DOMAIN-EXCEPTION` ➔ `BE-SHARED-EXCEPTION` ➔ `BE-DOMAIN-UTIL` ➔ `BE-SHARED-UTIL` ➔ `BE-DOMAIN-TEST` ➔ `etc` 순으로 정렬합니다. (Database Session Manager 등 프로젝트 전역/단일 생성 파일은 매핑 테이블 컬럼에서 제외합니다.)
-    - **AI 모듈(AI Module) 매핑 테이블 기본 컬럼 순서**:
-      - `AI-DOMAIN-ROUTER` ➔ `AI-DOMAIN-USECASE` ➔ `AI-DOMAIN-WORKFLOW` ➔ `AI-DOMAIN-CORE` ➔ `AI-DOMAIN-ADAPTER` ➔ `AI-SHARED-ADAPTER` ➔ `AI-DOMAIN-PROMPT` ➔ `AI-SHARED-PROMPT` ➔ `AI-DOMAIN-TYPE` ➔ `AI-SHARED-TYPE` ➔ `AI-DOMAIN-EXCEPTION` ➔ `AI-SHARED-EXCEPTION` ➔ `AI-DOMAIN-UTIL` ➔ `AI-SHARED-UTIL` ➔ `AI-DOMAIN-TEST` ➔ `etc` 순으로 정렬합니다. (Bootstrap & DI Container 등 프로젝트 전역/단일 생성 파일은 매핑 테이블 컬럼에서 제외합니다.)
-2. **표준 코드 양식의 단일 원천화 (Single Source of Truth)**: RTM 매핑 테이블 내 각 기술 요소(API, Store, Usecase 등)를 작성할 때 반드시 준수해야 하는 표준 코드 양식(Boilerplate)은 RTM 파일 내부가 아닌, **코드 폼 사전 스킬(`skills/code-dictionary/SKILL.md`)**에 선언하여 단일 원천으로 일관되게 관리합니다. RTM 가이드 영역에서는 코드 폼 사전으로의 직접 링크를 제공하여 AI 에이전트가 코딩 작업 시 자동으로 규칙을 로드하여 준수할 수 있게 설계합니다.
-3. **구체적 증거 기반 자가 채점**: 구현 완료 후, 코드가 지정된 코드 폼 사전을 준수했는지 스스로 채점(Pass/Fail)해야 하며, 대충 통과 표시를 하지 말고 증거가 되는 구체적인 코드 파일 경로 및 라인 링크를 반드시 제시해야 합니다. (자가 채점표 영역에서는 에디터에서 바로 열 수 있도록 실제 코드 파일 경로 및 라인 링크를 활용할 수 있습니다.)
-4. **검증 경로 일원화**: 문서 하단에 해당 시나리오를 검증하기 위한 거킨 파일, 테스트 파일, 구현 소스 코드 파일의 실제 경로 링크를 등록하여 검증 경로 한눈에 볼 수 있게 일원화합니다.
-
----
-
-## 3. 운영 및 검증 규칙 (중요)
+## 2. 🛡️ 운영 및 검증 규칙 (중요)
 1. **구현 완료 시 행 업데이트**: 각 기능(시나리오)의 구현 및 테스트 통과가 완료되면, 에이전트는 즉시 해당 시나리오 행(Row)의 상태를 업데이트하고 자가 채점표를 채워야 합니다.
-2. **아키텍처 변경 시 전수 조사 및 동기화**: 글로벌 아키텍처나 코어 인프라 규칙이 업데이트/변경되면, 에이전트는 작성된 모든 `rtm_*.md` 문서를 전수 조사하여 새로운 아키텍처의 적용 필요 여부를 식별하고, 해당되는 매핑 정보와 자가 채점표를 즉시 최신화해야 합니다.
+2. **아키텍처 변경 시 전수 조사 및 동기화**: 글로벌 아키텍처나 코어 인프라 규칙이 업데이트/변경되면, 에이전트는 작성된 모든 `technical_rtm_*.md` 문서를 전수 조사하여 새로운 아키텍처의 적용 필요 여부를 식별하고, 해당되는 매핑 정보와 자가 채점표를 즉시 최신화해야 합니다.
 3. **셀(Cell) 단위 테스트 검증**: 매트릭스 표에 명시된 프론트 컴포넌트, 백엔드 API, 아키텍처 등의 각 셀 단위 기술 요소들은 반드시 독립적으로 검증될 수 있는 단위 테스트(Unit Test) 혹은 통합 테스트 코드가 동반되어야 하며, 단위 테스트 파일 상단에는 **반드시 `적용 코드 폼 (Code Form)` 필드가 명시**되어 있어야 합니다.

@@ -37,7 +37,7 @@ def get_rtm_checklist(project_root):
     req_dir = os.path.join(project_root, "docs", "requirements")
     if os.path.exists(req_dir):
         for file in os.listdir(req_dir):
-            if file.startswith("rtm_") and file.endswith(".md"):
+            if (file.startswith("rtm_") or file.startswith("technical_rtm_")) and file.endswith(".md"):
                 path = os.path.join(req_dir, file)
                 try:
                     with open(path, 'r', encoding='utf-8') as f:

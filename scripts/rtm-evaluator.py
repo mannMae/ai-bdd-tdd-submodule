@@ -107,7 +107,7 @@ def main():
         print(f"Error: Requirements directory not found at {requirements_dir}", file=sys.stderr)
         sys.exit(1)
         
-    rtm_files = [os.path.join(requirements_dir, f) for f in os.listdir(requirements_dir) if f.startswith("rtm_") and f.endswith(".md")]
+    rtm_files = [os.path.join(requirements_dir, f) for f in os.listdir(requirements_dir) if (f.startswith("rtm_") or f.startswith("technical_rtm_")) and f.endswith(".md")]
     
     if not rtm_files:
         print("No RTM files found to evaluate.")
